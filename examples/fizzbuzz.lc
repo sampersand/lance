@@ -1,0 +1,39 @@
+fn fizzbuzz(n: num): num {
+	let i: num = 1;
+	let array: [str] = [];
+
+	while (i <= n) {
+		let div3: bool = (i % 3) == 0;
+		let div5: bool = (i % 5) == 0;
+
+		if (div3 & div5) {
+			do insert(array, length(array), "FizzBuzz");
+		} else if (div3) {
+			do insert(array, length(array), "Fizz");
+		} else if (div5) {
+			do insert(array, length(array), "Buzz");
+		} else {
+			do insert(array, length(array), itoa(i));
+		}
+
+		set i = i + 1;
+	}
+
+	return array;
+}
+
+fn main(argv: [str]): num {
+	let result: [str];
+
+	if (length(argv) == 2) {
+		set result = fizzbuzz(atoi(argv[1]));
+	} else {
+		set result = fizzbuzz(100);
+	}
+
+	let i: num = 0;
+	while (i != length(result)) {
+		do print(result[i] + "\n");
+		set i = i + 1;
+	}
+}

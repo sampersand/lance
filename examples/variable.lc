@@ -1,0 +1,40 @@
+struct Variable {
+	name: str,
+	value: any,
+	assigned: bool
+}
+
+global variables: [Variable];
+fn init_variables(): void {
+	set variables = [];
+}
+
+fn get_variable(name: str): Variable {
+	let i: num = 0;
+
+	while (i < length(variables)) {
+		if (variables[i].name == name) {
+			return variables[i];
+		}
+
+		set i = i + 1;
+	}
+
+	set variables[i] = Variable { name: name, value: null, assigned: false };
+	return variables[i];
+}
+
+fn run_variable(var: Variable): any {
+	if (var.assigned) {
+		return var.value;
+	}
+	do die("unassigned variable '" + var.name + "'!");
+}
+
+fn assign_variable(var: Variable, value: any): void {
+	set var.value = value;
+	set var.assigned = true;
+}
+
+
+

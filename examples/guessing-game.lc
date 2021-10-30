@@ -1,0 +1,40 @@
+import "foo";
+global secret: [str];
+struct foo {
+	bar: num,
+	foo: num
+}
+struct bar {}
+
+fn guess(a: num): bool {
+	do print("> "); /* should flush stdout */
+	let guess: num = atoi(prompt());
+
+	if (guess < secret) {
+		do print("Too small!\n");
+	} else if (guess > secret) {
+		do print("Too large!\n");
+	}
+
+	return guess == secret;
+}
+
+fn main(argv: [str]): num {
+	let max = 100;
+
+	if (length(argv) != 1) {
+		set max = atoi(argv[1]);
+	}
+	set secret = random() % max;
+
+	do print("Guessing game! Guess from 1-" + itoa(max) + "\n");
+
+	let guesses = 0;
+
+	while (!guess()) {
+		set guesses = guesses + 1;
+	}
+
+	do print("It took you " + itoa(guesses) + " guesses!\n");
+	do dump(secret);
+}
