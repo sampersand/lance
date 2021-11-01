@@ -12,5 +12,9 @@ class Statement
       parser.endline err: 'missing endline for `do`'
       new value
     end
+
+    def compile(fn)
+      @expr.compile fn
+    end
   end
 end

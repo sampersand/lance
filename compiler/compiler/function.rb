@@ -29,13 +29,14 @@ class Compiler
 
     attr_reader :name, :args, :return_type
 
-    def initialize(name, args, return_type, globals:)
+    def initialize(name, args, return_type, compiler:)
       @name = name
       @return_type = return_type || Type::Primitive::Void
-      @local_variables = {}
       @locals = 0
+      @local_variables = {}
       @args = args.map { |name, type| define_variable name, type }
-      @globals = globals
+      @compiler = compiler
+
       @lines = []
     end
 
@@ -50,7 +51,7 @@ class Compiler
     end
 
     def lookup(name)
-      @local_variables[name] || @globals[name] or raise "unknown variable '#{name}' for '#{function}'"
+      @local_variables[name] || compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
     end
 
     def llvm_name
@@ -63,7 +64,7 @@ class Compiler
       end
 
       if local
-        line = "#{local} = line"
+        line = "#{local} = #{line}"
       end
 
       @lines.push line

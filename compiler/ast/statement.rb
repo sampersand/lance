@@ -23,7 +23,7 @@ class Statements
 
   def self.parse(parser)
     parser.surround '{', '}' do
-      new parser.repeat { parse(parser) }
+      new parser.repeat { Statement.parse parser }
     end
   end
 

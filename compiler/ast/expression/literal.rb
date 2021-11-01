@@ -18,5 +18,11 @@ class Expression
         new [first] + parser.repeat { parser.guard ',' and Expression.parse(parser) }
       end
     end
+
+    def compile(fn)
+      # case @value
+      fail
+      # when 
+    end
   end
 end

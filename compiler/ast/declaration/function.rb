@@ -4,12 +4,12 @@ require_relative '../../compiler/function'
 
 class Declaration
   class Function < Declaration
-    attr_reader :name, :args, :ret_type, :body
+    attr_reader :name, :args, :return_type, :body
 
-    def initialize(name, args, ret_type, body)
+    def initialize(name, args, return_type, body)
       @name = name
       @args = args
-      @ret_type = ret_type
+      @return_type = return_type
       @body = body
     end
 
@@ -26,14 +26,23 @@ class Declaration
         [arg_name, arg_type]
       end
 
-      ret_type = TypeDecl.parse parser
+      return_type = TypeDecl.parse parser
       body = Statements.parse(parser) or parser.error "missing body for fn #{fn_name}"
 
-      new fn_name, args, ret_type, body
+      new fn_name, args, return_type, body
     end
 
-    # def compile(compiler)
-    #   fn = compiler.next_function @name, @args, @ret_type
-    #   @body
+    def compile(compiler)
+      fn =
+        Compiler::Function.new(
+          name,
+          args.map { |name, type| [name, type.to_type(compiler)] },
+          return_type&.to_type(compiler),
+          compiler: compiler
+        )
+      compiler.declare_global fn.name, fn
+
+      body.compile fn
+    end
   end
 end

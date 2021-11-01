@@ -25,7 +25,7 @@ class Statement
       var = fn.define_variable @name, @type
 
       if @value
-        fn.write @value, local: var.local
+        fn.write @value.compile(fn, type: type), local: var.local
       else
         # do we want to have an initial value?
       end

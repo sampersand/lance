@@ -18,7 +18,7 @@ class Compiler
         'bool' => (Bool = new 'bool'),
       }
 
-      def to_s
+      def to_llvm(_fn)
         @name
       end
 
