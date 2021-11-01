@@ -10,6 +10,17 @@ class Parser
     @peeked ||= @lexer.next
   end
 
+  def peek?(val)
+    p = peek
+
+    if guard val
+      @peeked = p
+      true
+    else
+      false
+    end
+  end
+
   def take
     peek.tap { @peeked = nil }
   end
@@ -75,14 +86,18 @@ class Parser
   end
 end
 ps = Parser.new Lexer.new <<-EOS
-struct a {
+fn add(a: num, b: num): num {
+  return a[1].b(3,4);
+}
+
+/*struct a {
   f: str,
   b: [any],
   c: fn([fn([fn():str]): [str]])
-}
+}*/
 EOS
-require_relative 'ast/struct'
-pp Ast::Struct.parse ps rescue (puts "#$!"; exit)
+require_relative 'ast/declaration'
+pp Declaration.parse ps #rescue (puts "#$!"; exit)
 pp ps.peek
 __END__
   # # program := { <declaration> }

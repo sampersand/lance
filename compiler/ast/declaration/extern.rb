@@ -1,7 +1,7 @@
-require_relative 'typedecl'
+require_relative '../typedecl'
 
-module Ast
-  class Extern
+class Declaration
+  class Extern < Declaration
     attr_reader :name, :type
 
     def initialize(name, type)
@@ -13,7 +13,7 @@ module Ast
     def self.parse(parser)
       parser.guard 'extern' or return
       name = parser.identifier err: 'missing name for extern'
-      type = Ast::TypeDecl.parse(parser) or parser.error "missing kind for extern '#{name}'"
+      type = TypeDecl.parse(parser) or parser.error "missing kind for extern '#{name}'"
       parser.endline 
 
       new name, type

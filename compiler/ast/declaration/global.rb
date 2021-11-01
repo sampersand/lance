@@ -1,7 +1,7 @@
-require_relative 'typedecl'
+require_relative '../typedecl'
 
-module Ast
-  class Global
+class Declaration
+  class Global < Declaration
     attr_reader :name, :type
 
     def initialize(name, type)
@@ -13,7 +13,7 @@ module Ast
     def self.parse(parser)
       parser.guard 'global' or return
       name = parser.identifier err: 'missing name for global'
-      type = Ast::TypeDecl.parse(parser) or parser.error "missing kind for global '#{name}'"
+      type = TypeDecl.parse(parser) or parser.error "missing kind for global '#{name}'"
       parser.endline 
 
       new name, type

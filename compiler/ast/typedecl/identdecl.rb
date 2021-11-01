@@ -1,18 +1,16 @@
-module Ast
-  class TypeDecl
-    class IdentDecl < TypeDecl
-      attr_reader :type
+class TypeDecl
+  class IdentDecl < TypeDecl
+    attr_reader :type
 
-      def initialize(type)
-        @type = type
-      end
+    def initialize(type)
+      @type = type
+    end
 
-      # typedecl-ident := <identifier>
-      def self.parse(parser)
-        type = parser.guard(:identifier) or return
+    # typedecl-ident := <identifier>
+    def self.parse(parser)
+      type = parser.guard(:identifier) or return
 
-        new type
-      end
+      new type
     end
   end
 end

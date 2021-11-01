@@ -1,7 +1,7 @@
-require_relative 'typedecl'
+require_relative '../typedecl'
 
-module Ast
-  class Struct
+class Declaration
+  class Struct < Declaration
     attr_reader :name, :fields
 
     def initialize(name, fields)
@@ -18,7 +18,7 @@ module Ast
 
       fields = parser.delineated delim: ',', end: '}' do
         field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
-        field_type = Ast::TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
+        field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
         [field_name, field_type]
       end
 
