@@ -16,10 +16,26 @@ class Compiler
         'num' => (Num = new 'num'),
         'str' => (Str = new 'str'),
         'bool' => (Bool = new 'bool'),
+        'any' => (Any = new 'any'),
       }
 
-      def to_llvm(_fn)
-        @name
+      def llvm_type(_llvm)
+        case @name
+        when 'void' then 'void'
+        when 'num' then '%num'
+        when 'bool' then '%bool'
+        when 'str' then '%struct.builtin.str'
+        when 'any' then '%struct.builtin.any'
+        else raise "bad type: #@name (?)"
+        end
+      end
+
+      def default(_llvm)
+        case @name
+        when 'num', 'bool' then '0'
+        when 'str', 'any' then '{ i8* null, i64 0 }'
+        else raise "bad type for default: #{name}"
+        end
       end
 
       def inspect
@@ -46,6 +62,14 @@ class Compiler
 
       def inspect
         "Type::Array(#{@inner.inspect})"
+      end
+
+      def llvm_type(llvm)
+        llvm.array_type inner
+      end
+
+      def default(llvm)
+        "{ #{inner.llvm_type llvm}* null, i64 0, i64 0 }"
       end
     end
 
@@ -74,6 +98,14 @@ class Compiler
       def inspect
         "Type::Struct(#{@name.inspect}, #{@fields.inspect})"
       end
+
+      def llvm_type(llvm)
+        llvm.struct_type name, fields.values
+      end
+
+      def default(llvm)
+        "{ #{@fields.values.map {|v| "#{v.llvm_type llvm} #{v.default llvm}" }.join ', ' } }"
+      end
     end
 
     class Function < Type
@@ -81,7 +113,7 @@ class Compiler
 
       def initialize(args, return_type)
         @args = args
-        @return_type = return_type
+        @return_type = return_type || Primitive::Void
       end
 
       def hash
@@ -89,13 +121,21 @@ class Compiler
       end
 
       def ==(rhs)
-        rhs.is_a?(Function) && args == rhs.args && fields == rhs.fields
+        rhs.is_a?(Function) && args == rhs.args && return_type == rhs.return_type
       end
 
       alias eql? ==
 
       def inspect
         "Type::Function(#{@args.inspect}, #{@return_type.inspect})"
+      end
+
+      def llvm_type(llvm)
+        "#{return_type.llvm_type llvm} (#{args.map{|a| a.llvm_type llvm}.join ', '})*"
+      end
+
+      def default(_llvm)
+        "null"
       end
     end
   end

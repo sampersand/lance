@@ -20,7 +20,7 @@ class Statement
 
       if @expr
         index = @expr.compile type: return_type
-        fn.write_line "ret #{return_type.to_llvm fn} #{index}"
+        fn.write_line "ret #{return_type.to_llvm(fn)} #{index}"
       elsif return_type != Compiler::Type::Primitive::Void
         raise "nothing returned, but return type for '#{fn.name}' is #{return_type.inspect}"
       end

@@ -1,5 +1,6 @@
 require_relative 'compiler/function'
-require 'set'
+require_relative 'compiler/llvm'
+
 class Compiler
   def initialize
     @functions = Hash.new {|h,k| h[k] = Function.new k}
@@ -57,4 +58,31 @@ class Compiler
   def lookup_type(name)
     Type::Primitive.lookup(name) || @types[name] or raise "unknown type name #{name.inspect}"
   end
+
+  def to_llvm(**kw)
+    llvm = LLVM.new(**kw)
+
+    @types.each do |_name, type|
+      type.llvm_type llvm
+    end
+
+    @globals.each do |name, type|
+      llvm.declare_global name, type
+    end
+
+    @externs.each do |name, type|
+      llvm.declare_extern name, type
+    end
+
+    llvm.to_s
+    # prelude + "\n\n" + @functions.values.map { |v| v.to_llvm }.join("\n\n")
+  end
 end
+
+
+
+
+
+
+
+

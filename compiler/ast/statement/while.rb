@@ -17,5 +17,9 @@ class Statement
     end
 
     def compile(parser)
+      raise
+    end
+    # when 'jmp' then write "br label %.#{current_function.label value}"
+
   end
 end

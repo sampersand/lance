@@ -25,7 +25,7 @@ class TypeDecl
     end
 
     def to_type(compiler)
-      @type ||= Compiler::Type::Function.new @args.map { |a| a.to_type compiler }, @ret_type.to_type(compiler)
+      @type ||= Compiler::Type::Function.new @args.map { |a| a.to_type compiler }, @ret_type&.to_type(compiler)
     end
   end
 end
