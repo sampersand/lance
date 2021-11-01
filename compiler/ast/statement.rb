@@ -14,10 +14,22 @@ class Statement
       Set.parse(parser) ||
       Do.parse(parser)
   end
+end
 
-  def self.parse_statements(parser)
+class Statements
+  def initialize(lines)
+    @lines = lines
+  end
+
+  def self.parse(parser)
     parser.surround '{', '}' do
-      parser.repeat { parse(parser) }
+      new parser.repeat { parse(parser) }
+    end
+  end
+
+  def compile(fn)
+    @lines.each do |line|
+      line.compile fn
     end
   end
 end

@@ -1,4 +1,4 @@
-require_relative 'identdecl'
+require_relative '../../compiler/type'
 
 class TypeDecl
   class FnDecl < TypeDecl
@@ -20,8 +20,12 @@ class TypeDecl
           TypeDecl.parse parser, ignore_colon: true or parser.error 'invalid type found in fnkind decl'
         end
 
-      ret_type = TypeDecl.parse(parser) || TypeDecl::VOID
+      ret_type = TypeDecl.parse parser
       new args, ret_type
+    end
+
+    def to_type(compiler)
+      @type ||= Compiler::Type::Function.new @args.map { |a| a.to_type compiler }, @ret_type.to_type(compiler)
     end
   end
 end

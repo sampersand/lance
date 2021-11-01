@@ -1,5 +1,6 @@
 require_relative '../typedecl'
 require_relative '../statement'
+require_relative '../../compiler/function'
 
 class Declaration
   class Function < Declaration
@@ -25,10 +26,14 @@ class Declaration
         [arg_name, arg_type]
       end
 
-      ret_type = TypeDecl.parse(parser) || TypeDecl::VOID
-      body = Statement.parse_statements(parser) or parser.error "missing body for fn #{fn_name}"
+      ret_type = TypeDecl.parse parser
+      body = Statements.parse(parser) or parser.error "missing body for fn #{fn_name}"
 
       new fn_name, args, ret_type, body
     end
+
+    # def compile(compiler)
+    #   fn = compiler.next_function @name, @args, @ret_type
+    #   @body
   end
 end

@@ -20,5 +20,15 @@ class Statement
 
       new name, type, value
     end
+
+    def compile(fn)
+      var = fn.define_variable @name, @type
+
+      if @value
+        fn.write @value, local: var.local
+      else
+        # do we want to have an initial value?
+      end
+    end
   end
 end

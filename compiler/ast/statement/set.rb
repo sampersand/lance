@@ -2,26 +2,22 @@ require_relative '../expression'
 
 class Statement
   class Set
-    def initialize(name, type, value)
-      @name = name
-      @type = type
+    def initialize(prelude, value)
+      @prelude = prelude
       @value = value
     end
 
     def self.parse(parser)
       parser.guard 'set' or return
+      prelude = Primary.parse(parser) or parser.error 'missing value to `set` to.'
+      # todo: make sure `prelude` is the correct types
 
-      raise 'todo: set (eg `.`)'
-      # name = parser.identifier err: 'missing variable for `set` statement'
-      # if parser.guard
-      # type = TypeDecl.parse parser # can be nil for implicit type
-
-      # parser.expect '=', err: 'missing `=` in `set` statement'
-      # value = Expression.parse parser # can be nil for predeclaring values.
-
+      # note: no type, because type should already be known.
+      parser.expect '=', err: 'expecting `=` in `set` statement'
+      value = Expression.parse(parser) or parser.error 'missing rhs of `set` statement'
       parser.endline err: 'missing endline for `set`'
 
-      new name, type, value
+      new prelude, value
     end
   end
 end

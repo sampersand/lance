@@ -1,4 +1,5 @@
 require_relative '../typedecl'
+require_relative '../../compiler/type'
 
 class Declaration
   class Struct < Declaration
@@ -20,9 +21,17 @@ class Declaration
         field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
         field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
         [field_name, field_type]
-      end
+      end.to_h
 
       new struct_name, fields
+    end
+
+    def to_type(compiler)
+      @type ||= Compiler::Type::Struct.new name, @fields.transform_values { |v| v.to_type compiler }
+    end
+
+    def compile(compiler)
+      compiler.declare_type to_type compiler
     end
   end
 end

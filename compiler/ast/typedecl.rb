@@ -14,6 +14,4 @@ class TypeDecl
       FnDecl.parse(parser) ||
       parser.error('missing kind after `:`')
   end
-
-  VOID = IdentDecl.new 'void'
 end
