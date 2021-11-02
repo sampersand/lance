@@ -2,9 +2,20 @@ require_relative 'parser'
 require_relative 'compiler'
 
 ps = Parser.new Lexer.new <<~EOS
+struct foo {
+  name: str,
+  age: num
+}
+
 fn main(argv: [str]): num {
-  let x: num = 3;
-  /*do [1-4, 2, 3]; /* blank statement */
+  let x: num;
+  let y: num = 5;
+  let z: foo;
+  return y - x;
+}
+EOS
+=begin
+  do [1-4, 2, 3]; /* blank statement */
   /*do [true, false, true, true];*/
   return 4;
 }
@@ -54,8 +65,9 @@ fn yup(): [[str]] {
 
 compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
 
+$compiler = compiler
 ps.parse_program.each do |decl|
-  decl.compile compiler
+  decl.compile
 end
 
 puts compiler.to_llvm

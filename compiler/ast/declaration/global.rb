@@ -19,8 +19,8 @@ class Declaration
       new name, type
     end
 
-    def compile(compiler)
-      compiler.declare_global name, type.to_type(compiler)
+    def compile
+      $compiler.declare_global name, type.llvm_type
     end
   end
 end

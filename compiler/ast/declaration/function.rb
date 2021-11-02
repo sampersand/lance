@@ -32,13 +32,12 @@ class Declaration
       new fn_name, args, return_type, body
     end
 
-    def compile(compiler)
-      compiler.declare_function Compiler::Function.new(
+    def compile
+      $compiler.declare_function Compiler::Function.new(
         name,
-        args.map { |name, type| [name, type.to_type(compiler)] },
-        return_type&.to_type(compiler),
+        args.map { |name, type| [name, type.llvm_type] },
+        return_type&.llvm_type,
         body,
-        compiler
       )
     end
   end

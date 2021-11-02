@@ -13,12 +13,8 @@ class TypeDecl
       new name
     end
 
-    def to_type(compiler)
-      compiler.lookup_type name
-    end
-
-    def llvm_type(llvm)
-      to_type $_compiler
+    def llvm_type
+      $compiler.lookup_type name
     end
   end
 end

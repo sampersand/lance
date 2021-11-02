@@ -1,7 +1,11 @@
 class Compiler
   class Type
-    def llvm_type(_llvm)
+    def llvm_type
       self
+    end
+
+    def align
+      8
     end
 
     class Primitive < Type
@@ -23,7 +27,7 @@ class Compiler
         'any' => (Any = new 'any'),
       }
 
-      def to_llvm_s(_llvm)
+      def to_s
         case @name
         when 'void' then 'void'
         when 'num' then '%num'
@@ -34,12 +38,16 @@ class Compiler
         end
       end
 
-      def default(_llvm)
+      def default
         case @name
         when 'num', 'bool' then '0'
         when 'str', 'any' then 'null' # { i8* null, i64 0 }'
         else raise "bad type for default: #{name}"
         end
+      end
+
+      def align
+        byte_length
       end
 
       def byte_length
@@ -73,12 +81,12 @@ class Compiler
         "Type::List(#{@inner.inspect})"
       end
 
-      def to_llvm_s(llvm)
+      def to_s
         '%struct.builtin.list*'
       end
 
-      def default(llvm)
-        'null' # "{ #{inner.to_llvm_s llvm}* null, i64 0, i64 0 }"
+      def default
+        'null'
       end
 
       def byte_length
@@ -112,13 +120,12 @@ class Compiler
         "Type::Struct(#{@name.inspect}, #{@fields.inspect})"
       end
 
-      def to_llvm_s(llvm)
-        llvm.struct_type name, fields.values
+      def to_s
+        $llvm.struct_type name, fields.values
       end
 
-      def default(llvm)
+      def default
         'null'
-        #"{ #{@fields.values.map {|v| "#{v.to_llvm_s llvm} #{v.default llvm}" }.join ', ' } }"
       end
 
       def byte_length
@@ -148,11 +155,11 @@ class Compiler
         "Type::Function(#{@args.inspect}, #{@return_type.inspect})"
       end
 
-      def to_llvm_s(llvm)
-        "#{return_type.to_llvm_s llvm} (#{args.map{|a| a.to_llvm_s llvm}.join ', '})*"
+      def to_s
+        "#{return_type} (#{args.join ', '})*"
       end
 
-      def default(_llvm)
+      def default
         "null"
       end
 

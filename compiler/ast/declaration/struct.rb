@@ -26,12 +26,12 @@ class Declaration
       new struct_name, fields
     end
 
-    def to_type(compiler)
-      @type ||= Compiler::Type::Struct.new name, @fields.transform_values { |v| v.to_type compiler }
+    def llvm_type
+      @type ||= Compiler::Type::Struct.new name, @fields
     end
 
-    def compile(compiler)
-      compiler.declare_type to_type compiler
+    def compile
+      $compiler.declare_type llvm_type
     end
   end
 end

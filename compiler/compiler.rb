@@ -35,6 +35,7 @@ class Compiler
   end
 
   def lookup_global(name)
+    name = name.to_s
     raise "todo: lookup global (and just usingthen in general idk)"
   end
 
@@ -67,10 +68,11 @@ class Compiler
   end
 
   def to_llvm
-    $_compiler = self
+    $compiler = self
+    $llvm = @llvm
 
     @types.each do |_name, type|
-      type.to_llvm_s @llvm
+      type.to_s
     end
 
     @globals.each do |name, type|
@@ -82,7 +84,7 @@ class Compiler
     end
 
     @functions.each do |_name, fn|
-      fn.compile llvm
+      fn.compile
     end
 
     @llvm.final_string

@@ -19,69 +19,72 @@ class Expression
       end
     end
 
-    def compile_literal(fn, type, value, align)
-      local = fn.write :new, "alloca #{type}, align #{align}"
-      fn.write "store #{type} #{value}, #{type}* #{local}, align #{align}"
-      fn.write :new, "load #{type}, #{type}* #{local}, align #{align}"
+    def compile_literal(type, value, align)
+      local = $fn.write :new, "alloca #{type}, align #{align}"
+      $fn.write "store #{type} #{value}, #{type}* #{local}, align #{align}"
+      $fn.write :new, "load #{type}, #{type}* #{local}, align #{align}"
     end
 
-    def llvm_type(*args)
-      case @value
-      when Integer then Compiler::Type::Primitive::Num
-      when :true, :false then Compiler::Type::Primitive::Bool
-      when String then Compiler::Type::Primitive::Str
-      when Array
-        return Compiler::Type::List.new :empty if @value.empty?
-        inner = @value.first.llvm_type(*args)
+    def llvm_type
+      @llvm_type ||= 
+        case @value
+        when Integer then Compiler::Type::Primitive::Num
+        when :true, :false then Compiler::Type::Primitive::Bool
+        when String then Compiler::Type::Primitive::Str
+        when Array
+          return Compiler::Type::List.new :empty if @value.empty?
+          inner = @value.first.llvm_type
 
-        if @value.all? {|e| e.llvm_type(*args) == inner }
-          Compiler::Type::List.new inner
-        else
-          raise "array isn't an array of exclusively #{inner.inspect}"
+          if @value.all? {|e| e.llvm_type == inner }
+            Compiler::Type::List.new inner
+          else
+            raise "array isn't an array of exclusively #{inner.inspect}"
+          end
+        when :null then raise "todo"
+        when Symbol then $fn.lookup(@value).llvm_type
         end
-      when :null then raise "todo"
-      when Symbol then raise
-      end
     end
 
-    def compile_non_empty_array(fn, llvm)
+    def compile_non_empty_array
       # we pass `any` as the check's already been done earlier.
-      eles = @value.map {|ele| ele.compile fn, llvm, type: :any }
+      eles = @value.map {|ele| ele.compile type: :any }
       align = nil
-      kind = @value.first.llvm_type(fn,llvm).tap { |x| align = x.byte_length }.to_llvm_s llvm
+      kind = @value.first.llvm_type.tap { |x| align = x.byte_length }.to_s
       # align = kind.byte_length
 
       # note that we use `8` as the size for all types
-      list = fn.write :new, "call %struct.builtin.list* @fn.builtin.init_list(i64 #{eles.length}, i64 #{align})"
-      bitcast = fn.write :new, "bitcast %struct.builtin.list* #{list} to #{kind}**"
-      ptr  = fn.write :new, "load #{kind}*, #{kind}** #{bitcast}, align #{align}"
-      fn.write "store #{kind} #{eles.first}, #{kind}* #{ptr}, align 8"
+      list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.init_list(i64 #{eles.length}, i64 #{align})"
+      bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{kind}**"
+      ptr  = $fn.write :new, "load #{kind}*, #{kind}** #{bitcast}, align #{align}"
+      $fn.write "store #{kind} #{eles.first}, #{kind}* #{ptr}, align 8"
 
       eles[1..].each_with_index do |ele, idx|
         # +1 for index as we alreadyd id the first one
-        tmp = fn.write :new, "getelementptr inbounds #{kind}, #{kind}* #{ptr}, i64 #{idx + 1}"
-        fn.write "store #{kind} #{ele}, #{kind}* #{tmp}, align 8"
+        tmp = $fn.write :new, "getelementptr inbounds #{kind}, #{kind}* #{ptr}, i64 #{idx + 1}"
+        $fn.write "store #{kind} #{ele}, #{kind}* #{tmp}, align 8"
       end
 
-      len = fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 2"
-      fn.write "store %num #{eles.length}, %num* #{len}, align 8"
+      len = $fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 2"
+      $fn.write "store %num #{eles.length}, %num* #{len}, align 8"
       list
     end
 
-    def compile(fn, llvm, type:)
-      fn.validate_types given: llvm_type(llvm), expected: type, allow_any: true
+    def compile(type:)
+      $fn.validate_types given: llvm_type, expected: type, allow_any: true
 
       case @value
-      when :true, :false then compile_literal fn, '%bool', (@value == :true ? 1 : 0), 1
-      when Integer then compile_literal fn, '%num', @value, 8
-      when String then compile_literal fn, '%struct.builtin.str*', llvm.string_literal(@value), 8
+      when :true, :false then compile_literal '%bool', (@value == :true ? 1 : 0), 1
+      when Integer then compile_literal '%num', @value, 8
+      when String then compile_literal '%struct.builtin.str*', $llvm.string_literal(@value), 8
       when Array
         if @value.empty?
-          compile_literal fn, '%struct.builtin.list*', 'null', 8
+          compile_literal '%struct.builtin.list*', 'null', 8
           return
         end
 
-        compile_non_empty_array fn, llvm
+        compile_non_empty_array
+      when Symbol
+        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{$fn.lookup(@value)}, align #{llvm_type.align}"
       else
         fail "unknown internal type? (#{@value.inspect})"
       end

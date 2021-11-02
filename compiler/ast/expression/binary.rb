@@ -14,22 +14,24 @@ class Expression
       new lhs, rhs, op
     end
 
-    def compile_sub(fn, llvm, type)
-      fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
-      lhs = @lhs.compile fn, llvm, type: Compiler::Type::Primitive::Num
-      rhs = @rhs.compile fn, llvm, type: Compiler::Type::Primitive::Num
-      fn.write :new, "sub nsw %num #{lhs}, #{rhs}"
+    def compile_sub(type)
+      $fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
+      lhs = @lhs.compile type: Compiler::Type::Primitive::Num
+      rhs = @rhs.compile type: Compiler::Type::Primitive::Num
+
+      $fn.write :new, "sub nsw %num #{lhs}, #{rhs}"
     end
 
-    def compile(fn, llvm, type:)
+    def compile(type:)
       case @op
       #when '-' then compile_sub fn, llvm, type
-      when '-' then compile_sub fn, llvm, type
+      when '-' then compile_sub type
       else raise "unknown op '#@op'??"
       end
     end
 
-    def llvm_type(*)
+    def llvm_type
+      # todo
       Compiler::Type::Primitive::Num
     end
   end

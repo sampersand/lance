@@ -23,17 +23,17 @@ class Compiler
       end
 
       def to_s
-        "#{type} #{local}"
+        local.to_s
       end
 
-      def llvm_type(llvm)
-        @type.llvm_type llvm
+      def llvm_type
+        @type
       end
     end
 
     attr_reader :name, :args, :return_type
 
-    def initialize(name, args, return_type, body, compiler)
+    def initialize(name, args, return_type, body)
       @name = name
       @return_type = return_type || Type::Primitive::Void
       @locals = 0
@@ -41,11 +41,10 @@ class Compiler
       @args = args.map { |name, type| define_variable name, type }
       next_local # ignore it for some reason, idk why llvm does it
       @body = body
-      @compiler = compiler
       @lines = []
     end
 
-    def llvm_type(llvm)
+    def llvm_type
       @llvm_type ||= Compiler::Type::Function.new @args.map(&:type), @return_type
     end
 
@@ -55,12 +54,14 @@ class Compiler
 
     def define_variable(name, type)
       raise "variable '#{name}' already exists for fn '#@name'" if @local_variables.key? name
+      name = name.to_s
 
       @local_variables[name] = Variable.new name, type, next_local
     end
 
     def lookup(name)
-      @local_variables[name] || @compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
+      name = name.to_s
+      @local_variables[name] || $compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
     end
 
     def llvm_name
@@ -88,13 +89,15 @@ class Compiler
       local
     end
 
-    def compile(llvm)
-      $_current_function = self
-      llvm.declare_function @name, @args, @return_type do
-        @body.compile self, llvm
+    def compile
+      $function = self
+      $llvm.declare_function @name, @args, @return_type do
+        @body.compile
         @lines
       end
     end
+
+    alias $function $fn
   end
 end
 __END__

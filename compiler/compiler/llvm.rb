@@ -11,7 +11,7 @@ class LLVM
 
   def struct_type(name, fields)
     (@structs[name] ||= {
-      name: "%struct.user.#{name.tr '%', ''}", fields: fields.map {|f| f.to_llvm_s self}
+      name: "%struct.user.#{name.tr '%', ''}", fields: fields.map(&:llvm_type)
     })[:name] + '*'
   end
 
@@ -46,11 +46,11 @@ class LLVM
     }
 
     global_declarations = @globals.values.map {|name:, type:|
-      "#{name} = global #{type.to_llvm_s self} #{type.default self}, align 8"
+      "#{name} = global #{type} #{type.default}, align 8"
     }
 
     extern_declarations = @externs.values.map {|name:, type:|
-      "#{name} = external global #{type.to_llvm_s self}, align 8"
+      "#{name} = external global #{type}, align 8"
     }
 
     string_declarations = @strings.map {|string, name|
@@ -63,8 +63,8 @@ class LLVM
 
     functions = @functions.values.map { |name:, args:, return_type:, body:|
       <<~EOS
-        define #{return_type.to_llvm_s self} #{name}(#{
-            args.map { |a, i| "#{a.type.to_llvm_s self} #{a.local}" }.join ', '
+        define #{return_type} #{name}(#{
+            args.map { |a, i| "#{a.type} #{a.local}" }.join ', '
         }) {
           #{body.join "\n  "}
         }

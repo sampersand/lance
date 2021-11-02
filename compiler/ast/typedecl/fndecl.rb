@@ -24,8 +24,8 @@ class TypeDecl
       new args, ret_type
     end
 
-    def to_type(compiler)
-      @type ||= Compiler::Type::Function.new @args.map { |a| a.to_type compiler }, @ret_type&.to_type(compiler)
+    def llvm_type
+      @type ||= Compiler::Type::Function.new @args.map(&:llvm_type), @ret_type&.llvm_type
     end
   end
 end

@@ -27,9 +27,9 @@ class Statements
     end
   end
 
-  def compile(fn, llvm)
+  def compile
     @lines.each do |line|
-      line.compile fn, llvm
+      line.compile
     end
   end
 end

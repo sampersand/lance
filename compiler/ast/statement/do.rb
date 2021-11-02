@@ -13,8 +13,8 @@ class Statement
       new value
     end
 
-    def compile(fn, llvm)
-      @expr.compile fn, llvm, type: :any
+    def compile
+      @expr.compile type: :any
     end
   end
 end

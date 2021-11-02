@@ -16,8 +16,8 @@ class TypeDecl
       end
     end
 
-    def to_type(compiler)
-      @type ||= Compiler::Type::List.new @inner.to_type compiler
+    def llvm_type
+      @type ||= Compiler::Type::List.new @inner.llvm_type
     end
   end
 end
