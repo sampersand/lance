@@ -17,7 +17,7 @@ class TypeDecl
     end
 
     def to_type(compiler)
-      @type ||= Compiler::Type::Array.new @inner.to_type compiler
+      @type ||= Compiler::Type::List.new @inner.to_type compiler
     end
   end
 end

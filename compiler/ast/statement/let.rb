@@ -21,12 +21,15 @@ class Statement
       new name, type, value
     end
 
-    def compile(fn)
+    def compile(fn, llvm)
       var = fn.define_variable @name, @type
 
       if @value
-        fn.write @value.compile(fn, type: type), local: var.local
+        fn.write @value.compile(fn, llvm, type: var.llvm_type(llvm)), local: var.local
       else
+        # todo, remove align 8 for booleans
+        fn.write var, "#{var.llvm_type(llvm).to_llvm_s(llvm)} #{var.llvm_type(llvm).default(llvm)}, align 8"
+      # "#{name} = global #{type.to_llvm_s self} #{type.default self}, align 8"
         # do we want to have an initial value?
       end
     end

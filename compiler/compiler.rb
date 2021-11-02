@@ -67,8 +67,10 @@ class Compiler
   end
 
   def to_llvm
+    $_compiler = self
+
     @types.each do |_name, type|
-      type.llvm_type @llvm
+      type.to_llvm_s @llvm
     end
 
     @globals.each do |name, type|

@@ -15,6 +15,7 @@ class Expression
         if (first = Expression.parse(parser))
           new primary, [first] + parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
         else
+          parser.expect ')', err: 'missing `)` to close function call'
           new primary, []
         end
       end

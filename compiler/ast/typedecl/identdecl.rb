@@ -16,5 +16,9 @@ class TypeDecl
     def to_type(compiler)
       compiler.lookup_type name
     end
+
+    def llvm_type(llvm)
+      to_type $_compiler
+    end
   end
 end

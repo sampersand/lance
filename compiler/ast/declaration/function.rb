@@ -37,7 +37,8 @@ class Declaration
         name,
         args.map { |name, type| [name, type.to_type(compiler)] },
         return_type&.to_type(compiler),
-        body
+        body,
+        compiler
       )
     end
   end

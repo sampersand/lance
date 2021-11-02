@@ -2,6 +2,14 @@ require_relative 'parser'
 require_relative 'compiler'
 
 ps = Parser.new Lexer.new <<~EOS
+fn main(argv: [str]): num {
+  let x: num = 3;
+  /*do [1-4, 2, 3]; /* blank statement */
+  /*do [true, false, true, true];*/
+  return 4;
+}
+EOS
+=begin
 extern anum: num;
 struct Person { name: str, age: num }
 global sam: Person;
@@ -10,14 +18,18 @@ global func: fn([Person]): fn(str, num, [any]);
 
 struct people {
   list: [[Person]],
-  other: [any]
+  other: any
 }
 
-fn lol(p: Person, o: people, n: num): bool {
-  do true;
-  return true;
+fn lol(p: Person, o: people, n: num): str {
+  return "foo";
 }
-EOS
+/*
+fn yup(): [[str]] {
+  return [[],[]];
+}*/
+=end
+
 # /*struct person {
 #   name: str,
 #   age: num

@@ -1,6 +1,10 @@
 class Compiler
   class Type
-    class Primitive
+    def llvm_type(_llvm)
+      self
+    end
+
+    class Primitive < Type
       def initialize(name)
         @name = name
       end
@@ -19,7 +23,7 @@ class Compiler
         'any' => (Any = new 'any'),
       }
 
-      def llvm_type(_llvm)
+      def to_llvm_s(_llvm)
         case @name
         when 'void' then 'void'
         when 'num' then '%num'
@@ -38,12 +42,16 @@ class Compiler
         end
       end
 
+      def byte_length
+        @name == 'bool' ? 1 : 8 # everything else is a pointer, or already 64 bit
+      end
+
       def inspect
         "Type::Primitive::#{@name.capitalize}"
       end
     end
 
-    class Array < Type
+    class List < Type
       attr_reader :inner
 
       def initialize(inner)
@@ -55,21 +63,26 @@ class Compiler
       end
 
       def ==(rhs)
-        rhs.is_a?(Array) && inner == rhs.inner
+        return false unless rhs.is_a? List
+        (inner == :empty || rhs.inner == :empty) || inner == rhs.inner
       end
 
       alias eql? ==
 
       def inspect
-        "Type::Array(#{@inner.inspect})"
+        "Type::List(#{@inner.inspect})"
       end
 
-      def llvm_type(llvm)
-        llvm.array_type inner
+      def to_llvm_s(llvm)
+        '%struct.builtin.list*'
       end
 
       def default(llvm)
-        'null' # "{ #{inner.llvm_type llvm}* null, i64 0, i64 0 }"
+        'null' # "{ #{inner.to_llvm_s llvm}* null, i64 0, i64 0 }"
+      end
+
+      def byte_length
+        8
       end
     end
 
@@ -99,13 +112,17 @@ class Compiler
         "Type::Struct(#{@name.inspect}, #{@fields.inspect})"
       end
 
-      def llvm_type(llvm)
+      def to_llvm_s(llvm)
         llvm.struct_type name, fields.values
       end
 
       def default(llvm)
         'null'
-        #"{ #{@fields.values.map {|v| "#{v.llvm_type llvm} #{v.default llvm}" }.join ', ' } }"
+        #"{ #{@fields.values.map {|v| "#{v.to_llvm_s llvm} #{v.default llvm}" }.join ', ' } }"
+      end
+
+      def byte_length
+        8
       end
     end
 
@@ -131,12 +148,16 @@ class Compiler
         "Type::Function(#{@args.inspect}, #{@return_type.inspect})"
       end
 
-      def llvm_type(llvm)
-        "#{return_type.llvm_type llvm} (#{args.map{|a| a.llvm_type llvm}.join ', '})*"
+      def to_llvm_s(llvm)
+        "#{return_type.to_llvm_s llvm} (#{args.map{|a| a.to_llvm_s llvm}.join ', '})*"
       end
 
       def default(_llvm)
         "null"
+      end
+
+      def byte_length
+        8
       end
     end
   end

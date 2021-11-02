@@ -25,11 +25,15 @@ class Compiler
       def to_s
         "#{type} #{local}"
       end
+
+      def llvm_type(llvm)
+        @type.llvm_type llvm
+      end
     end
 
     attr_reader :name, :args, :return_type
 
-    def initialize(name, args, return_type, body)
+    def initialize(name, args, return_type, body, compiler)
       @name = name
       @return_type = return_type || Type::Primitive::Void
       @locals = 0
@@ -37,6 +41,7 @@ class Compiler
       @args = args.map { |name, type| define_variable name, type }
       next_local # ignore it for some reason, idk why llvm does it
       @body = body
+      @compiler = compiler
       @lines = []
     end
 
@@ -55,11 +60,19 @@ class Compiler
     end
 
     def lookup(name)
-      @local_variables[name] || compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
+      @local_variables[name] || @compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
     end
 
     def llvm_name
       "@_lc_user_#@name"
+    end
+
+    def validate_types(expected:, given:, allow_any: true)
+      return if allow_any && (expected == :any || given == :any)
+
+      if expected != given
+        raise "invalid type: expected #{expected.inspect}, got a #{given.inspect}"
+      end
     end
 
     def write(local=nil, line)
@@ -76,6 +89,7 @@ class Compiler
     end
 
     def compile(llvm)
+      $_current_function = self
       llvm.declare_function @name, @args, @return_type do
         @body.compile self, llvm
         @lines
