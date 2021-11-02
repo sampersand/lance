@@ -12,6 +12,11 @@ struct people {
   list: [[Person]],
   other: [any]
 }
+
+fn lol(p: Person, o: people, n: num): bool {
+  do true;
+  return true;
+}
 EOS
 # /*struct person {
 #   name: str,
@@ -35,13 +40,13 @@ EOS
 # }
 
 
-compiler = Compiler.new
+compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
 
 ps.parse_program.each do |decl|
   decl.compile compiler
 end
 
-puts compiler.to_llvm target_triple: 'arm64-apple-macosx12.0.0'
+puts compiler.to_llvm
 __END__
 
 

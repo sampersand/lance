@@ -29,15 +29,19 @@ class Compiler
 
     attr_reader :name, :args, :return_type
 
-    def initialize(name, args, return_type, compiler:)
+    def initialize(name, args, return_type, body)
       @name = name
       @return_type = return_type || Type::Primitive::Void
       @locals = 0
       @local_variables = {}
       @args = args.map { |name, type| define_variable name, type }
-      @compiler = compiler
-
+      next_local # ignore it for some reason, idk why llvm does it
+      @body = body
       @lines = []
+    end
+
+    def llvm_type(llvm)
+      @llvm_type ||= Compiler::Type::Function.new @args.map(&:type), @return_type
     end
 
     def next_local
@@ -58,7 +62,7 @@ class Compiler
       "@_lc_user_#@name"
     end
 
-    def write(line, local: nil)
+    def write(local=nil, line)
       if local == :new
         local = next_local
       end
@@ -71,12 +75,11 @@ class Compiler
       local
     end
 
-    def to_llvm
-      <<~LLVM
-        define #{return_type.to_llvm} #{llvm_name}(#{args.map(&:to_llvm).join ', '}) {
-          #{@lines.map(&:to_llvm).join "\n "}
-        }
-      LLVM
+    def compile(llvm)
+      llvm.declare_function @name, @args, @return_type do
+        @body.compile self, llvm
+        @lines
+      end
     end
   end
 end

@@ -2,11 +2,13 @@ require_relative 'compiler/function'
 require_relative 'compiler/llvm'
 
 class Compiler
-  def initialize
-    @functions = Hash.new {|h,k| h[k] = Function.new k}
+  attr_reader :llvm
+  def initialize(**opts)
+    @functions = {}
     @globals = {}
     @externs = {}
     @types = {}
+    @llvm = LLVM.new(**opts)
   end
 
   def function(name)
@@ -25,6 +27,11 @@ class Compiler
     else
       @globals[name] = type
     end
+  end
+
+  def declare_function(fn)
+    raise "function '#{fn.name}' already declared" if @functions.key? fn.name
+    @functions[fn.name] = fn
   end
 
   def lookup_global(name)
@@ -59,23 +66,24 @@ class Compiler
     Type::Primitive.lookup(name) || @types[name] or raise "unknown type name #{name.inspect}"
   end
 
-  def to_llvm(**kw)
-    llvm = LLVM.new(**kw)
-
+  def to_llvm
     @types.each do |_name, type|
-      type.llvm_type llvm
+      type.llvm_type @llvm
     end
 
     @globals.each do |name, type|
-      llvm.declare_global name, type
+      @llvm.declare_global name, type
     end
 
     @externs.each do |name, type|
-      llvm.declare_extern name, type
+      @llvm.declare_extern name, type
     end
 
-    llvm.to_s
-    # prelude + "\n\n" + @functions.values.map { |v| v.to_llvm }.join("\n\n")
+    @functions.each do |_name, fn|
+      fn.compile llvm
+    end
+
+    @llvm.final_string
   end
 end
 

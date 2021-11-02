@@ -19,9 +19,28 @@ class Expression
       end
     end
 
-    def compile(fn)
+    def compile_literal(fn, value, type, align)
+      local = fn.write :new, "alloca #{type}, align #{align}"
+      fn.write "store #{type} #{value}, #{type}* #{local}, align #{align}"
+      fn.write :new, "load #{type}, #{type}* #{local}, align #{align}"
+    end
+
+    def compile(fn, llvm, type:)
+      case
+      when (type == Compiler::Type::Primitive::Bool || type == :any) && (@value == :true || @value == :false)
+        compile_literal fn, (@value == :true ? 1 : 0), '%bool', 1
+      when (type == Compiler::Type::Primitive::Num || type == :any) && @value.is_a?(Number)
+        compile_literal fn, @value, '%num', 8
+      when (type == Compiler::Type::Primitive::Str || type == :any) && @value.is_a?(String)
+        name = llvm.string_literal @value
+        
+# @s = global %struct.stringy { i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i64 3 }, align 8
+
+      else
+        p type
       # case @value
       fail
+      end
       # when 
     end
   end

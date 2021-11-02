@@ -33,16 +33,12 @@ class Declaration
     end
 
     def compile(compiler)
-      fn =
-        Compiler::Function.new(
-          name,
-          args.map { |name, type| [name, type.to_type(compiler)] },
-          return_type&.to_type(compiler),
-          compiler: compiler
-        )
-      compiler.declare_global fn.name, fn
-
-      body.compile fn
+      compiler.declare_function Compiler::Function.new(
+        name,
+        args.map { |name, type| [name, type.to_type(compiler)] },
+        return_type&.to_type(compiler),
+        body
+      )
     end
   end
 end

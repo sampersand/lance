@@ -15,12 +15,12 @@ class Statement
       new expr
     end
 
-    def compile(fn)
+    def compile(fn, llvm)
       return_type = fn.return_type
 
       if @expr
-        index = @expr.compile type: return_type
-        fn.write_line "ret #{return_type.to_llvm(fn)} #{index}"
+        index = @expr.compile fn, llvm, type: return_type
+        fn.write "ret #{return_type.llvm_type llvm} #{index}"
       elsif return_type != Compiler::Type::Primitive::Void
         raise "nothing returned, but return type for '#{fn.name}' is #{return_type.inspect}"
       end

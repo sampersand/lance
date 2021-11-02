@@ -24,8 +24,8 @@ class Compiler
         when 'void' then 'void'
         when 'num' then '%num'
         when 'bool' then '%bool'
-        when 'str' then '%struct.builtin.str'
-        when 'any' then '%struct.builtin.any'
+        when 'str' then '%struct.builtin.str*'
+        when 'any' then '%struct.builtin.any*'
         else raise "bad type: #@name (?)"
         end
       end
@@ -33,7 +33,7 @@ class Compiler
       def default(_llvm)
         case @name
         when 'num', 'bool' then '0'
-        when 'str', 'any' then '{ i8* null, i64 0 }'
+        when 'str', 'any' then 'null' # { i8* null, i64 0 }'
         else raise "bad type for default: #{name}"
         end
       end
@@ -69,7 +69,7 @@ class Compiler
       end
 
       def default(llvm)
-        "{ #{inner.llvm_type llvm}* null, i64 0, i64 0 }"
+        'null' # "{ #{inner.llvm_type llvm}* null, i64 0, i64 0 }"
       end
     end
 
@@ -104,7 +104,8 @@ class Compiler
       end
 
       def default(llvm)
-        "{ #{@fields.values.map {|v| "#{v.llvm_type llvm} #{v.default llvm}" }.join ', ' } }"
+        'null'
+        #"{ #{@fields.values.map {|v| "#{v.llvm_type llvm} #{v.default llvm}" }.join ', ' } }"
       end
     end
 
