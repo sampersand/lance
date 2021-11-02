@@ -51,6 +51,7 @@ class Compiler
     def next_local
       Local.new((@locals += 1) - 1)
     end
+    alias next_label next_local
 
     def define_variable(name, type)
       raise "variable '#{name}' already exists for fn '#@name'" if @local_variables.key? name
@@ -76,7 +77,7 @@ class Compiler
       end
     end
 
-    def write(local=nil, line)
+    def write(local=nil, line, at: nil)
       if local == :new
         local = next_local
       end
@@ -85,14 +86,41 @@ class Compiler
         line = "#{local} = #{line}"
       end
 
-      @lines.push line
+      if at
+        @lines[at] = line
+      else
+        @lines.push line
+      end
+
       local
+    end
+
+    JmpTarget = Struct.new :index, :fn do
+      def write(*x)
+        fn.write(*x, at: index)
+      end
+    end
+
+    def write_nop
+      write nil
+
+      JmpTarget.new @lines.length - 1, self
+    end
+
+    def declare_label(label=next_label)
+      write "#{label.num}:"
+      label
     end
 
     def compile
       $function = self
       $llvm.declare_function @name, @args, @return_type do
         @body.compile
+
+        if @return_type == Compiler::Type::Primitive::Void
+          write 'ret void'
+        end
+
         @lines
       end
     end

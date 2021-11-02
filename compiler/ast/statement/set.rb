@@ -9,7 +9,7 @@ class Statement
 
     def self.parse(parser)
       parser.guard 'set' or return
-      prelude = Primary.parse(parser) or parser.error 'missing value to `set` to.'
+      prelude = Expression::Primary.parse(parser) or parser.error 'missing value to `set` to.'
       # todo: make sure `prelude` is the correct types
 
       # note: no type, because type should already be known.
@@ -18,6 +18,13 @@ class Statement
       parser.endline err: 'missing endline for `set`'
 
       new prelude, value
+    end
+
+    def compile
+      # todo: set for non-variables
+      var = $fn.lookup(@prelude.instance_variable_get(:@value).to_s)
+      rhs = @value.compile type: var.llvm_type
+      $fn.write "store #{var.llvm_type} #{rhs}, #{var.llvm_type}* #{var.local}, align 8"
     end
   end
 end

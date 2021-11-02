@@ -27,14 +27,9 @@ class Statement
       var = $fn.define_variable @name, @type.llvm_type
 
       $fn.write "#{var.local} = alloca #{var.llvm_type}, align #{var.llvm_type.align}"
-
-      if @value
-        val = @value.compile(type: @type.llvm_type)
-      else
-        val = @type.llvm_type.default
-      end
-
+      val = @value ? @value.compile(type: @type.llvm_type) : @type.llvm_type.default
       $fn.write "store #{var.llvm_type} #{val}, #{var.llvm_type}* #{var.local}, align 8"
+
       var
     end
   end

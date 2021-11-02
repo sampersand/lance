@@ -16,10 +16,22 @@ class Statement
       new cond, body
     end
 
-    def compile(parser)
-      raise
-    end
-    # when 'jmp' then write "br label %.#{current_function.label value}"
+    def compile
+      jmp = $fn.write_nop
+      top = $fn.declare_label
+      jmp.write "br label #{top}"
 
+      cond1 = @cond.compile type: Compiler::Type::Primitive::Bool
+      cond2 = $fn.write :new, "icmp ne %bool #{cond1}, 0"
+      jmp_statement = $fn.write_nop
+
+      top_of_body = $fn.declare_label
+      @body.compile
+      $fn.write "br label #{top}"
+
+      bottom = $fn.declare_label
+
+      jmp_statement.write "br i1 #{cond2}, label #{top_of_body}, label #{bottom}"
+    end
   end
 end

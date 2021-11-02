@@ -7,12 +7,30 @@ struct foo {
   age: num
 }
 
+fn foo() {}
+
 fn main(argv: [str]): num {
   let x: num;
-  let y: num = 5;
-  let z: foo;
-  return y - x;
+
+  if false {
+    return 1;
+  } else if false {
+    return 51;
+  } else {
+    return 12;
+  }
+
+  return x;
+  /*
+  /*let q: num = 4;*
+  while false{}
+  let y: num;
+  let x: num = -4; 
+  set y = -x - 2;
+
+  return y;*/
 }
+/*let z: foo; */
 EOS
 =begin
   do [1-4, 2, 3]; /* blank statement */

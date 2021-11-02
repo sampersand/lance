@@ -11,21 +11,21 @@ class Expression
       new op, expr
     end
 
-    def compile(fn, llvm, type:)
-      rhs = @expr.compile fn, llvm, type: type
+    def compile(type:)
+      rhs = @expr.compile type: type
 
       case @op
       when '!'
-        fn.validate_types expected: Compiler::Type::Primitive::Bool, given: type
-        cmp = fn.write :new, "icmp eq %num #{rhs}, 0"
-        fn.write :new, "zext i1 #{cmp} to %bool"
+        $fn.validate_types expected: Compiler::Type::Primitive::Bool, given: type
+        cmp = $fn.write :new, "icmp eq %num #{rhs}, 0"
+        $fn.write :new, "zext i1 #{cmp} to %bool"
 
       when '-'
-        fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
-        fn.write :new, "sub nsw %num 0, #{rhs}"
+        $fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
+        $fn.write :new, "sub nsw %num 0, #{rhs}"
 
       when '+'
-        fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
+        $fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
         # we don't actually do anything for `+`
 
       else

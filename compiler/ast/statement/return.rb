@@ -21,9 +21,13 @@ class Statement
       if @expr
         index = @expr.compile type: return_type
         $fn.write "ret #{return_type} #{index}"
-      elsif return_type != Compiler::Type::Primitive::Void
+      elsif return_type == Compiler::Type::Primitive::Void
+        $fn.write 'ret void'
+      else
         raise "nothing returned, but return type for '#{fn.name}' is #{return_type.inspect}"
       end
+
+      $fn.next_local # for some reason, `ret` means a local should be skipped.
     end
   end
 end
