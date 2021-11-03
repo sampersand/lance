@@ -4,7 +4,7 @@ class Lexer
   end
 
   KEYWORDS = %w(
-    global fn struct extern
+    global fn struct extern externf
     if else while return do
     let set
     true false null

@@ -4,7 +4,7 @@ class Statement
   class Let
     def initialize(name, type, value)
       @name = name
-      @type = type || value.llvm_type
+      @type = type
       @value = value
     end
 
@@ -23,11 +23,15 @@ class Statement
       new name, type, value
     end
 
+    def type
+      @type ||= @value.llvm_type
+    end
+
     def compile
-      var = $fn.define_variable @name, @type.llvm_type
+      var = $fn.define_variable @name, type.llvm_type
 
       $fn.write "#{var.local} = alloca #{var.llvm_type}, align #{var.llvm_type.align}"
-      val = @value ? @value.compile(type: @type.llvm_type) : @type.llvm_type.default
+      val = @value ? @value.compile(type: type.llvm_type) : type.llvm_type.default
 
       $fn.write "store #{var.llvm_type} #{val}, #{var.llvm_type}* #{var.local}, align 8"
 

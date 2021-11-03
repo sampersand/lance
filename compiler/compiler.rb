@@ -5,6 +5,7 @@ class Compiler
   attr_reader :llvm
 
   class PredeclaredExternFunction
+    attr_reader :name, :args, :return_type
     def initialize(name, args, return_type)
       @name = "@fn.builtin.#{name}"
       @return_type = return_type
@@ -40,6 +41,37 @@ class Compiler
     @functions[name]
   end
 
+  class Global
+    def initialize(name, type, is_extern)
+      @name = name
+      @type = type
+      @is_extern = is_extern
+    end
+
+    def to_s
+      @type.to_s
+    end
+
+    def llvm_type
+      @type.llvm_type
+    end
+
+    def local
+      if @is_extern
+        pos = $fn.write :new, "alloca #@type, align #{@type.align}"
+        $fn.write :new, "load #@type, #@type* @globals.#@name, align #{@type.align}"
+      else
+        "@globals.#@name"
+      end
+      # @local ||= begin
+      # end
+    end
+
+    def default
+      @type.default
+    end
+  end
+
   def declare_global(name, type)
     if (global = @globals[name])
       if global == type
@@ -50,7 +82,7 @@ class Compiler
 
       global
     else
-      @globals[name] = type
+      @globals[name] = Global.new name, type, false
     end
   end
 
@@ -61,14 +93,14 @@ class Compiler
 
   def lookup(name)
     case
-    when (extern = @externs[name]) then extern
+    when (extern = @externs[name]) then extern[0]
     when (func = @functions[name]) then func
-    when (glob = @globals[name]) then global
+    when (global = @globals[name]) then global
     when (predecl = PREDCLARED_EXTERNS[name]) then predecl
     end
   end
 
-  def declare_extern(name, type)
+  def declare_extern(name, type, externf)
     if (extern = @externs[name])
       if extern != type
         raise "extern '#{name}' already declared with type '#{extern.inspect}'"
@@ -76,7 +108,13 @@ class Compiler
 
       extern
     else
-      @externs[name] = type
+      if externf
+        type = PredeclaredExternFunction.new "fn.user.#{name}", type.args, type.return_type
+      else
+        type = Global.new name, type, true
+      end
+
+      @externs[name] = [type, externf]
     end
   end
 
@@ -96,7 +134,7 @@ class Compiler
     Type::Primitive.lookup(name) || @types[name] or raise "unknown type name #{name.inspect}"
   end
 
-  def to_llvm
+  def to_llvm(is_main:)
     $compiler = self
     $llvm = @llvm
 
@@ -108,22 +146,14 @@ class Compiler
       @llvm.declare_global name, type
     end
 
-    @externs.each do |name, type|
-      @llvm.declare_extern name, type
+    @externs.each do |name, (type, externf)|
+      @llvm.declare_extern name, type, externf
     end
 
     @functions.each do |_name, fn|
       fn.compile
     end
 
-    @llvm.final_string
+    @llvm.final_string is_main: is_main
   end
 end
-
-
-
-
-
-
-
-

@@ -123,7 +123,7 @@ class Compiler
     end
 
     def compile
-      $function = self
+      $fn = self
       $llvm.declare_function @name, @args, @return_type do
         @body.compile
 
@@ -134,7 +134,5 @@ class Compiler
         @lines
       end
     end
-
-    alias $function $fn
   end
 end

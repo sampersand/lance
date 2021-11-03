@@ -23,8 +23,8 @@ class LLVM
     @strings[string] ||= "@string.#{string.hash}"
   end
 
-  def declare_extern(name, type)
-    (@externs[name] ||= {name: "@globals.#{name}", type: type})[:name]
+  def declare_extern(name, type, externf)
+    (@externs[name] ||= {name: "@#{externf ? 'fn.user' : 'globals'}.#{name}", type: type, externf: externf})[:name]
   end
 
   def fn_name_for(name)
@@ -44,7 +44,7 @@ class LLVM
     @functions[name][:name]
   end
 
-  def final_string
+  def final_string(is_main:)
     struct_declarations = @structs.values.map { |name:, fields:|
       "#{name} = type { #{fields.join ', '} }"
     }
@@ -53,8 +53,12 @@ class LLVM
       "#{name} = global #{type} #{type.default}, align 8"
     }
 
-    extern_declarations = @externs.values.map {|name:, type:|
-      "#{name} = external global #{type}, align 8"
+    extern_declarations = @externs.values.map {|name:, type:, externf:|
+      if externf
+        "declare #{type.return_type} #{name}(#{type.args.join(', ')})"
+      else
+        "#{name} = external global #{type}, align 8"
+      end
     }
 
     string_declarations = @strings.map {|string, name|
@@ -87,18 +91,22 @@ class LLVM
       %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
 
-      ; Extern builtins
+      ; List builtins builtins
       declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0, i64 %1) 
       declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1, i64 %2)
       declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1, i64 %2)
       declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
       declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
 
-      declare void @fn.builtin.print(%struct.builtin.str* %0) 
+      ; String builtins
       declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
       declare %num @fn.builtin.str_to_num(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
+      declare i32 @fn.builtin.compare_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
+
+      ; Misc builtins
+      declare void @fn.builtin.print(%struct.builtin.str* %0) 
 
       ; Struct declarations
       #{struct_declarations.join "\n"}
@@ -115,10 +123,14 @@ class LLVM
       ; Functions
       #{functions.join "\n"}
 
+      #{is_main ? <<~LLVM : ""}
+      declare %num @fn.user.main(%struct.builtin.list* %0)
+
       define %num @main() {
         %1 = call %num @fn.user.main(%struct.builtin.list* null);
         ret %num %1;
       }
+      LLVM
     LLVM
   end
 end

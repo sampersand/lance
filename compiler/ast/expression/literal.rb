@@ -91,7 +91,7 @@ class Expression
           fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
           $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
           $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
-        elsif val.arg?
+        elsif val.is_a?(Compiler::Function::Variable) && val.arg? || val.is_a?(Compiler::Global)
           val.local
         else
           $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"

@@ -38,6 +38,7 @@ class Statement
       when Expression::Literal
         var = $fn.lookup @prelude.value.to_s
         rhs = @value.compile type: var.llvm_type
+
         $fn.write "store #{var.llvm_type} #{rhs}, #{var.llvm_type}* #{var.local}, align 8"
       else
         raise "cannot assign to #{@prelude.inspect}s"

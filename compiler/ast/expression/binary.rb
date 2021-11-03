@@ -71,7 +71,7 @@ class Expression
     end
 
     def compile_cmp_op(type, math_op)
-      raise "`==` returns a boolean" unless type == Compiler::Type::Primitive::Bool
+      raise "`#{math_op}` returns a boolean" unless type == Compiler::Type::Primitive::Bool
 
       lhs = @lhs.compile type: @lhs.llvm_type 
       rhs = @rhs.compile type: @rhs.llvm_type 
@@ -80,8 +80,15 @@ class Expression
       when Compiler::Type::Primitive::Num then
         tmp = $fn.write :new, "icmp #{math_op} %num #{lhs}, #{rhs}"
         $fn.write :new, "zext i1 #{tmp} to %bool"
+      when Compiler::Type::Primitive::Bool then
+        tmp = $fn.write :new, "icmp #{math_op} %bool #{lhs}, #{rhs}"
+        $fn.write :new, "zext i1 #{tmp} to %bool"
+      when Compiler::Type::Primitive::Str then
+        tmp = $fn.write :new, "call i32 @fn.builtin.compare_strs(%struct.builtin.str* #{lhs}, %struct.builtin.str* #{rhs})"
+        tmp2 = $fn.write :new, "icmp #{math_op} i32 #{tmp}, 0"
+        $fn.write :new, "zext i1 #{tmp2} to %bool"
       else
-        raise "type error: cannot comapre #{type}s."
+        raise "type error: cannot compare #{@lhs.llvm_type}s."
       end
     end
 
