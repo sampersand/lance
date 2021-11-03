@@ -24,6 +24,7 @@ class Compiler
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
     'itoa' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'atoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
+    # 'insert' => PredeclaredExternFunction.new('insert', [Type::List.new(:empty), :any, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Num),
     # 'atoi' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void)
   }
 

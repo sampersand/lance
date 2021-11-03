@@ -16,15 +16,17 @@ class Expression
       end
 
       def compile(type:)
+        if @fn.is_a?(Expression::Literal) && %i(delete insert).include?(@fn.value)
+          return compile_special type
+        end
+
         fn_llvm = @fn.llvm_type
 
         if fn_llvm.return_type != type && type != :any
           raise "return type mismatch (expected #{fn_llvm.return_type.inspect}, got #{type.inspect})"
         else
           fn_llvm.args.zip(@args) do |type, arg|
-            if type != arg.llvm_type
-              raise "invalid argument type found in function call"
-            end
+            $fn.validate_types expected: type, given: arg.llvm_type
           end
         end
 
@@ -36,11 +38,51 @@ class Expression
       end
 
       def llvm_type
-        @llvm_type ||= @fn.llvm_type.return_type
+        @llvm_type ||= (@fn.llvm_type.return_type || Compiler::Type::Primitive::Void)
+      end
+
+      private def compile_special(type)
+        case @fn.value
+        when :insert
+          raise "invalid argc for insert: needed 3, got #{@args.length}" unless @args.length == 3
+
+          list_type = @args[0].llvm_type
+
+          if !list_type.is_a?(Compiler::Type::List)
+            raise "can only insert into lists, not #{list_type.inspect}"
+          end
+
+          list = @args[0].compile type: list_type
+          value = @args[1].compile type: list_type.inner
+          index = @args[2].compile type: Compiler::Type::Primitive::Num
+
+          ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+          $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
+
+          void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+          $fn.write :new, "call zeroext i8 @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index}, i64 #{list_type.inner.byte_length})"
+        when :delete
+          raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
+
+          list_type = @args[0].llvm_type
+          if !list_type.is_a?(Compiler::Type::List)
+            raise "can only insert into lists, not #{list_type.inspect}"
+          end
+
+          list = @args[0].compile type: list_type
+          index = @args[1].compile type: Compiler::Type::Primitive::Num
+
+          ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+          void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+          $fn.write :new, "call zeroext i8 @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index}, i64 #{list_type.inner.byte_length})"
+        else
+          raise "unknown special function '#{@fn.value}'"
+        end
       end
     end
 
     class ArrayIndex
+      attr_reader :ary, :index
       def initialize(ary, index)
         @ary = ary
         @index = index
@@ -52,9 +94,27 @@ class Expression
         parser.expect ']', err: 'expecting `]` to close array indexing'
         new primary, index
       end
+
+      def compile(type:)
+        inner_type = @ary.llvm_type.inner 
+        $fn.validate_types expected: type, given: inner_type
+
+        ary = @ary.compile type: :any
+        idx = @index.compile type: Compiler::Type::Primitive::Num
+
+        tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
+        tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
+        tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
+        $fn.write :new, "load #{inner_type}, #{inner_type}* #{tmp3}, align 8"
+      end
+
+      def llvm_type
+       @llvm_type ||= @ary.llvm_type.inner
+      end
     end
 
     class FieldAccess
+      attr_reader :primary, :field
       def initialize(primary, field)
         @primary = primary
         @field = field

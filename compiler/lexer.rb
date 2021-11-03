@@ -11,7 +11,7 @@ class Lexer
   ).freeze
 
   def next
-    @stream.slice! %r{\A(\s+|/\*.*?\*/)*}m
+    @stream.slice! %r{\A(\s+|//.*?\n|/\*.*?\*/)*}m
 
     return if @stream.empty?
     @stream.slice! /\A\d+\b/ and return [:number, $&.to_i]

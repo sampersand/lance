@@ -78,7 +78,7 @@ class LLVM
       EOS
     }
 
-    <<~LLVM#.tap { |x| puts x }
+    <<~LLVM.gsub('fn.builtin.','')#.tap { |x| puts x }
       ; Prelude
       target triple = "#@target_triple"
       %bool = type i8
@@ -88,9 +88,15 @@ class LLVM
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
 
       ; Extern builtins
-      declare %struct.builtin.list* @fn.builtin.init_list(i64 %0, i64 %1) 
+      declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0, i64 %1) 
+      declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1, i64 %2)
+      declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1, i64 %2)
+      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
+      declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
+
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
+      declare %num @fn.builtin.str_to_num(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
 

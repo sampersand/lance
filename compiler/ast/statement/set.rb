@@ -21,10 +21,30 @@ class Statement
     end
 
     def compile
-      # todo: set for non-variables
-      var = $fn.lookup(@prelude.instance_variable_get(:@value).to_s)
-      rhs = @value.compile type: var.llvm_type
-      $fn.write "store #{var.llvm_type} #{rhs}, #{var.llvm_type}* #{var.local}, align 8"
+      case @prelude
+      when Expression::Primary::FieldAccess then raise 'todo'
+      when Expression::Primary::ArrayIndex
+        inner_type = @prelude.ary.llvm_type.inner 
+
+        ary = @prelude.ary.compile type: Compiler::Type::List.new(:empty)
+        idx = @prelude.index.compile type: Compiler::Type::Primitive::Num
+        value = @value.compile type: inner_type
+
+        tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
+        tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
+        tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
+        $fn.write "store #{inner_type} #{value}, #{inner_type}* #{tmp3}, align 8"
+
+      when Expression::Literal
+        var = $fn.lookup @prelude.value.to_s
+        rhs = @value.compile type: var.llvm_type
+        $fn.write "store #{var.llvm_type} #{rhs}, #{var.llvm_type}* #{var.local}, align 8"
+      else
+        raise "cannot assign to #{@prelude.inspect}s"
+      end
     end
   end
 end
+
+
+
