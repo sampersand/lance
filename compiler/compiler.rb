@@ -3,6 +3,30 @@ require_relative 'compiler/llvm'
 
 class Compiler
   attr_reader :llvm
+
+  class PredeclaredExternFunction
+    def initialize(name, args, return_type)
+      @name = "@fn.builtin.#{name}"
+      @return_type = return_type
+      @args = args
+    end
+
+    def to_s
+      @name
+    end
+
+    def llvm_type
+      @llvm_type ||= Type::Function.new @args, @return_type
+    end
+  end
+
+  PREDCLARED_EXTERNS = {
+    'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
+    'itoa' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
+    'atoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
+    # 'atoi' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void)
+  }
+
   def initialize(**opts)
     @functions = {}
     @globals = {}
@@ -34,9 +58,13 @@ class Compiler
     @functions[fn.name] = fn
   end
 
-  def lookup_global(name)
-    name = name.to_s
-    raise "todo: lookup global (and just usingthen in general idk)"
+  def lookup(name)
+    case
+    when (extern = @externs[name]) then extern
+    when (func = @functions[name]) then func
+    when (glob = @globals[name]) then global
+    when (predecl = PREDCLARED_EXTERNS[name]) then predecl
+    end
   end
 
   def declare_extern(name, type)

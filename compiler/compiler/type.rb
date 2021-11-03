@@ -146,7 +146,10 @@ class Compiler
       end
 
       def ==(rhs)
-        rhs.is_a?(Function) && args == rhs.args && return_type == rhs.return_type
+        return true if rhs == :any
+        return false unless rhs.is_a? Function
+        args.zip(rhs.args).all? {|l, r| l == :any || r == :any || l == r} &&
+          (return_type == :any || rhs.return_type == :any || return_type == rhs.return_type)
       end
 
       alias eql? ==

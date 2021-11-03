@@ -27,11 +27,15 @@ class LLVM
     (@externs[name] ||= {name: "@globals.#{name}", type: type})[:name]
   end
 
+  def fn_name_for(name)
+    "@fn.user.#{name}"
+  end
+
   def declare_function(name, args, return_type)
     fn = @functions[name] and return fn[:name]
 
     @functions[name] = {
-      name: "@fn.user.#{name}",
+      name: fn_name_for(name),
       args: args,
       return_type: return_type,
       body: []
@@ -54,10 +58,13 @@ class LLVM
     }
 
     string_declarations = @strings.map {|string, name|
-      strtype = "[#{string.length} x i8]"
+      # lol this is a mess, it hink `string_len`  is irrelevant
+      string = string.bytes.map { |x| x.chr =~ /[[:print:]]/ && x.chr != ?"?  x.chr : '\%02X' % x }.join
+      string_len = string.gsub(/\\../,'.').length
+      strtype = "[#{string_len} x i8]"
       <<~LLVM
-        #{name}.str = private unnamed_addr constant #{strtype} c#{string.inspect}, align 1
-        #{name} = local_unnamed_addr global %struct.builtin.str { i8* getelementptr inbounds (#{strtype}, #{strtype}* #{name}.str, i32 0, i32 0), i64 #{string.length} }, align 8
+        #{name}.str = private unnamed_addr constant #{strtype} c"#{string}", align 1
+        #{name} = local_unnamed_addr global %struct.builtin.str { i8* getelementptr inbounds (#{strtype}, #{strtype}* #{name}.str, i32 0, i32 0), i64 #{string_len} }, align 8
       LLVM
     }
 
@@ -71,7 +78,7 @@ class LLVM
       EOS
     }
 
-    <<~LLVM
+    <<~LLVM#.tap { |x| puts x }
       ; Prelude
       target triple = "#@target_triple"
       %bool = type i8
@@ -82,6 +89,10 @@ class LLVM
 
       ; Extern builtins
       declare %struct.builtin.list* @fn.builtin.init_list(i64 %0, i64 %1) 
+      declare void @fn.builtin.print(%struct.builtin.str* %0) 
+      declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
+      declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
+      declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
 
       ; Struct declarations
       #{struct_declarations.join "\n"}

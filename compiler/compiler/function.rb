@@ -16,10 +16,15 @@ class Compiler
     class Variable
       attr_reader :name, :type, :local
 
-      def initialize(name, type, local)
+      def initialize(name, type, local, is_arg)
         @name = name
         @type = type
         @local = local
+        @is_arg = is_arg
+      end
+
+      def arg?
+        @is_arg
       end
 
       def to_s
@@ -38,10 +43,11 @@ class Compiler
       @return_type = return_type || Type::Primitive::Void
       @locals = 0
       @local_variables = {}
-      @args = args.map { |name, type| define_variable name, type }
-      next_local # ignore it for some reason, idk why llvm does it
       @body = body
       @lines = []
+
+      @args = args.map { |name, type|  define_variable name, type, arg: true }
+      next_local # ignore it for some reason, idk why llvm does it
     end
 
     def llvm_type
@@ -53,16 +59,20 @@ class Compiler
     end
     alias next_label next_local
 
-    def define_variable(name, type)
+    def define_variable(name, type, arg: false)
       raise "variable '#{name}' already exists for fn '#@name'" if @local_variables.key? name
       name = name.to_s
 
-      @local_variables[name] = Variable.new name, type, next_local
+      @local_variables[name] = Variable.new name, type, next_local, arg
     end
 
     def lookup(name)
       name = name.to_s
-      @local_variables[name] || $compiler.lookup_global(name) or raise "unknown variable '#{name}' for '#{function}'"
+      @local_variables[name] || $compiler.lookup(name) or raise "unknown variable '#{name}' for '#{@name}'"
+    end
+
+    def to_s
+      $llvm.fn_name_for name
     end
 
     def llvm_name
@@ -128,61 +138,3 @@ class Compiler
     alias $function $fn
   end
 end
-__END__
-
-#   def to_s
-#     <<~LLVM
-#       define #{return_type} #{internal_name}(#{args.join ', '}) {
-#         #{@lines.join("\n  ")}
-#       }
-#     LLVM
-#   end
-# end
-end
-#   attr_reader :user_defined_name, :args, :return_type
-
-#   def initialize(name, args, return_type)
-#     @user_defined_name = name
-#     @args = args
-#     @return_type = return_type
-
-#     @lines = []
-#     @labels = Hash.new { |h,k| h[k] = next_local }
-#     @local_variables = Hash.new { |h,k| h[k] = next_local }
-#     @local = 0
-#   end
-
-#   def 
-
-
-#   def internal_name
-#     "@_lc_user_#{user_defined_name}"
-#   end
-
-#   def next_local
-#     (@local += 1).to_s
-#   end
-
-#   def label(name)
-#     @labels[name]
-#   end
-
-#   def write(return_line=false, line)
-#     if return_line
-#       "%#{next_local}".tap { |lcl| write "#{lcl} = #{line}" }
-#     else
-#       @lines.push line
-#     end
-#   end
-
-#   def to_s
-#     <<~LLVM
-#       define #{return_type} #{internal_name}(#{args.join ', '}) {
-#         #{@lines.join("\n  ")}
-#       }
-#     LLVM
-#   end
-# end
-
-# f = Function.new 'foo', [], 'void'
-# puts f

@@ -12,12 +12,31 @@ class Expression
       def self.parse(primary, parser)
         parser.guard '(' or return
 
-        if (first = Expression.parse(parser))
-          new primary, [first] + parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
+        new primary, parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
+      end
+
+      def compile(type:)
+        fn_llvm = @fn.llvm_type
+
+        if fn_llvm.return_type != type && type != :any
+          raise "return type mismatch (expected #{fn_llvm.return_type.inspect}, got #{type.inspect})"
         else
-          parser.expect ')', err: 'missing `)` to close function call'
-          new primary, []
+          fn_llvm.args.zip(@args) do |type, arg|
+            if type != arg.llvm_type
+              raise "invalid argument type found in function call"
+            end
+          end
         end
+
+        fn = @fn.compile type: @fn.llvm_type
+        args = @args.map { |a| "#{a.llvm_type} #{a.compile(type: a.llvm_type)}" } # we already verified it with `fn`
+        return_type = @fn.llvm_type.return_type
+
+        $fn.write( (return_type == Compiler::Type::Primitive::Void ? nil : :new), "call #{return_type} #{fn}(#{args.join ', '})")
+      end
+
+      def llvm_type
+        @llvm_type ||= @fn.llvm_type.return_type
       end
     end
 

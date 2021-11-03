@@ -70,7 +70,7 @@ class Expression
     end
 
     def compile(type:)
-      $fn.validate_types given: llvm_type, expected: type, allow_any: true
+      # $fn.validate_types given: llvm_type, expected: type, allow_any: true
 
       case @value
       when :true, :false then compile_literal '%bool', (@value == :true ? 1 : 0), 1
@@ -84,7 +84,17 @@ class Expression
 
         compile_non_empty_array
       when Symbol
-        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{$fn.lookup(@value)}, align #{llvm_type.align}"
+        val = $fn.lookup @value
+
+        if val.is_a?(Compiler::Function) || val.is_a?(Compiler::PredeclaredExternFunction)
+          fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
+          $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
+          $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
+        elsif val.arg?
+          val.local
+        else
+          $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
+        end
       else
         fail "unknown internal type? (#{@value.inspect})"
       end
