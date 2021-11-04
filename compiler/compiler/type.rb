@@ -121,7 +121,7 @@ class Compiler
       end
 
       def to_s
-        $llvm.struct_type name, fields.values
+        $llvm.struct_type name, fields
       end
 
       def default

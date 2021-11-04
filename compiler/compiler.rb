@@ -126,12 +126,12 @@ class Compiler
         raise "type '#{type.name} is already declared: #{old.inspect}"
       end
     else
-      @types[type.name] = type
+      @types[type.name.to_s] = type
     end
   end
 
   def lookup_type(name)
-    Type::Primitive.lookup(name) || @types[name] or raise "unknown type name #{name.inspect}"
+    Type::Primitive.lookup(name) || @types[name.to_s] or raise "unknown type name #{name.inspect}"
   end
 
   def to_llvm(is_main:)

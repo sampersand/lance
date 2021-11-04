@@ -1,5 +1,11 @@
 class Expression
   class Literal
+    StructDecl = Struct.new :name, :args do
+      def llvm_type
+        @llvm_type ||= Compiler::Type::Struct.new name, args.transform_values(&:llvm_type)
+      end
+    end
+
     attr_reader :value
     def initialize(value)
       @value = value
@@ -12,7 +18,19 @@ class Expression
 
       num = parser.guard(:number) and return new num
       str = parser.guard(:string) and return new str
-      ident = parser.guard(:identifier) and return new ident.to_sym
+      if (ident = parser.guard(:identifier)&.to_sym)
+        if parser.guard '{'
+          return new StructDecl.new ident, {} if parser.guard '}'
+          return new StructDecl.new ident, parser.delineated(delim: ',', end: '}'){
+            name = parser.guard(:identifier) or parser.error "missing identifier"
+            parser.expect ':', err: "missing `:` for struct field decl"
+            value = Expression.parse(parser) or parser.error "missing expression for field '#{name}'"
+            [name, value]
+          }.to_h
+        else
+          return new ident
+        end
+      end
 
       parser.surround '[', ']' do
         first = Expression.parse(parser) or next new []
@@ -43,6 +61,7 @@ class Expression
           end
         when :null then raise "todo"
         when Symbol then $fn.lookup(@value).llvm_type
+        when StructDecl then @value.llvm_type
         end
     end
 
@@ -96,16 +115,32 @@ class Expression
         else
           $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
         end
+      when StructDecl
+        struct_ty = @value.llvm_type
+        args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
+        struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
+        mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
+        cast = $fn.write :new, "bitcast i8* #{mallc} to #{struct_ty}"
+        $fn.write "store #{struct_ty} #{cast}, #{struct_ty}* #{struct_local}, align 8"
+
+        args.each_with_index do |(type, local), offset|
+          tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
+          $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
+        end
+        cast
+
+
+  #       exit
+  # # %5 = alloca %struct.foo*, align 8
+  # # %6 = call i8* @xmalloc(i64 16)
+  # # %7 = bitcast i8* %6 to %struct.foo*
+  # # store %struct.foo* %7, %struct.foo** %5, align 8
+  # # %10 = getelementptr inbounds %struct.foo, %struct.foo* %9, i32 0, i32 0
+  # # store %struct.list* %8, %struct.list** %10, align 8
+
       else
         fail "unknown internal type? (#{@value.inspect})"
       end
     end
   end
 end
-
-
-
-
-
-
-

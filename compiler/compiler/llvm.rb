@@ -10,8 +10,8 @@ class LLVM
   end
 
   def struct_type(name, fields)
-    (@structs[name] ||= {
-      name: "%struct.user.#{name.tr '%', ''}", fields: fields.map(&:llvm_type)
+    (@structs[name.to_s] ||= {
+      name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields.transform_values(&:llvm_type)
     })[:name] + '*'
   end
 
@@ -46,7 +46,7 @@ class LLVM
 
   def final_string(is_main:)
     struct_declarations = @structs.values.map { |name:, fields:|
-      "#{name} = type { #{fields.join ', '} }"
+      "#{name} = type { #{fields.values.join ', '} }"
     }
 
     global_declarations = @globals.values.map {|name:, type:|
@@ -106,6 +106,7 @@ class LLVM
       declare i32 @fn.builtin.compare_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
 
       ; Misc builtins
+      declare i8* @fn.builtin.xmalloc(i64 %0)
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
 
       ; Struct declarations

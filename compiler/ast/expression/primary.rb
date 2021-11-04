@@ -125,6 +125,23 @@ class Expression
         field = parser.guard(:identifier) or parser.error 'expected identifier after `.`'
         new primary, field
       end
+
+      def llvm_type
+        @llvm_type ||= struct_type.fields[@field.to_s]
+      end
+
+      def struct_type
+        @struct_type ||= @primary.llvm_type
+      end
+
+      def compile type:
+        $fn.validate_types expected: type, given: llvm_type
+        primary = @primary.compile type: struct_type
+        offset = struct_type.fields.each_with_index.find { |(k, v), _idx| k == @field }.last
+
+        idx = $fn.write :new, "getelementptr inbounds #{struct_type.to_s.chop}, #{struct_type} #{primary}, i32 0, i32 #{offset}"
+        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{idx}, align 8"
+      end
     end
 
     def initialize(value)
