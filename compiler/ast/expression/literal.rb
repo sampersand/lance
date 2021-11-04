@@ -128,16 +128,6 @@ class Expression
           $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
         end
         cast
-
-
-  #       exit
-  # # %5 = alloca %struct.foo*, align 8
-  # # %6 = call i8* @xmalloc(i64 16)
-  # # %7 = bitcast i8* %6 to %struct.foo*
-  # # store %struct.foo* %7, %struct.foo** %5, align 8
-  # # %10 = getelementptr inbounds %struct.foo, %struct.foo* %9, i32 0, i32 0
-  # # store %struct.list* %8, %struct.list** %10, align 8
-
       else
         fail "unknown internal type? (#{@value.inspect})"
       end

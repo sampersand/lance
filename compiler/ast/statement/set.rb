@@ -22,7 +22,15 @@ class Statement
 
     def compile
       case @prelude
-      when Expression::Primary::FieldAccess then raise 'todo'
+      when Expression::Primary::FieldAccess
+        primary = @prelude.primary.compile type: :any
+        value = @value.compile type: @prelude.llvm_type
+
+        offset = @prelude.struct_type.fields.each_with_index.find { |(k, v), _idx| k == @prelude.field }.last
+
+        idx = $fn.write :new, "getelementptr inbounds #{@prelude.struct_type.to_s.chop}, #{@prelude.struct_type} #{primary}, i32 0, i32 #{offset}"
+        $fn.write "store #{@prelude.llvm_type} #{value}, #{@prelude.llvm_type}* #{idx}, align 8"
+
       when Expression::Primary::ArrayIndex
         inner_type = @prelude.ary.llvm_type.inner 
 
