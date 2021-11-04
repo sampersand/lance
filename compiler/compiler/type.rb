@@ -51,7 +51,8 @@ class Compiler
       end
 
       def byte_length
-        @name == 'bool' ? 1 : 8 # everything else is a pointer, or already 64 bit
+        8
+        # @name == 'bool' ? 1 : 8 # everything else is a pointer, or already 64 bit
       end
 
       def inspect
@@ -117,7 +118,11 @@ class Compiler
       alias eql? ==
 
       def inspect
-        "Type::Struct(#{@name.inspect}, #{@fields.inspect})"
+        if $DEBUG
+          "Type::Struct(#{@name.inspect}, #{@fields.inspect})"
+        else
+          "Type::Struct(#{@name.inspect})"
+        end
       end
 
       def to_s
@@ -131,6 +136,108 @@ class Compiler
       def byte_length
         8
       end
+    end
+
+    class Enum < Type
+      attr_reader :name, :variants
+
+      def initialize(name, variants)
+        @name = name.to_s
+        @variants = variants.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+      end
+
+      def hash
+        @hash ||= @name.hash
+      end
+
+      def position(name)
+        @variants.index { |var| var.struct.name == "#@name$#{name}" }
+      end
+
+      def ==(rhs)
+        rhs.is_a?(Enum) && @name == rhs.name && @variants == rhs.variants
+      end
+
+      alias eql? ==
+
+      def inspect
+        if $DEBUG
+          "Type::Enum(#{@name.inspect}, #{@variants.inspect})"
+        else
+          "Type::Enum(#{@name.inspect})"
+        end
+      end
+
+      def to_s
+        $llvm.enum_type name, variants
+      end
+
+      def default
+        'null'
+      end
+
+      def byte_length
+        8
+      end
+
+      def variants_length
+        @variants_length ||= variants.map { |x| x.fields.length }.max * 8 # todo: non-8
+      end
+
+
+      class Variant < Type
+        attr_reader :enum, :idx, :struct
+
+        def initialize(enum, idx, struct)
+          @enum = enum
+          @idx = idx
+          @struct = struct
+        end
+
+        def name
+          @struct.name
+        end
+
+        def fields
+          @struct.fields
+        end
+
+        def hash
+          raise
+          @hash ||= @name.hash
+        end
+
+        def ==(rhs)
+          rhs.is_a?(Variant) && rhs.enum == @enum && rhs.idx == @idx && rhs.struct == @struct
+        end
+
+        alias eql? ==
+
+        def inspect
+          if $DEBUG
+            "Type::Variant(#{@enum.name.inspect}, #{name.inspect}=#{@idx.inspect}, #{@struct.inspect})"
+          else
+            "Type::Variant(#{@enum.name.inspect}, #{name.inspect})"
+          end
+        end
+
+        def to_s
+          $llvm.struct_type name, fields
+        end
+
+        def llvm_type
+          @enum
+        end
+
+        def default
+          'null'
+        end
+
+        def byte_length
+          8
+        end
+      end
+
     end
 
     class Function < Type

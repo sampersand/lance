@@ -4,14 +4,23 @@ class LLVM
 
     @functions = {}
     @structs = {}
+    @enums = {}
     @globals = {}
     @externs = {}
     @strings = {}
   end
 
   def struct_type(name, fields)
+    name =~ /^enum\./ and return (@enums.fetch $')[:name]+'*'
     (@structs[name.to_s] ||= {
       name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields.transform_values(&:llvm_type)
+    })[:name] + '*'
+  end
+
+  def enum_type(name, variants)
+    (@enums[name.to_s] ||= {
+      name: "%struct.user.enum.#{name.to_s.tr '%', ''}",
+      variants: variants.each {|f| struct_type f.name, f.fields }
     })[:name] + '*'
   end
 
@@ -47,6 +56,11 @@ class LLVM
   def final_string(is_main:)
     struct_declarations = @structs.values.map { |name:, fields:|
       "#{name} = type { #{fields.values.join ', '} }"
+    }
+
+    enum_declarations = @enums.values.map { |name:, variants:|
+      len = variants.map { |x| x.fields.length }.max * 8
+      "#{name} = type { i64, [#{len} x i8] }"
     }
 
     global_declarations = @globals.values.map {|name:, type:|
@@ -85,7 +99,7 @@ class LLVM
     <<~LLVM.gsub('fn.builtin.','')#.tap { |x| puts x }
       ; Prelude
       target triple = "#@target_triple"
-      %bool = type i8
+      %bool = type i64 ; used to be i8, this is just to simplify interfaces
       %num = type i64
       %struct.builtin.str = type { i8*, i64 } ; (ptr, len)
       %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
@@ -114,6 +128,9 @@ class LLVM
 
       ; Struct declarations
       #{struct_declarations.join "\n"}
+
+      ; Enum declarations
+      #{enum_declarations.join "\n"}
 
       ; Global declarations
       #{global_declarations.join "\n"}

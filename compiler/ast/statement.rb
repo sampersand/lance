@@ -3,6 +3,7 @@ require_relative 'statement/while'
 require_relative 'statement/return'
 require_relative 'statement/let'
 require_relative 'statement/set'
+require_relative 'statement/switch'
 require_relative 'statement/do'
 
 class Statement
@@ -12,6 +13,7 @@ class Statement
       Return.parse(parser) ||
       Let.parse(parser) ||
       Set.parse(parser) ||
+      Switch.parse(parser) ||
       Do.parse(parser)
   end
 end

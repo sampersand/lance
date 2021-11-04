@@ -4,8 +4,8 @@ class Lexer
   end
 
   KEYWORDS = %w(
-    global fn struct extern externf
-    if else while return do
+    global fn struct enum extern externf
+    if else while return do switch case
     let set
     true false null
   ).freeze
@@ -15,7 +15,7 @@ class Lexer
 
     return if @stream.empty?
     @stream.slice! /\A\d+\b/ and return [:number, $&.to_i]
-    @stream.slice! /\A\w[\w_]*\b/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&]
+    @stream.slice! /\A[a-zA-Z_][\w_]*\b(?:::[a-zA-Z_]\w*\b)?/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&.sub('::', '$')]
     @stream.slice! /\A([=!><]?=|[&|]{2}|[-+*\/%<>!;,\[\]\{\}\(\):.?])/ and return [:symbol, $&]
     @stream.slice! /\A'([^']*)'/ and return [:string, $1]
     @stream.slice! /\A"((?:\\"|[^"])*)"/ or raise "invalid token start '#{@stream[0].inspect}'"

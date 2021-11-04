@@ -1,8 +1,15 @@
 class Expression
   class Literal
-    StructDecl = Struct.new :name, :args do
+    StructDecl = Struct.new :name, :args, :enum do
       def llvm_type
-        @llvm_type ||= Compiler::Type::Struct.new name, args.transform_values(&:llvm_type)
+        @llvm_type ||=
+          if name.to_s =~ /\$/
+            enum = $compiler.lookup_type $`
+            Compiler::Type::Enum::Variant.new enum, enum.position($').tap { |x| x.nil? and raise "unknown variant '#$'' for enum #$`" },
+              Compiler::Type::Struct.new($', args.transform_values(&:llvm_type))
+          else
+            Compiler::Type::Struct.new name, args.transform_values(&:llvm_type)
+          end
       end
     end
 
@@ -89,6 +96,53 @@ class Expression
       list
     end
 
+    def compile_symbol(type)
+      val = $fn.lookup @value
+
+      if val.is_a?(Compiler::Function) || val.is_a?(Compiler::PredeclaredExternFunction)
+        fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
+        $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
+        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
+      elsif val.is_a?(Compiler::Function::Variable) && val.arg? || val.is_a?(Compiler::Global)
+        val.local
+      else
+        $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
+      end
+    end
+
+    def compile_variant(type)
+      # /(?<enum_name>\w+)\$(?<variant_name>\w+)/ =~ @value.name or raise "oops, bad name?: #{@value.name}"
+      kind = @value.llvm_type
+
+      Literal.new(StructDecl.new("enum."+kind.enum.name, {
+        '0' => Literal.new(kind.idx),
+        '1' => Literal.new(StructDecl.new(kind.name, @value.args))
+      })).compile type: type
+    end
+
+    def compile_struct_decl(type)
+      struct_ty = @value.llvm_type
+      args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
+      struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
+      mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
+      cast = $fn.write :new, "bitcast i8* #{mallc} to #{struct_ty}"
+      $fn.write "store #{struct_ty} #{cast}, #{struct_ty}* #{struct_local}, align 8"
+
+      args.each_with_index do |(type, local), offset|
+        tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
+        if struct_ty.name =~ /\Aenum\./ && offset == 1
+          newty = "[#{$compiler.lookup_type($').variants_length} x i8]"
+          # # p struct_ty = variants.map { |x| x.fields.length }.max * 8
+          tmp = $fn.write :new, "bitcast #{newty}* #{tmp} to #{type}*" # this is probably unsound
+          # type = newty + '*'
+        end
+        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
+      end
+
+      cast
+    end
+
+
     def compile(type:)
       # $fn.validate_types given: llvm_type, expected: type, allow_any: true
 
@@ -103,31 +157,13 @@ class Expression
         end
 
         compile_non_empty_array
-      when Symbol
-        val = $fn.lookup @value
-
-        if val.is_a?(Compiler::Function) || val.is_a?(Compiler::PredeclaredExternFunction)
-          fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
-          $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
-          $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
-        elsif val.is_a?(Compiler::Function::Variable) && val.arg? || val.is_a?(Compiler::Global)
-          val.local
-        else
-          $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
-        end
+      when Symbol then compile_symbol type
       when StructDecl
-        struct_ty = @value.llvm_type
-        args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
-        struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
-        mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
-        cast = $fn.write :new, "bitcast i8* #{mallc} to #{struct_ty}"
-        $fn.write "store #{struct_ty} #{cast}, #{struct_ty}* #{struct_local}, align 8"
-
-        args.each_with_index do |(type, local), offset|
-          tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
-          $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
+        if @value.llvm_type.is_a? Compiler::Type::Enum::Variant
+          compile_variant type
+        else
+          compile_struct_decl type
         end
-        cast
       else
         fail "unknown internal type? (#{@value.inspect})"
       end
