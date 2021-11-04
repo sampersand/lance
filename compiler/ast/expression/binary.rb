@@ -1,6 +1,8 @@
 class Expression
   class Binary
-    OPERATORS = %w(+ - * / % < > <= >= == != & |)
+    OPERATORS = %w(+ - * / % < > <= >= == != && || ? :)
+
+    attr_reader :lhs, :rhs
 
     def initialize(lhs, rhs, op)
       @lhs = lhs
@@ -71,7 +73,7 @@ class Expression
     end
 
     def compile_cmp_op(type, math_op)
-      raise "`#{math_op}` returns a boolean" unless type == Compiler::Type::Primitive::Bool
+      $fn.validate_types given: type, expected: Compiler::Type::Primitive::Bool
 
       lhs = @lhs.compile type: @lhs.llvm_type 
       rhs = @rhs.compile type: @rhs.llvm_type 
@@ -92,6 +94,79 @@ class Expression
       end
     end
 
+    def compile_and(type)
+      Binary.new(
+        @lhs,
+        Binary.new(@rhs, Expression::Literal.new(:false), ?:),
+        ??
+      ).compile type: type
+    end
+
+    def compile_or(type)
+      Binary.new(
+        @lhs,
+        Binary.new(Expression::Literal.new(:true), @rhs, ?:),
+        ??
+      ).compile type: type
+    end
+
+    def compile_ternary(type)
+      res = $fn.write :new, "alloca #{type}, align #{type.align}"
+      cond = @lhs.compile type: Compiler::Type::Primitive::Bool
+      cmp = $fn.write :new, "icmp ne i8 #{cond}, 0"
+      jmp1 = $fn.write_nop
+
+      ift = $fn.declare_label
+      lhs = @rhs.lhs.compile type: type
+
+      $fn.write "store #{type} #{lhs}, #{type}* #{res}, align #{type.align}"
+      jmp2 = $fn.write_nop
+
+      iff= $fn.declare_label
+      rhs = @rhs.rhs.compile type: type
+      $fn.write "store #{type} #{rhs}, #{type}* #{res}, align #{type.align}"
+      jmp3 = $fn.write_nop
+
+      ending = $fn.declare_label
+      jmp1.write "br i1 #{cmp}, label #{ift}, label #{iff}"
+      jmp2.write "br label #{ending}"
+      jmp3.write "br label #{ending}"
+
+      $fn.write :new, "load #{type}, #{type}* #{res}"
+    end
+# =begin
+#   %6 = icmp ne i32 %5, 0
+#   br i1 %6, label %7, label %9
+
+# =end
+
+#       warn "Todo"
+#       return @rhs.lhs.compile type: type
+#       return
+#       raise
+#       p @lhs
+#       p @rhs
+#       exit 0
+#       #       Statement::If.new(@lhs, Statements.new())
+#       # class Statement
+#       #   class If
+#       #     def initialize(cond, body, else_)
+#       #       @cond = cond
+#       #       @body = body
+#       #       @else_ = else_
+#       #     end
+
+#       #       $fn.validate_types given: type, expected: Compiler::Type::Primitive::Bool
+
+#       #       lhs = @lhs.compile type: Compiler::Type::Primitive::Bool
+#       #       cond = $fn.write :new, "icmp #{op} %bool #{lhs}, 0"
+#       #       jmp_to_and = $fn.write_nop
+#       #       rhs = @rhs.copmile type: Com
+
+#       #       when '&&' then compile_and type
+#       #       when '||' then compile_or type
+#       #       when '?' then compile_ternary type
+#     end
 
     def compile(type:)
       case @op
@@ -106,6 +181,9 @@ class Expression
       when '<=' then compile_cmp_op type, 'sle'
       when '>' then compile_cmp_op type, 'sgt'
       when '>=' then compile_cmp_op type, 'sge'
+      when '&&' then compile_and type
+      when '||' then compile_or type
+      when '?' then compile_ternary type
       else raise "unknown op '#@op'??"
       end
     end
@@ -113,8 +191,9 @@ class Expression
     def llvm_type
       case @op
       when ?+, ?-, ?*, ?/, ?% then @lhs.llvm_type
-      when '==', '!=', ?!, ?<, ?>, '<=', '>=' then Compiler::Type::Primitive::Bool
-      else raise "unknown type '#@op'"
+      when ?? then @rhs.lhs.llvm_type
+      when '==', '!=', ?!, ?<, ?>, '<=', '>=', '&&', '||' then Compiler::Type::Primitive::Bool
+      else raise "unknown operator llvm type '#@op'"
       end
     end
   end
