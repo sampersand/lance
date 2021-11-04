@@ -25,8 +25,11 @@ class Compiler
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
     'itoa' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'atoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
-    # 'insert' => PredeclaredExternFunction.new('insert', [Type::List.new(:empty), :any, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Num),
-    # 'atoi' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void)
+    'substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
+    'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Primitive::Void),
+    'insert' => PredeclaredExternFunction.new('insert', [Type::List, :any, Type::Primitive::Num], Type::Primitive::Bool),
+    'delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
+    'length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
   }
 
   def initialize(**opts)

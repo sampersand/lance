@@ -16,7 +16,7 @@ class Expression
       end
 
       def compile(type:)
-        if @fn.is_a?(Expression::Literal) && %i(delete insert).include?(@fn.value)
+        if @fn.is_a?(Expression::Literal) && %i(delete insert length).include?(@fn.value)
           return compile_special type
         end
 
@@ -75,6 +75,19 @@ class Expression
           ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
           void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
           $fn.write :new, "call zeroext i8 @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index}, i64 #{list_type.inner.byte_length})"
+        when :length
+          raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
+
+          ty = @args[0].llvm_type
+
+          if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List)
+            raise "invalid type for length, given #{ty}, expected string or list"
+          end
+
+          val = @args[0].compile type: :any
+
+          tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
+          $fn.write :new, "load i64, i64* #{tmp}, align 8"
         else
           raise "unknown special function '#{@fn.value}'"
         end
@@ -118,7 +131,7 @@ class Expression
         src = @ary.compile type: Compiler::Type::Primitive::Str
         idx = @index.compile type: Compiler::Type::Primitive::Num
 
-        tmp3 = $fn.write :new, "tail call %struct.builtin.str* @fn.builtin.allocate_str(i64 1)"
+        tmp3 = $fn.write :new, "call %struct.builtin.str* @fn.builtin.allocate_str(i64 1)"
         tmp4 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{src}, i64 0, i32 0"
         tmp5 = $fn.write :new, "load i8*, i8** #{tmp4}, align 8"
         tmp6 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp5}, i64 #{idx}"

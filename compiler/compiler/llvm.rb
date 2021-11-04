@@ -105,10 +105,12 @@ class LLVM
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
       declare i32 @fn.builtin.compare_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
+      declare %struct.builtin.str* @substr(%struct.builtin.str* %0, i64 %1, i64 %2)
 
       ; Misc builtins
       declare i8* @fn.builtin.xmalloc(i64 %0)
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
+      declare void @fn.builtin.quit(%num %0) 
 
       ; Struct declarations
       #{struct_declarations.join "\n"}
