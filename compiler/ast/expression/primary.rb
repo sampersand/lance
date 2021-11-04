@@ -96,6 +96,10 @@ class Expression
       end
 
       def compile(type:)
+        if @ary.llvm_type == Compiler::Type::Primitive::Str
+          return compile_string type
+        end
+
         inner_type = @ary.llvm_type.inner 
         $fn.validate_types expected: type, given: inner_type
 
@@ -108,8 +112,27 @@ class Expression
         $fn.write :new, "load #{inner_type}, #{inner_type}* #{tmp3}, align 8"
       end
 
+      def compile_string(type)
+        $fn.validate_types expected: type, given: Compiler::Type::Primitive::Str
+
+        src = @ary.compile type: Compiler::Type::Primitive::Str
+        idx = @index.compile type: Compiler::Type::Primitive::Num
+
+        tmp3 = $fn.write :new, "tail call %struct.builtin.str* @fn.builtin.allocate_str(i64 1)"
+        tmp4 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{src}, i64 0, i32 0"
+        tmp5 = $fn.write :new, "load i8*, i8** #{tmp4}, align 8"
+        tmp6 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp5}, i64 #{idx}"
+        tmp7 = $fn.write :new, "load i8, i8* #{tmp6}, align 1"
+        tmp8 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{tmp3}, i64 0, i32 0"
+        tmp9 = $fn.write :new, "load i8*, i8** #{tmp8}, align 8"
+        tmp10 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp9}, i64 #{idx}"
+        $fn.write "store i8 #{tmp7}, i8* #{tmp10}, align 1"
+        tmp3
+      end
+
+
       def llvm_type
-       @llvm_type ||= @ary.llvm_type.inner
+       @llvm_type ||= (@ary.llvm_type == Compiler::Type::Primitive::Str ? Compiler::Type::Primitive::Str : @ary.llvm_type.inner)
       end
     end
 

@@ -98,8 +98,8 @@ class Compiler
       attr_reader :name, :fields
 
       def initialize(name, fields)
-        @name = name
-        @fields = fields
+        @name = name.to_s
+        @fields = fields.transform_values(&:llvm_type)
       end
 
       def hash

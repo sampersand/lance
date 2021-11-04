@@ -99,6 +99,7 @@ class LLVM
       declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
 
       ; String builtins
+      declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 
       declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
       declare %num @fn.builtin.str_to_num(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
