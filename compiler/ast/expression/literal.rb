@@ -5,8 +5,11 @@ class Expression
         @llvm_type ||=
           if name.to_s =~ /\$/
             enum = $compiler.lookup_type $`
-            Compiler::Type::Enum::Variant.new enum, enum.position($').tap { |x| x.nil? and raise "unknown variant '#$'' for enum #$`" },
-              Compiler::Type::Struct.new($', args.transform_values(&:llvm_type))
+            Compiler::Type::Enum::Variant.new(
+              enum,
+              enum.position($').tap { |x| x.nil? and raise "unknown variant '#$'' for enum #$`" },
+              Compiler::Type::Struct.new(name, args.transform_values(&:llvm_type))
+            )
           else
             Compiler::Type::Struct.new name, args.transform_values(&:llvm_type)
           end
@@ -26,17 +29,14 @@ class Expression
       num = parser.guard(:number) and return new num
       str = parser.guard(:string) and return new str
       if (ident = parser.guard(:identifier)&.to_sym)
-        if parser.guard '{'
-          return new StructDecl.new ident, {} if parser.guard '}'
-          return new StructDecl.new ident, parser.delineated(delim: ',', end: '}'){
-            name = parser.guard(:identifier) or parser.error "missing identifier"
-            parser.expect ':', err: "missing `:` for struct field decl"
-            value = Expression.parse(parser) or parser.error "missing expression for field '#{name}'"
-            [name, value]
-          }.to_h
-        else
-          return new ident
-        end
+        return new ident unless parser.guard '{'
+        return new StructDecl.new ident, {} if parser.guard '}'
+        return new StructDecl.new ident, parser.delineated(delim: ',', end: '}'){
+          name = parser.expect :identifier, err: "missing identifier for struct decl"
+          parser.expect ':', err: "missing `:` for struct field decl"
+          value = Expression.parse(parser) or parser.error "missing expression for field '#{name}'"
+          [name, value]
+        }.to_h
       end
 
       parser.surround '[', ']' do
@@ -116,7 +116,7 @@ class Expression
 
       Literal.new(StructDecl.new("enum."+kind.enum.name, {
         '0' => Literal.new(kind.idx),
-        '1' => Literal.new(StructDecl.new(kind.name, @value.args))
+        '1' => Literal.new(StructDecl.new(kind.name, @value.args).tap { |x| x.llvm_type.instance_variable_set :@not_a_variant, 1})
       })).compile type: type
     end
 
@@ -130,13 +130,17 @@ class Expression
 
       args.each_with_index do |(type, local), offset|
         tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
+
         if struct_ty.name =~ /\Aenum\./ && offset == 1
           newty = "[#{$compiler.lookup_type($').variants_length} x i8]"
-          # # p struct_ty = variants.map { |x| x.fields.length }.max * 8
           tmp = $fn.write :new, "bitcast #{newty}* #{tmp} to #{type}*" # this is probably unsound
-          # type = newty + '*'
         end
-        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
+
+        # if type.is_a? Compiler::Type::Enum::Variant
+          # type = type.enum
+        # end
+
+        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8;  !"
       end
 
       cast
@@ -159,7 +163,7 @@ class Expression
         compile_non_empty_array
       when Symbol then compile_symbol type
       when StructDecl
-        if @value.llvm_type.is_a? Compiler::Type::Enum::Variant
+        if @value.llvm_type.is_a?(Compiler::Type::Enum::Variant) && !@value.llvm_type.instance_variable_defined?(:@not_a_variant)
           compile_variant type
         else
           compile_struct_decl type

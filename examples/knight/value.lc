@@ -1,0 +1,7 @@
+enum Value {
+	Null {},
+	Boolean { b: bool },
+	Number { n: num },
+	Text { t: str }
+}
+

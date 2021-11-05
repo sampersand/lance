@@ -1,4 +1,4 @@
 fn main(_argv: [str]): num {
-	do print("Hello, world"!);
+	do print("Hello, world!");
 	return 0;
 }

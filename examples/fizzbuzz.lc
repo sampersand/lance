@@ -1,39 +1,37 @@
-fn fizzbuzz(n: num): num {
-	let i: num = 1;
-	let array: [str] = [];
+fn fizzbuzz(max: num): [str] {
+	let ret = [""] * max;
+	let i = 1;
 
-	while (i <= n) {
-		let div3: bool = (i % 3) == 0;
-		let div5: bool = (i % 5) == 0;
+	while i < max {
+		let tmp = "";
 
-		if (div3 & div5) {
-			do insert(array, length(array), "FizzBuzz");
-		} else if (div3) {
-			do insert(array, length(array), "Fizz");
-		} else if (div5) {
-			do insert(array, length(array), "Buzz");
-		} else {
-			do insert(array, length(array), itoa(i));
+		if (i % 3) == 0 {
+			set tmp = 'Fizz';
 		}
 
+		if (i % 5) == 0 {
+			set tmp = tmp + 'Buzz';
+		}
+
+		if tmp == "" {
+			set tmp = itoa(i);
+		}
+
+		set ret[i-1] = tmp;
 		set i = i + 1;
 	}
 
-	return array;
+	return ret;
 }
 
-fn main(argv: [str]): num {
-	let result: [str];
+fn main(args: [str]): num {
+	let fb = fizzbuzz(100);
 
-	if (length(argv) == 2) {
-		set result = fizzbuzz(atoi(argv[1]));
-	} else {
-		set result = fizzbuzz(100);
-	}
-
-	let i: num = 0;
-	while (i != length(result)) {
-		do print(result[i] + "\n");
+	let i = 0;
+	while i < 100 {
+		do print(fb[i] + "\n");
 		set i = i + 1;
 	}
+
+	return 0;
 }

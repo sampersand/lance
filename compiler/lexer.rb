@@ -1,16 +1,32 @@
 class Lexer
-  def initialize(stream)
-    @stream = stream
+  def initialize(file:)
+    @stream = File.read file
+    @imports = {file => true}
   end
 
   KEYWORDS = %w(
-    global fn struct enum extern externf
+    global fn struct enum extern externf import
     if else while return do switch case
     let set
     true false null
   ).freeze
 
   def next
+    n = next_
+    return n unless n == [:symbol, 'import']
+    import = next_
+    raise "need a string" unless import[0] == :string
+    raise "need a semicolon" unless next_ == [:symbol, ';']
+
+    f = File.realpath import[1]
+    @imports[f] ||= begin
+      @stream.prepend File.read f
+      true
+    end
+    self.next
+  end
+
+  def next_
     @stream.slice! %r{\A(\s+|//.*?\n|/\*.*?\*/)*}m
 
     return if @stream.empty?

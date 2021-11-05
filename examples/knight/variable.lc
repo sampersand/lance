@@ -1,0 +1,52 @@
+import "value.lc";
+
+struct Variable {
+	name: str,
+	value: Value,
+	assigned: bool
+}
+
+
+global variables: [Variable];
+fn init_variables() {
+	let v: [Variable] = [0];
+	do delete(v, 0); // todo: lol...
+	set variables = v;
+}
+
+
+fn get_variable(name: str): Variable {
+	let i = 0;
+	let len = length(variables);
+
+	while i < (len) {
+		if name == variables[i].name {
+			return variables[i];
+		}
+
+		set i = i + 1;
+	}
+
+	let v = Value::Null{};
+	set variables[i] = Variable {
+		name: name,
+		value: v,
+		assigned: false
+	};
+
+	return variables[i];
+}
+
+/*
+fn run_variable(var: Variable): any {
+	if (var.assigned) {
+		return var.value;
+	}
+	do die("unassigned variable '" + var.name + "'!");
+}
+
+fn assign_variable(var: Variable, value: any): void {
+	set var.value = value;
+	set var.assigned = true;
+}
+*/

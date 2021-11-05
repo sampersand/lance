@@ -113,7 +113,7 @@ class Expression
     def compile_ternary(type)
       res = $fn.write :new, "alloca #{type}, align #{type.align}"
       cond = @lhs.compile type: Compiler::Type::Primitive::Bool
-      cmp = $fn.write :new, "icmp ne i8 #{cond}, 0"
+      cmp = $fn.write :new, "icmp ne %bool #{cond}, 0"
       jmp1 = $fn.write_nop
 
       ift = $fn.declare_label

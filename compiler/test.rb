@@ -30,7 +30,7 @@ require 'fileutils'
 FileUtils.mkdir_p (outdir=opts[:output])
 opts[:input].each do |filename|
   $compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
-  Parser.new(Lexer.new File.read filename).parse_program.each(&:compile)
+  Parser.new(Lexer.new file: filename).parse_program.each(&:compile) rescue abort "#$!"
 
   File.write File.join(outdir, File.basename(filename, '.*') + '.ll'), $compiler.to_llvm(is_main: false)
 end

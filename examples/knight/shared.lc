@@ -1,0 +1,4 @@
+fn abort(msg: str) {
+	do print(msg + "\n");
+	do quit(1);
+}

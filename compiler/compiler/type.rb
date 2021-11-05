@@ -139,11 +139,15 @@ class Compiler
     end
 
     class Enum < Type
-      attr_reader :name, :variants
+      attr_reader :name
 
       def initialize(name, variants)
         @name = name.to_s
-        @variants = variants.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+        @variants_ = variants
+      end
+
+      def variants
+        @variants ||= @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
       end
 
       def hash
@@ -151,18 +155,22 @@ class Compiler
       end
 
       def position(name)
-        @variants.index { |var| var.struct.name == "#@name$#{name}" }
+        variants.index { |var| var.struct.name == "#@name$#{name}" }
       end
 
       def ==(rhs)
-        rhs.is_a?(Enum) && @name == rhs.name && @variants == rhs.variants
+        case rhs
+        when Enum then @name == rhs.name && variants == rhs.variants
+        when Variant then rhs.enum == self
+        else false
+        end
       end
 
       alias eql? ==
 
       def inspect
         if $DEBUG
-          "Type::Enum(#{@name.inspect}, #{@variants.inspect})"
+          "Type::Enum(#{@name.inspect}, #{variants.inspect})"
         else
           "Type::Enum(#{@name.inspect})"
         end
@@ -192,6 +200,7 @@ class Compiler
           @enum = enum
           @idx = idx
           @struct = struct
+          raise "bad name: #{struct.name}" if struct.name !~ /\$/
         end
 
         def name
@@ -208,7 +217,11 @@ class Compiler
         end
 
         def ==(rhs)
-          rhs.is_a?(Variant) && rhs.enum == @enum && rhs.idx == @idx && rhs.struct == @struct
+          case rhs
+          when Variant then rhs.enum == @enum && rhs.idx == @idx && rhs.struct == @struct
+          when Enum then @enum == rhs
+          else false
+          end
         end
 
         alias eql? ==

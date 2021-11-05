@@ -60,8 +60,13 @@ class Compiler
     alias next_label next_local
 
     def define_variable(name, type, arg: false, local: nil)
-      raise "variable '#{name}' already exists for fn '#@name'" if @local_variables.key? name
       name = name.to_s
+
+      if name == '_' && (t = @local_variables[name])
+        return t
+      end
+
+      raise "variable '#{name}' already exists for fn '#@name'" if @local_variables.key? name
 
       @local_variables[name] = Variable.new name, type, (local || next_local), arg
     end

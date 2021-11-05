@@ -1,4 +1,4 @@
-struct Variable {
+	struct Variable {
 	name: str,
 	value: any,
 	assigned: bool
