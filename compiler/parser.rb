@@ -77,8 +77,12 @@ class Parser
     x
   end
 
-  def endline(err: nil)
-    expect ';', err: err
+  def endline(err: nil, guard: false)
+    if guard
+      guard ';'
+    else
+      expect ';', err: err
+    end
   end
 
   def identifier(err: nil)

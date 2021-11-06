@@ -18,6 +18,7 @@ class Declaration
       end
 
       struct_name = parser.identifier err: 'missing name for struct'
+      return new struct_name, nil if parser.endline guard: true
       parser.expect '{', err: 'missing `{` for struct'
 
       fields = parser.delineated delim: ',', end: '}' do

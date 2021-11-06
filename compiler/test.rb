@@ -27,6 +27,7 @@ end.parse! $*
 
 require 'fileutils'
 
+FileUtils.rm_r(opts[:output]) rescue nil
 FileUtils.mkdir_p (outdir=opts[:output])
 opts[:input].each do |filename|
   $compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'

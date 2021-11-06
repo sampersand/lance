@@ -55,19 +55,35 @@ class Compiler
       @type.to_s
     end
 
+    def name
+      "@globals.#@name"
+    end
+
     def llvm_type
       @type.llvm_type
     end
 
     def local
-      if @is_extern
-        pos = $fn.write :new, "alloca #@type, align #{@type.align}"
-        $fn.write :new, "load #@type, #@type* @globals.#@name, align #{@type.align}"
-      else
-        "@globals.#@name"
-      end
+      $fn.write :new, "load #@type, #@type* #{name}, align #{@type.align}"
+  # %4 = load %struct.builtin.str*, %struct.builtin.str** @globals.stream, align 8
+  # %5 = getelementptr inbounds %struct.builtin.str, %struct.builtin.str* %4, i64 0, i32 0
+
+      # else
+        # "@globals.#@name"
+      # end
       # @local ||= begin
       # end
+###  #     # if @is_extern
+###  #       pos = $fn.write :new, "alloca #@type, align #{@type.align} ;"
+###  #       $fn.write :new, "load #@type, #@type* @globals.#@name, align #{@type.align}"
+###  # # %4 = load %struct.builtin.str*, %struct.builtin.str** @globals.stream, align 8
+###  # # %5 = getelementptr inbounds %struct.builtin.str, %struct.builtin.str* %4, i64 0, i32 0
+###
+###  #     # else
+###  #       # "@globals.#@name"
+###  #     # end
+###  #     # @local ||= begin
+###  #     # end
     end
 
     def default
@@ -126,7 +142,7 @@ class Compiler
       if type == old
         warn "warning: type '#{type.name}' declared twice"
       else
-        raise "type '#{type.name} is already declared: #{old.inspect}"
+        raise "type '#{type.name}' is already declared: #{old.inspect}"
       end
     else
       @types[type.name.to_s] = type

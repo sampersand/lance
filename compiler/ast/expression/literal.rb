@@ -140,6 +140,8 @@ class Expression
           # type = type.enum
         # end
 
+        # p st
+
         $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8;  !"
       end
 
@@ -163,6 +165,11 @@ class Expression
         compile_non_empty_array
       when Symbol then compile_symbol type
       when StructDecl
+        # p @value.llvm_type
+        # p @value.llvm_type.instance_variable_defined? :@not_a_variant
+        # puts caller
+        # puts
+        # puts
         if @value.llvm_type.is_a?(Compiler::Type::Enum::Variant) && !@value.llvm_type.instance_variable_defined?(:@not_a_variant)
           compile_variant type
         else

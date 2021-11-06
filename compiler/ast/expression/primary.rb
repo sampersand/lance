@@ -16,7 +16,7 @@ class Expression
       end
 
       def compile(type:)
-        if @fn.is_a?(Expression::Literal) && %i(delete insert length).include?(@fn.value)
+        if @fn.is_a?(Expression::Literal) && %i(delete insert length unreachable).include?(@fn.value)
           return compile_special type
         end
 
@@ -88,6 +88,7 @@ class Expression
 
           tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
           $fn.write :new, "load i64, i64* #{tmp}, align 8"
+        when :unreachable then $fn.write 'unreachable'
         else
           raise "unknown special function '#{@fn.value}'"
         end
