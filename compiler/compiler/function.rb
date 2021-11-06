@@ -38,17 +38,21 @@ class Compiler
 
     attr_reader :name, :args, :return_type
 
-    def initialize(name, args, return_type, body)
+    def initialize(name, args, return_type, body, is_private)
       @name = name
       @return_type = return_type || Type::Primitive::Void
       @locals = 0
       @local_variables = {}
       @body = body
+      @is_private = is_private
       @lines = []
+      @whiles = []
 
       @args = args.map { |name, type|  define_variable name, type, arg: true }
       next_local # ignore it for some reason, idk why llvm does it
     end
+
+    attr_accessor :whiles
 
     def llvm_type
       @llvm_type ||= Compiler::Type::Function.new @args.map(&:type), @return_type
@@ -129,7 +133,7 @@ class Compiler
 
     def compile
       $fn = self
-      $llvm.declare_function @name, @args, @return_type do
+      $llvm.declare_function @name, @args, @return_type, @is_private do
         @body.compile
 
         if @return_type == Compiler::Type::Primitive::Void

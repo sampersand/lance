@@ -31,15 +31,15 @@ FileUtils.rm_r(opts[:output]) rescue nil
 FileUtils.mkdir_p (outdir=opts[:output])
 opts[:input].each do |filename|
   $compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
-  Parser.new(Lexer.new file: filename).parse_program.each(&:compile) rescue abort "#$!"
+  Parser.new(Lexer.new file: filename).parse_program.each(&:compile) #rescue abort "#$!"
 
   File.write File.join(outdir, File.basename(filename, '.*') + '.ll'), $compiler.to_llvm(is_main: false)
 end
 
-if opts[:compile]
-  $compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
-  File.write File.join(outdir, '___main.ll'), $compiler.to_llvm(is_main: true)
+$compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
+File.write File.join(outdir, '___main.ll'), $compiler.to_llvm(is_main: true)
 
+if opts[:compile]
   opts[:compile] = outdir + '/lance.out' if opts[:compile] == true
   system 'clang', '-o', opts[:compile], '-xir', *Dir[outdir + '/*.ll'], *Dir[__dir__ + '/../include/out/*.ll']
 end

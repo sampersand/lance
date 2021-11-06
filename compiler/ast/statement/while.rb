@@ -20,6 +20,7 @@ class Statement
       jmp = $fn.write_nop
       top = $fn.declare_label
       jmp.write "br label #{top}"
+      $fn.whiles.push [top, []]
 
       cond1 = @cond.compile type: Compiler::Type::Primitive::Bool
       cond2 = $fn.write :new, "icmp ne %bool #{cond1}, 0"
@@ -32,6 +33,10 @@ class Statement
       bottom = $fn.declare_label
 
       jmp_statement.write "br i1 #{cond2}, label #{top_of_body}, label #{bottom}"
+
+      $fn.whiles.pop.last.each do |whilst|
+        whilst.write "br label #{bottom} ;"
+      end
     end
   end
 end

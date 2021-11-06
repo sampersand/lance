@@ -45,10 +45,11 @@ class Compiler
   end
 
   class Global
-    def initialize(name, type, is_extern)
+    def initialize(name, type, is_extern, is_private=false)
       @name = name
       @type = type
       @is_extern = is_extern
+      @is_private = is_private
     end
 
     def to_s
@@ -61,6 +62,10 @@ class Compiler
 
     def llvm_type
       @type.llvm_type
+    end
+
+    def private?
+      @is_private
     end
 
     def local
@@ -91,7 +96,7 @@ class Compiler
     end
   end
 
-  def declare_global(name, type)
+  def declare_global(name, type, is_private)
     if (global = @globals[name])
       if global == type
         warn "global '#{name}' is already declared"
@@ -101,7 +106,7 @@ class Compiler
 
       global
     else
-      @globals[name] = Global.new name, type, false
+      @globals[name] = Global.new name, type, false, is_private
     end
   end
 

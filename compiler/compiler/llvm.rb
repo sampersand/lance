@@ -40,14 +40,15 @@ class LLVM
     "@fn.user.#{name}"
   end
 
-  def declare_function(name, args, return_type)
+  def declare_function(name, args, return_type, is_private)
     fn = @functions[name] and return fn[:name]
 
     @functions[name] = {
       name: fn_name_for(name),
       args: args,
       return_type: return_type,
-      body: []
+      body: [],
+      is_private: is_private
     }
     @functions[name][:body] = yield
     @functions[name][:name]
@@ -64,7 +65,7 @@ class LLVM
     }
 
     global_declarations = @globals.values.map {|name:, type:|
-      "#{name} = global #{type} #{type.default}, align 8"
+      "#{name} = #{type.private? ? 'internal ' : '' }global #{type} #{type.default}, align 8"
     }
 
     extern_declarations = @externs.values.map {|name:, type:, externf:|
@@ -86,9 +87,9 @@ class LLVM
       LLVM
     }
 
-    functions = @functions.values.map { |name:, args:, return_type:, body:|
+    functions = @functions.values.map { |name:, args:, return_type:, body:, is_private:|
       <<~EOS
-        define #{return_type} #{name}(#{
+        define #{is_private ? "internal " : ""}#{return_type} #{name}(#{
             args.map { |a, i| "#{a.type} #{a.local}" }.join ', '
         }) {
           #{body.join "\n  "}

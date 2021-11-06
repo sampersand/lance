@@ -5,16 +5,20 @@ require_relative 'statement/let'
 require_relative 'statement/set'
 require_relative 'statement/switch'
 require_relative 'statement/do'
+require_relative 'statement/break'
+require_relative 'statement/continue'
 
 class Statement
   def self.parse(parser)
     If.parse(parser) ||
       While.parse(parser) ||
       Return.parse(parser) ||
+      Do.parse(parser) ||
       Let.parse(parser) ||
       Set.parse(parser) ||
       Switch.parse(parser) ||
-      Do.parse(parser)
+      Continue.parse(parser) ||
+      Break.parse(parser)
   end
 end
 
