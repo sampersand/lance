@@ -1,0 +1,46 @@
+struct Fraction { n: num, d: num }
+enum FractionResult {
+	ZeroDenom{},
+	Valid{f: Fraction}
+}
+
+fn NewFraction(n: num, d: num): FractionResult {
+	if d == 0 {
+		return FractionResult::ZeroDenom{};
+	}
+
+	let n_ = n;
+	let d_ = d;
+
+	if d < 0 {
+		set n_ = -n_;
+		set d_ = -d_;
+	}
+
+	let f = Fraction { n: n_, d: d_ };
+
+	return FractionResult::Valid { f: f };
+}
+
+fn ftoa(f: Fraction): str {
+	if f.d == 1 {
+		return itoa(f.d);
+	}
+
+	return itoa(f.n) + '/' + itoa(f.d);
+}
+
+fn main() {
+	switch NewFraction(4, 3) {
+		case _: FractionResult::ZeroDenom {
+			do print("oops, zero denominator!\n");
+			return 1;
+		}
+
+		case f: FractionResult::Valid {
+			do print("fraction found:" + ftoa(f.f) + "\n");
+		}
+	}
+
+	return 0;
+}
