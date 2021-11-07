@@ -168,13 +168,23 @@ fn priv Lexer.next(): Token {
 		return self.parse_number();
 	}
 
+	if islower(c) {
+		return self.parse_
+	}
+
 	do abort("oops");
-	return Token{}
+	do unreachable();
 }
 
 fn main(): num {
-	let l: Lexer = Lexer_new("//what\n  /* in the\n/*world is*/ happening*/  here", "!");
+	let l: Lexer = Lexer_new("//what\n  /* in the\n/*world is*/ happening*/ 12 here", "!");
 
+	let t = l.next();
+	switch t.kind {
+		case n: TokenKind::Number {
+			do print("val=" + n.n.to_str() + "\n");
+		}
+	}
 	do l.strip();
 	do print(l.take_if_starts_with('here') ? "yup" : "nope"); // # => yup
 
