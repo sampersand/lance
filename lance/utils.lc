@@ -1,6 +1,6 @@
 fn count_char_occurrences(s: str, c: str): num {
 	let i = 0
-	let l = length(s)
+	let l = s.length()
 	let n = 0
 
 	while i < l {

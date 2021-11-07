@@ -35,12 +35,12 @@ fn Lexer.pos(): StreamPos {
 	return StreamPos { lineno: self.lineno, filename: self.filename }
 }
 
-fn StreamPos.tostr(): str {
-	return self.filename + ':' + ntos(self.lineno)
+fn StreamPos.to_str(): str {
+	return self.filename + ':' + self.lineno.to_str()
 }
 
 fn priv Lexer.is_eof(): bool {
-	return self.index >= length(self.stream)
+	return self.index >= self.stream.length()
 }
 
 fn priv Lexer.peek(): str {
@@ -70,13 +70,13 @@ fn priv Lexer.peek_advance(): str {
 }
 
 fn priv Lexer.take_if_starts_with(s: str): bool {
-	let s_len = length(s)
+	let s_len = s.length()
 
-	if length(self.stream) < (s_len + self.index) {
+	if self.stream.length() < (s_len + self.index) {
 		return false
 	}
 
-	if substr(self.stream, self.index, s_len) == s {
+	if self.stream.substr(self.index, s_len) == s {
 		set self.lineno = self.lineno + count_char_occurrences(s, "\n")
 		set self.index = self.index + s_len
 		return true
@@ -101,7 +101,7 @@ fn priv Lexer.strip() {
 
 			while nesting != 0 {
 				if self.is_eof() {
-					do abort("Missing closing `*/`. Comment started at " + start.tostr())
+					do abort("Missing closing `*/`. Comment started at " + start.to_str())
 				}
 
 				if self.take_if_starts_with('/*') {
@@ -123,7 +123,7 @@ fn priv Lexer.strip() {
 }
 
 fn priv StreamPos.abort(m: str) {
-	do abort(self.tostr() + ": " + m)
+	do abort(self.to_str() + ": " + m)
 }
 
 fn priv Lexer.abort(m: str) {
@@ -135,7 +135,7 @@ fn priv isdigit(c: str): bool {
 }
 
 fn priv isalnum(c: str): bool {
-	return false
+	return false // todo
 }
 
 fn priv Lexer.new_token(k: TokenKind): Token {
@@ -154,7 +154,7 @@ fn priv Lexer.parse_number(): Token {
 		do self.abort("invalid suffix for number encountered: " + self.peek())
 	}
 
-	let n_ = TokenKind::Number { n: ston(n) }
+	let n_ = TokenKind::Number { n: n.to_num() }
 	return self.new_token(n_)
 }
 
