@@ -9,9 +9,9 @@ class Statement
     end
 
     def compile
-      lbl = $fn.whiles.last.first or raise "`continue` used outside of a loop"
+      label = $fn.whiles.last.first or raise "`continue` used outside of a loop"
       $fn.write "br label #{label}"
-      raise 'todo'
+      $fn.declare_label
     end
   end
 end

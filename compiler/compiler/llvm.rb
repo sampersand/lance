@@ -83,7 +83,7 @@ class LLVM
       strtype = "[#{string_len} x i8]"
       <<~LLVM
         #{name}.str = private unnamed_addr constant #{strtype} c"#{string}", align 1
-        #{name} = local_unnamed_addr global %struct.builtin.str { i8* getelementptr inbounds (#{strtype}, #{strtype}* #{name}.str, i32 0, i32 0), i64 #{string_len} }, align 8
+        #{name} = private local_unnamed_addr global %struct.builtin.str { i8* getelementptr inbounds (#{strtype}, #{strtype}* #{name}.str, i32 0, i32 0), i64 #{string_len} }, align 8
       LLVM
     }
 
@@ -120,7 +120,9 @@ class LLVM
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
       declare i32 @fn.builtin.compare_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
-      declare %struct.builtin.str* @substr(%struct.builtin.str* %0, i64 %1, i64 %2)
+      declare %struct.builtin.str* @fn.builtin.substr(%struct.builtin.str* %0, i64 %1, i64 %2)
+      declare %struct.builtin.str* @fn.builtin.ascii_to_str(%num %0)
+      declare %num @fn.builtin.str_to_ascii(%struct.builtin.str* %0)
 
       ; Misc builtins
       declare i8* @fn.builtin.xmalloc(i64 %0)

@@ -23,8 +23,10 @@ class Compiler
 
   PREDCLARED_EXTERNS = {
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
-    'itoa' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
-    'atoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
+    'itos' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
+    'stoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
+    'stoa' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),
+    'atos' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Num], Type::Primitive::Str),
     'substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
     'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Primitive::Void),
     'insert' => PredeclaredExternFunction.new('insert', [Type::List, :any, Type::Primitive::Num], Type::Primitive::Bool),
@@ -154,8 +156,8 @@ class Compiler
     end
   end
 
-  def lookup_type(name)
-    Type::Primitive.lookup(name) || @types[name.to_s] or raise "unknown type name #{name.inspect}"
+  def lookup_type(name, error: true)
+    Type::Primitive.lookup(name) || @types[name.to_s] or (error && raise("unknown type name #{name.inspect}"))
   end
 
   def to_llvm(is_main:)

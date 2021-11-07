@@ -8,6 +8,7 @@ class Declaration
     def initialize(name, fields)
       @name = name
       @fields = fields
+      compile
     end
 
     # struct-decl := 'struct' <ident> '{' {<ident> <typedecl> ','} '}'
@@ -18,7 +19,6 @@ class Declaration
       end
 
       struct_name = parser.identifier err: 'missing name for struct'
-      return new struct_name, nil if parser.endline guard: true
       parser.expect '{', err: 'missing `{` for struct'
 
       fields = parser.delineated delim: ',', end: '}' do
@@ -35,7 +35,7 @@ class Declaration
     end
 
     def compile
-      $compiler.declare_type llvm_type
+      @compiled ||= $compiler.declare_type llvm_type
     end
   end
 end

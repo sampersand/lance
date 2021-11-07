@@ -139,7 +139,7 @@ class Expression
         tmp7 = $fn.write :new, "load i8, i8* #{tmp6}, align 1"
         tmp8 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{tmp3}, i64 0, i32 0"
         tmp9 = $fn.write :new, "load i8*, i8** #{tmp8}, align 8"
-        tmp10 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp9}, i64 #{idx}"
+        tmp10 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp9}, i64 0"
         $fn.write "store i8 #{tmp7}, i8* #{tmp10}, align 1"
         tmp3
       end

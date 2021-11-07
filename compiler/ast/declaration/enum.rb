@@ -11,6 +11,7 @@ class Declaration
       kinds.each do |k|
         k.instance_variable_set :@enum, self
       end
+      compile
     end
 
     def self.parse(parser)
@@ -31,9 +32,11 @@ class Declaration
     end
 
     def compile
-      $compiler.declare_type llvm_type
-      llvm_type.variants.each do |var|
-        $compiler.declare_type var
+      @compiled ||= begin
+        $compiler.declare_type llvm_type
+        llvm_type.variants.each do |var|
+          $compiler.declare_type var
+        end
       end
     end
   end

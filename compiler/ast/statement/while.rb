@@ -35,7 +35,7 @@ class Statement
       jmp_statement.write "br i1 #{cond2}, label #{top_of_body}, label #{bottom}"
 
       $fn.whiles.pop.last.each do |whilst|
-        whilst.write "br label #{bottom} ;"
+        whilst.write "br label #{bottom}"
       end
     end
   end
