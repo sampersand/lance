@@ -20,6 +20,9 @@ class Declaration
       parser.guard 'fn' or return
       is_private = parser.guard 'priv'
       fn_name = parser.identifier err: 'missing name for fn'
+      if parser.guard '.'
+        fn_name.concat ".member.#{parser.identifier err: 'missing member function name'}"
+      end
       parser.expect '(', err: 'missing `(` for fn arg decl'
 
       args = parser.delineated delim: ',', end: ')' do
