@@ -32,7 +32,7 @@ class Lexer
 
     return if @stream.empty?
     @stream.slice! /\A\d+\b/ and return [:number, $&.to_i]
-    @stream.slice! /\A[a-zA-Z_][\w_]*\b(?:::[a-zA-Z_]\w*\b)?/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&.sub('::', '$')]
+    @stream.slice! /\A[a-zA-Z_][\w_]*\b(?:::[a-zA-Z_]\w*\b)?/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&.sub('::', '-')]
     @stream.slice! /\A([=!><]?=|[&|]{2}|[-+*\/%<>!;,\[\]\{\}\(\):.?])/ and return [:symbol, $&]
     @stream.slice! /\A'([^']*)'/ and return [:string, $1]
     @stream.slice! /\A"((?:\\"|[^"])*)"/ or raise "invalid token start '#{@stream[0].inspect}'"

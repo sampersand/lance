@@ -3,7 +3,7 @@ class Expression
     StructDecl = Struct.new :name, :args, :enum do
       def llvm_type
         @llvm_type ||=
-          if name.to_s =~ /\$/
+          if name.to_s =~ /-/
             enum = $compiler.lookup_type $`
             Compiler::Type::Enum::Variant.new(
               enum,
@@ -111,7 +111,7 @@ class Expression
     end
 
     def compile_variant(type)
-      # /(?<enum_name>\w+)\$(?<variant_name>\w+)/ =~ @value.name or raise "oops, bad name?: #{@value.name}"
+      # /(?<enum_name>\w+)-(?<variant_name>\w+)/ =~ @value.name or raise "oops, bad name?: #{@value.name}"
       kind = @value.llvm_type
 
       Literal.new(StructDecl.new("enum."+kind.enum.name, {

@@ -21,7 +21,7 @@ class Declaration
 
       kinds = parser.delineated delim: ',', end: '}' do
         str = Struct.parse(parser, require_struct_keyword: false) or next
-        str.tap { |x| x.name.prepend "#{enum_name}$" }
+        str.tap { |x| x.name.prepend "#{enum_name}-" }
       end
 
       new enum_name, kinds

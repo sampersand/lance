@@ -27,6 +27,10 @@ class Compiler
         'any' => (Any = new 'any'),
       }
 
+      def name
+        @name
+      end
+
       def to_s
         case @name
         when 'void' then 'void'
@@ -65,6 +69,10 @@ class Compiler
 
       def initialize(inner)
         @inner = inner
+      end
+
+      def name
+        'list'
       end
 
       def hash
@@ -155,7 +163,7 @@ class Compiler
       end
 
       def position(name)
-        variants.index { |var| var.struct.name == "#@name$#{name}" }
+        variants.index { |var| var.struct.name == "#@name-#{name}" }
       end
 
       def ==(rhs)
@@ -200,7 +208,7 @@ class Compiler
           @enum = enum
           @idx = idx
           @struct = struct
-          raise "bad name: #{struct.name}" if struct.name !~ /\$/
+          raise "bad name: #{struct.name}" if struct.name !~ /-/
         end
 
         def name
