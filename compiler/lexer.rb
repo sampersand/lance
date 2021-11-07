@@ -5,7 +5,7 @@ class Lexer
   end
 
   KEYWORDS = %w(
-    global fn struct enum extern externf import
+    global fn priv struct enum extern externf import
     if else while return do switch case break continue
     let set
     true false null
