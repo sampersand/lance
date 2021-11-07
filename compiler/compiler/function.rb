@@ -75,9 +75,9 @@ class Compiler
       @local_variables[name] = Variable.new name, type, (local || next_local), arg
     end
 
-    def lookup(name)
+    def lookup(name, error: true)
       name = name.to_s
-      @local_variables[name] || $compiler.lookup(name) or raise "unknown variable '#{name}' for '#{@name}'"
+      @local_variables[name] || $compiler.lookup(name) or (error && raise("unknown variable '#{name}' for '#{@name}'"))
     end
 
     def to_s

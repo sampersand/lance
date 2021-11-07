@@ -12,7 +12,15 @@ class Expression
       def self.parse(primary, parser)
         parser.guard '(' or return
 
-        new primary, parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
+        args = parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
+
+        if primary.is_a?(Expression::Primary::FieldAccess)
+          name = primary.primary.llvm_type.name.to_s + '.member.' + primary.field.to_s
+          args.prepend primary.primary
+          primary = Expression::Literal.new name.to_sym
+        end
+
+        new primary, args
       end
 
       def compile(type:)
@@ -38,7 +46,7 @@ class Expression
       end
 
       def llvm_type
-        @llvm_type ||= (@fn.llvm_type.return_type || Compiler::Type::Primitive::Void)
+        @llvm_type ||= @fn.llvm_type.return_type || Compiler::Type::Primitive::Void
       end
 
       private def compile_special(type)
@@ -160,7 +168,11 @@ class Expression
       def self.parse(primary, parser)
         parser.guard '.' or return
         field = parser.guard(:identifier) or parser.error 'expected identifier after `.`'
-        new primary, field
+        if primary.is_a?(Expression::Literal) && (type= $compiler.lookup_type(primary.value.to_s, error: false))
+          Expression::Literal.new :"#{primary.value}.member.#{field}"
+        else
+          new primary, field
+        end
       end
 
       def llvm_type
