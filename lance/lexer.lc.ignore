@@ -1,0 +1,193 @@
+externf string_contains: fn(str, str): bool;
+
+global priv stm: str;
+global priv idx: num;
+global priv lineno: num;
+
+fn set_lexer_stream(s: str) {
+	set stm = s;
+	set idx = 0;
+}
+
+enum Token {
+	Number { n: num },
+	String { s: str },
+	Identifier { s: str },
+	Symbol { s: str },
+}
+
+fn priv peekn(n: num): str {
+	if idx + n > length(stm) {
+		return ""
+	}
+
+	return stm[idx+n];
+}
+
+fn priv peek(): str {
+	return peekn(0);
+}
+
+fn priv take_if_starts_with(s: str): bool {
+	let i = 0;
+	let l = length(s);
+
+	while i < l {
+		if peekn(i) != s[i] {
+			return false;
+		}
+		set i = i + 1;
+	}
+
+	set idx = idx + l;
+	return true;
+}
+
+
+fn priv is_eof(): bool {
+	return idx == length(stm);
+}
+
+fn priv advance() {
+	set idx = idx + 1;
+}
+
+fn priv peek_advance(): str {
+	let p = peek();
+	do advance();
+	return p;
+}
+
+fn priv isspace(s: str): bool {
+	return string_contains(" \n\t\r\f", s);
+}
+
+fn priv isdigit(s: str): bool {
+	return ('0' <= s) && (s <= '9');
+}
+
+fn priv isletter(s: str): bool {
+	return (('a' <= s) && (s <= 'z')) || (('A' <= s) && (s <= 'Z')) || (s == '_');
+}
+
+fn priv strip_multiline_comment() {
+	if take_if_starts_with('/*') {
+		while true {
+			if is_eof() {
+
+			}
+		}
+	}
+	if !((peek() == '*') && (peekn(1) == '/')) {
+		return;
+	}
+
+	do advance();
+	do advance();
+
+	while true {
+
+	}
+}
+
+
+fn priv strip_whitespace() {
+	while true {
+		let p = peek();
+
+		if isspace(p) {
+			do advance();
+			continue;
+		}
+
+		if p != '/' {
+			return;
+		}
+
+		if peekn(1) == '/' {
+			do advance();
+			do advance();
+
+			while !is_eof() && (peek_advance() != "\n") {
+				// do nothing, peek_advance takes care of it.
+			}
+			continue;
+		}
+
+		if peekn(1) == '*' {
+			do advance();
+			do advance();
+
+			// FIXME: This will cause an error if the file ends with a `*` without
+			// a closing `/`. But that's a future problem
+			while !is_eof() {
+				let a = peek_advance();
+
+				if peek() == '*' {
+					&& peekn(1) == '/' {
+					do
+				}
+			}
+
+				while (peek() != "") && !((peek() == '*') && (peekn(1) == '/')) {
+					do advance();
+				}
+
+				if peek() == '*'
+			}
+&& (stm[idx + 1] == '/')
+		} else {
+			return;
+		}
+	}
+}
+
+
+__END__
+// 
+// fn main(){
+// 	set stm = "hello world";
+// 	do print(stream_peek() + "\n");
+// }
+// 
+// __EOF__
+// class Lexer
+//   def initialize(file:)
+//     @stm = File.read file
+//     @imports = {file => true}
+//   end
+// 
+//   KEYWORDS = %w(
+//     global fn struct enum extern externf import
+//     if else while return do switch case
+//     let set
+//     true false null
+//   ).freeze
+// 
+//   def next_
+//     @stm.slice! %r{\A(\s+|//.*?\n|/\*.*?\*/)*}m
+//     return if @st =~ /\A__EOF__\n/
+// 
+//     return if @st.empty?
+//     @st.slice! /\A\d+\b/ and return [:number, $&.to_i]
+
+if @st.slice! /\A\d+\b/
+	return [:number, $&.to_i]
+end
+
+return [:number, $&.to_i] if @st.slice! /\A\d+\b/
+
+
+//     @st.slice! /\A[a-zA-Z_][\w_]*\b(?:::[a-zA-Z_]\w*\b)?/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&.sub('::', '$')]
+//     @st.slice! /\A([=!><]?=|[&|]{2}|[-+*\/%<>!;,\[\]\{\}\(\):.?])/ and return [:symbol, $&]
+//     @st.slice! /\A'([^']*)'/ and return [:string, $1]
+//     @st.slice! /\A"((?:\\"|[^"])*)"/ or raise "invalid token start '#{@st[0].inspect}'"
+//     [:string, $1
+//         .gsub('\n',"\n")
+//         .gsub('\t',"\t")
+//         .gsub('\r',"\r")
+//         .gsub('\f',"\f")
+//         .gsub(/\\['"\\]/,'\1')
+//         .gsub(/\\x\h\h/){ |x| x[/\h\h/].to_i(16).chr }]
+//   end
+// end
