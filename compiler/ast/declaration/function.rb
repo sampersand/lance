@@ -40,7 +40,6 @@ class Declaration
     def compile
       if name =~ /\.member\./
         args.prepend ['self', $compiler.lookup_type($`)]
-        p args
       end
 
       $compiler.declare_function Compiler::Function.new(

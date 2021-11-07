@@ -8,9 +8,13 @@ class Statement
     end
 
     def self.parse(parser)
-      parser.guard 'while' or return
+      if parser.guard 'loop'
+        cond = Expression::Literal.new :true
+      else
+        parser.guard 'while' or return
+        cond = Expression.parse(parser) or parser.error 'missing condition for `while`'
+      end
 
-      cond = Expression.parse(parser) or parser.error 'missing condition for `while`'
       body = Statements.parse(parser) or parser.error 'missing body for `while`'
 
       new cond, body

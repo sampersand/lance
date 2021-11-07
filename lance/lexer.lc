@@ -1,5 +1,5 @@
 externf string_contains: fn(str, str): bool;
-externf count_char_occurances: fn(str, str): num;
+externf count_char_occurrences: fn(str, str): num;
 externf abort: fn(str);
 
 struct Lexer {
@@ -31,54 +31,54 @@ fn Lexer_new(stream: str, filename: str): Lexer {
 	return Lexer { stream: stream, index: 0, filename: filename, lineno: 1 }
 }
 
-fn Lexer_pos(l: Lexer): StreamPos {
-	return StreamPos { lineno: l.lineno, filename: l.filename }
+fn Lexer.pos(): StreamPos {
+	return StreamPos { lineno: self.lineno, filename: self.filename }
 }
 
-fn StreamPos_tostr(s: StreamPos): str {
-	return s.filename + ':' + itos(s.lineno)
+fn StreamPos.tostr(): str {
+	return self.filename + ':' + ntos(self.lineno)
 }
 
-fn priv is_eof(l: Lexer): bool {
-	return l.index >= length(l.stream)
+fn priv Lexer.is_eof(): bool {
+	return self.index >= length(self.stream)
 }
 
-fn priv peek(l: Lexer): str {
-	if is_eof(l) { 
+fn priv Lexer.peek(): str {
+	if self.is_eof() { 
 		return ""
 	}
 
-	return l.stream[l.index]
+	return self.stream[self.index]
 }
 
-fn priv advance(l: Lexer) {
-	if is_eof(l) {
+fn priv Lexer.advance() {
+	if self.is_eof() {
 		do abort("advancing past EOF")
 	}
 
-	if peek(l) == "\n" {
-		set l.lineno = l.lineno + 1
+	if self.peek() == "\n" {
+		set self.lineno = self.lineno + 1
 	}
 
-	set l.index = l.index + 1
+	set self.index = self.index + 1
 }
 
-fn priv peek_advance(l: Lexer): str {
-	let s = peek(l)
-	do advance(l)
+fn priv Lexer.peek_advance(): str {
+	let s = self.peek()
+	do self.advance()
 	return s
 }
 
-fn priv take_if_starts_with(l: Lexer, s: str): bool {
+fn priv Lexer.take_if_starts_with(s: str): bool {
 	let s_len = length(s)
 
-	if length(l.stream) < (s_len + l.index) {
+	if length(self.stream) < (s_len + self.index) {
 		return false
 	}
 
-	if substr(l.stream, l.index, s_len) == s {
-		set l.lineno = l.lineno + count_char_occurances(s, "\n")
-		set l.index = l.index + s_len
+	if substr(self.stream, self.index, s_len) == s {
+		set self.lineno = self.lineno + count_char_occurrences(s, "\n")
+		set self.index = self.index + s_len
 		return true
 	}
 
@@ -89,32 +89,32 @@ fn priv iswhitespace(c: str): bool {
 	return string_contains(" \n\t\r\f", c)
 }
 
-fn priv strip(l: Lexer) {
-	while true {
-		while iswhitespace(peek(l)) {
-			do advance(l)
+fn priv Lexer.strip() {
+	loop {
+		while iswhitespace(self.peek()) {
+			do self.advance()
 		}
 
-		if take_if_starts_with(l, '/*') {
-			let start = Lexer_pos(l)
+		if self.take_if_starts_with('/*') {
+			let start = self.pos()
 			let nesting = 1
 
 			while nesting != 0 {
-				if is_eof(l) {
-					do abort("Missing closing `*/`. Comment started at " + StreamPos_tostr(start))
+				if self.is_eof() {
+					do abort("Missing closing `*/`. Comment started at " + start.tostr())
 				}
 
-				if take_if_starts_with(l, '/*') {
+				if self.take_if_starts_with('/*') {
 					set nesting = nesting + 1
-				} else if take_if_starts_with(l, '*/') {
+				} else if self.take_if_starts_with('*/') {
 					set nesting = nesting - 1
 				} else {
-					do advance(l)
+					do self.advance()
 				}
 			}
-		} else if take_if_starts_with(l, '//') {
-			while !is_eof(l) && (peek(l) != "\n") {
-				do advance(l)
+		} else if self.take_if_starts_with('//') {
+			while !self.is_eof() && (self.peek() != "\n") {
+				do self.advance()
 			}
 		} else {
 			break
@@ -122,62 +122,61 @@ fn priv strip(l: Lexer) {
 	}
 }
 
-fn StreamPos_Abort(s: StreamPos, m: str) {
-	do abort(StreamPos_tostr(s) + ": " + m)
+fn priv StreamPos.abort(m: str) {
+	do abort(self.tostr() + ": " + m)
 }
 
-fn Lexer_abort(l: Lexer, m: str) {
-	do StreamPos_Abort(Lexer_pos(l), m)
+fn priv Lexer.abort(m: str) {
+	do self.pos().abort(m)
 }
 
 fn priv isdigit(c: str): bool {
 	return ('0' <= c) && (c <= '9')
 }
 
-fn isalnum(c: str): bool {
+fn priv isalnum(c: str): bool {
 	return false
 }
 
-fn new_token(l: Lexer, k: TokenKind): Token {
-	return Token { kind: k, pos: Lexer_pos(l) }
+fn priv Lexer.new_token(k: TokenKind): Token {
+	return Token { kind: k, pos: self.pos() }
 }
 
-fn parse_number(l: Lexer): Token {
+fn priv Lexer.parse_number(): Token {
 	let n = ""
 
-	while isdigit(peek(l)) {
-		set n = n + peek(l)
-		do advance(l)
+	while isdigit(self.peek()) {
+		set n = n + self.peek()
+		do self.advance()
 	}
 
-	if isalnum(peek(l)) {
-		do Lexer_abort(l, "invalid suffix for number encountered: " + peek(l))
+	if isalnum(self.peek()) {
+		do self.abort("invalid suffix for number encountered: " + self.peek())
 	}
 
-	let n_ = TokenKind::Number { n: stoi(n) }
-	return new_token(l, n_)
+	let n_ = TokenKind::Number { n: ston(n) }
+	return self.new_token(n_)
 }
 
-fn Lexer_next(l: Lexer): Token {
-	do strip(l)
 
-	let c = peek(l)
+fn priv Lexer.next(): Token {
+	do self.strip()
+
+	let c = self.peek()
 
 	if isdigit(c) {
-		return parse_number(l);
+		return self.parse_number();
 	}
 
 	do abort("oops");
 	return Token{}
 }
 
-__EOF__
-
 fn main(): num {
 	let l: Lexer = Lexer_new("//what\n  /* in the\n/*world is*/ happening*/  here", "!");
 
-	do strip(l);
-	do print(take_if_starts_with(l, 'here') ? "yup" : "nope"); // # => yup
+	do l.strip();
+	do print(l.take_if_starts_with('here') ? "yup" : "nope"); // # => yup
 
 	return 0;
 }

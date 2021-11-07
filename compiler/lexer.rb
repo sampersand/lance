@@ -6,7 +6,7 @@ class Lexer
 
   KEYWORDS = %w(
     global fn priv struct enum extern externf import
-    if else while return do switch case break continue
+    if else while loop return do switch case break continue
     let set
     true false null
   ).freeze
