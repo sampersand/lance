@@ -27,7 +27,7 @@ struct Token {
 }
 
 // in the future, we could have it automatically read from `filename`?
-fn Lexer_New(stream: str, filename: str): Lexer {
+fn Lexer_new(stream: str, filename: str): Lexer {
 	return Lexer { stream: stream, index: 0, filename: filename, lineno: 1 }
 }
 
@@ -43,6 +43,7 @@ fn priv is_eof(l: Lexer): bool {
 	return l.index >= length(l.stream)
 }
 
+__EOF__
 fn priv peek(l: Lexer): str {
 	if is_eof(l) { 
 		return ""
@@ -129,20 +130,23 @@ fn StreamPos_Abort(s: StreamPos, m: str) {
 fn priv isdigit(c: str): bool {
 	return ('0' <= c) && (c <= '9')
 }
-
 fn Lexer_Next(l: Lexer): Token {
 	do strip(l)
 
 	let c = peek(l)
 	do advance(l)
 
+	if isdigit(c) {
+		return parse_digit(l);
+	}
 
-	return;
+	//return;
+	do abort("oops");
 }
 __EOF__
 
 fn main(): num {
-	let l: Lexer = Lexer_New("//what\n  /* in the\n/*world is*/ happening*/  here", "!");
+	let l: Lexer = Lexer_new("//what\n  /* in the\n/*world is*/ happening*/  here", "!");
 
 	do strip(l);
 	do print(take_if_starts_with(l, 'here') ? "yup" : "nope"); // # => yup
