@@ -23,8 +23,8 @@ class Compiler
 
   PREDCLARED_EXTERNS = {
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
-    'itos' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
-    'stoi' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
+    'ntos' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
+    'ston' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
     'stoa' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),
     'atos' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Num], Type::Primitive::Str),
     'substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
