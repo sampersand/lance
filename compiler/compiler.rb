@@ -23,14 +23,15 @@ class Compiler
 
   PREDCLARED_EXTERNS = {
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
+    # 'str.member.print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
     'num.member.to_str' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'str.member.to_num' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
     'str.member.to_ascii' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),
     'num.member.to_ascii' => PredeclaredExternFunction.new('ascii_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'str.member.substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
     'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Primitive::Void),
-    'insert' => PredeclaredExternFunction.new('insert', [Type::List, :any, Type::Primitive::Num], Type::Primitive::Bool),
-    'delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
+    'list.member.insert' => PredeclaredExternFunction.new('insert', [Type::List, :any, Type::Primitive::Num], Type::Primitive::Bool),
+    'list.member.delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
     'str.member.length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
     'list.member.length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
   }

@@ -107,11 +107,11 @@ class LLVM
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
 
       ; List builtins builtins
-      declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0, i64 %1) 
-      declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1, i64 %2)
-      declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1, i64 %2)
-      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
-      declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2, i64 %3)
+      declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0) 
+      declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1)
+      declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1)
+      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2)
+      declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2)
 
       ; String builtins
       declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 

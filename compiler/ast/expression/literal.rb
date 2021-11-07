@@ -80,7 +80,7 @@ class Expression
       # align = kind.byte_length
 
       # note that we use `8` as the size for all types
-      list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.allocate_list(i64 #{eles.length}, i64 #{align})"
+      list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.allocate_list(i64 #{eles.length})"
       bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{kind}**"
       ptr  = $fn.write :new, "load #{kind}*, #{kind}** #{bitcast}, align #{align}"
       $fn.write "store #{kind} #{eles.first}, #{kind}* #{ptr}, align 8"

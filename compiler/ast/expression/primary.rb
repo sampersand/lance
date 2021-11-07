@@ -28,7 +28,7 @@ class Expression
       def compile(type:)
         validate!
 
-        if @fn.is_a?(Expression::Literal) && %i(delete insert str.member.length list.member.length unreachable).include?(@fn.value)
+        if @fn.is_a?(Expression::Literal) && %i(list.member.delete list.member.insert str.member.length list.member.length unreachable).include?(@fn.value)
           return compile_special type
         end
 
@@ -56,7 +56,7 @@ class Expression
 
       private def compile_special(type)
         case @fn.value
-        when :insert
+        when :'list.member.insert'
           raise "invalid argc for insert: needed 3, got #{@args.length}" unless @args.length == 3
 
           list_type = @args[0].llvm_type
@@ -73,8 +73,8 @@ class Expression
           $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
 
           void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
-          $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index}, i64 #{list_type.inner.byte_length})"
-        when :delete
+          $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
+        when :'list.member.delete'
           raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
 
           list_type = @args[0].llvm_type
@@ -87,7 +87,7 @@ class Expression
 
           ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
           void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
-          $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index}, i64 #{list_type.inner.byte_length})"
+          $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
         when :'str.member.length', :'list.member.length'
           raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
 
