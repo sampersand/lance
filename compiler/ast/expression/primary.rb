@@ -14,16 +14,19 @@ class Expression
 
         args = parser.delineated(delim: ',', end: ')'){ Expression.parse parser }
 
-        if primary.is_a?(Expression::Primary::FieldAccess)
-          name = primary.primary.llvm_type.name.to_s + '.member.' + primary.field.to_s
-          args.prepend primary.primary
-          primary = Expression::Literal.new name.to_sym
-        end
-
         new primary, args
       end
 
+      def validate!
+        if @fn.is_a?(Expression::Primary::FieldAccess)
+          name = @fn.primary.llvm_type.name.to_s + '.member.' + @fn.field.to_s
+          @args.prepend @fn.primary
+          @fn = Expression::Literal.new name.to_sym
+        end
+      end
+
       def compile(type:)
+        validate!
         if @fn.is_a?(Expression::Literal) && %i(delete insert length unreachable).include?(@fn.value)
           return compile_special type
         end
@@ -46,6 +49,7 @@ class Expression
       end
 
       def llvm_type
+        validate!
         @llvm_type ||= @fn.llvm_type.return_type || Compiler::Type::Primitive::Void
       end
 

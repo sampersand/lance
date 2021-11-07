@@ -38,6 +38,11 @@ class Declaration
     end
 
     def compile
+      if name =~ /\.member\./
+        args.prepend ['self', $compiler.lookup_type($`)]
+        p args
+      end
+
       $compiler.declare_function Compiler::Function.new(
         name,
         args.map { |name, type| [name, type.llvm_type] },
