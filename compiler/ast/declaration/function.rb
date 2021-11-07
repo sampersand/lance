@@ -31,7 +31,7 @@ class Declaration
       return_type = TypeDecl.parse parser
       body = Statements.parse(parser) or parser.error "missing body for fn #{fn_name}"
 
-      new fn_name, args, return_type, body, fn_name.start_with?(*'A'..'Z')
+      new fn_name, args, return_type, body, is_private
     end
 
     def compile
