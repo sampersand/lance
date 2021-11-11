@@ -116,6 +116,7 @@ class Compiler
 
   def declare_function(fn)
     raise "function '#{fn.name}' already declared" if @functions.key? fn.name
+    @externs.delete fn.name
     @functions[fn.name] = fn
   end
 

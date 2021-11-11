@@ -1,0 +1,16 @@
+import "lexer.lch"
+
+fn Parser_new(l: Lexer): Parser {
+	return Parser { l }
+}
+
+import "utils.lc"
+
+fn main(): num {
+	let l: Lexer = Lexer_new("foobar", "filename")
+	//let y = Lexer_new("A","BB")
+	let p = Parser_new(l)
+	//let l = Lexer_new("a", "b")
+	//do print(add(3,4).to_str())
+	return 0
+}

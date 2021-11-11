@@ -22,3 +22,14 @@ fn abort(msg: str) {
 	do print("error: " + msg + "\n")
 	do quit(1)
 }
+
+fn assert(cond: bool, msg: str) {
+	if !cond {
+		do abort("assertion failed: " + msg)
+	}
+}
+
+// todo: actual inspect
+fn inspect_str(s: str): str {
+	return (s == '"') ? "'\"'" : ( '"' + s + '"')
+}

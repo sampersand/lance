@@ -1,7 +1,15 @@
 #!/usr/bin/ruby
+$OLD_VERSION = TARGET_TRIPLE = 'x86_64-apple-macosx10.13.0' 
+
 require_relative 'parser'
 require_relative 'compiler'
 require 'optparse'
+
+class Hash
+  method_defined? :transform_values or def transform_values
+    map { |k,v| [k, yield(v)]}.to_h
+  end
+end
 
 opts = {
   input: [],
@@ -27,16 +35,22 @@ end.parse! $*
 
 require 'fileutils'
 
+TARGET_TRIPLE = 'arm64-apple-macosx12' if !$OLD_VERSION
 FileUtils.rm_r(opts[:output]) rescue nil
 FileUtils.mkdir_p (outdir=opts[:output])
 opts[:input].each do |filename|
-  $compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
-  Parser.new(Lexer.new file: filename).parse_program.each(&:compile) #rescue abort "#$!"
+  $compiler = Compiler.new target_triple: TARGET_TRIPLE
+
+  begin
+    Parser.new(Lexer.new file: filename).parse_program.each(&:compile)
+  rescue RuntimeError
+    abort "#$!"
+  end
 
   File.write File.join(outdir, File.basename(filename, '.*') + '.ll'), $compiler.to_llvm(is_main: false)
 end
 
-$compiler = Compiler.new target_triple: 'arm64-apple-macosx12.0.0'
+$compiler = Compiler.new target_triple: TARGET_TRIPLE
 File.write File.join(outdir, '___main.ll'), $compiler.to_llvm(is_main: true)
 
 if opts[:compile]

@@ -9,6 +9,16 @@ require_relative 'statement/break'
 require_relative 'statement/continue'
 
 class Statement
+  class Unreachable
+    def self.parse(parser)
+      parser.guard 'unreachable' and new
+    end
+
+    def compile
+      $fn.write 'unreachable'
+    end
+  end
+  
   def self.parse(parser)
     If.parse(parser) ||
       While.parse(parser) ||
@@ -18,7 +28,8 @@ class Statement
       Set.parse(parser) ||
       Switch.parse(parser) ||
       Continue.parse(parser) ||
-      Break.parse(parser)
+      Break.parse(parser) ||
+      Unreachable.parse(parser)
   end
 end
 

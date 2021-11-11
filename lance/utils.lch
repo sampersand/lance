@@ -1,0 +1,5 @@
+externf string_contains: fn(str, str): bool
+externf count_char_occurrences: fn(str, str): num
+externf abort: fn(str)
+externf assert: fn(bool, str)
+externf inspect_str: fn(str): str

@@ -50,7 +50,8 @@ class Parser
   end
 
   def surround(lhs, rhs)
-    guard(lhs)&.then { yield.tap { expect rhs } }
+    guard lhs or return
+    yield.tap { expect rhs }
   end
 
   def delineated(delim:, end:)
@@ -86,8 +87,17 @@ class Parser
     expect :identifier, err: err
   end
 
+  ParseError = Class.new RuntimeError
+
   def parse_program
     repeat { Declaration.parse self }
       .tap { eof? or raise "unexpected token: #{take.inspect}" }
+  rescue
+    bak=$@
+    err=$!
+  ensure
+    if bak
+      raise ParseError, "#{@lexer.file}:#{@lexer.lineno} #{err}", bak
+    end
   end
 end

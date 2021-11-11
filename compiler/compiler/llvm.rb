@@ -78,7 +78,7 @@ class LLVM
 
     string_declarations = @strings.map {|string, name|
       # lol this is a mess, it hink `string_len`  is irrelevant
-      string = string.bytes.map { |x| x.chr =~ /[[:print:]]/ && x.chr != ?"?  x.chr : '\%02X' % x }.join
+      string = string.bytes.map { |x| x.chr =~ /[[:print:]]/ && x.chr != ?" && x.chr != ?\\ ?  x.chr : '\%02X' % x }.join
       string_len = string.gsub(/\\../,'.').length
       strtype = "[#{string_len} x i8]"
       <<~LLVM
@@ -97,7 +97,7 @@ class LLVM
       EOS
     }
 
-    <<~LLVM.gsub('fn.builtin.','')#.tap { |x| puts x }
+    x=(<<~LLVM.gsub('fn.builtin.','')); !$OLD_VERSION ? x : x.gsub(/(declare|define).*/){ |x| x.gsub(/%\d/,'') }
       ; Prelude
       target triple = "#@target_triple"
       %bool = type i64 ; used to be i8, this is just to simplify interfaces

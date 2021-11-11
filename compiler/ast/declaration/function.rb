@@ -39,7 +39,7 @@ class Declaration
 
     def compile
       if name =~ /\.member\./
-        args.prepend ['self', $compiler.lookup_type($`)]
+        args.unshift ['self', $compiler.lookup_type($`)]
       end
 
       $compiler.declare_function Compiler::Function.new(

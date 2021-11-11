@@ -20,7 +20,7 @@ class Expression
       def validate!
         if @fn.is_a?(Expression::Primary::FieldAccess)
           name = @fn.primary.llvm_type.name.to_s + '.member.' + @fn.field.to_s
-          @args.prepend @fn.primary
+          @args.unshift @fn.primary
           @fn = Expression::Literal.new name.to_sym
         end
       end
@@ -28,7 +28,7 @@ class Expression
       def compile(type:)
         validate!
 
-        if @fn.is_a?(Expression::Literal) && %i(list.member.delete list.member.insert str.member.length list.member.length unreachable).include?(@fn.value)
+        if @fn.is_a?(Expression::Literal) && %i(list.member.delete list.member.insert str.member.length list.member.length).include?(@fn.value)
           return compile_special type
         end
 
@@ -101,7 +101,6 @@ class Expression
 
           tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
           $fn.write :new, "load i64, i64* #{tmp}, align 8"
-        when :unreachable then $fn.write 'unreachable'
         else
           raise "unknown special function '#{@fn.value}'"
         end
@@ -191,7 +190,10 @@ class Expression
       def compile type:
         $fn.validate_types expected: type, given: llvm_type
         primary = @primary.compile type: struct_type
-        offset = struct_type.fields.each_with_index.find { |(k, v), _idx| k == @field }.last
+        offset = (
+          struct_type.fields.each_with_index.find { |(k, v), _idx| k == @field } ||
+          raise("unknown struct field '#@field' for type '#{struct_type.name}'")
+        ).last
 
         idx = $fn.write :new, "getelementptr inbounds #{struct_type.to_s.chop}, #{struct_type} #{primary}, i32 0, i32 #{offset}"
         $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{idx}, align 8"

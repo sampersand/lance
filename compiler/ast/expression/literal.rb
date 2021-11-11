@@ -33,8 +33,12 @@ class Expression
         return new StructDecl.new ident, {} if parser.guard '}'
         return new StructDecl.new ident, parser.delineated(delim: ',', end: '}'){
           name = parser.expect :identifier, err: "missing identifier for struct decl of type '#{ident}'"
-          parser.expect ':', err: "missing `:` for struct field decl"
-          value = Expression.parse(parser) or parser.error "missing expression for field '#{name}'"
+          value = 
+            if parser.guard ':'
+              x=Expression.parse(parser) or parser.error "missing expression for field '#{name}'"
+            else
+              Literal.new name.to_sym
+            end
           [name, value]
         }.to_h
       end
@@ -85,7 +89,7 @@ class Expression
       ptr  = $fn.write :new, "load #{kind}*, #{kind}** #{bitcast}, align #{align}"
       $fn.write "store #{kind} #{eles.first}, #{kind}* #{ptr}, align 8"
 
-      eles[1..].each_with_index do |ele, idx|
+      eles[1..-1].each_with_index do |ele, idx|
         # +1 for index as we alreadyd id the first one
         tmp = $fn.write :new, "getelementptr inbounds #{kind}, #{kind}* #{ptr}, i64 #{idx + 1}"
         $fn.write "store #{kind} #{ele}, #{kind}* #{tmp}, align 8"

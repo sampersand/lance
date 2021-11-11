@@ -61,6 +61,7 @@ class Compiler
     def next_local
       Local.new((@locals += 1) - 1)
     end
+
     alias next_label next_local
 
     def define_variable(name, type, arg: false, local: nil)
@@ -127,7 +128,11 @@ class Compiler
     end
 
     def declare_label(label=next_label)
-      write "#{label.num}:"
+      if $OLD_VERSION
+        write "; <label>:#{label}:"
+      else
+        write "#{label.num}:"
+      end
       label
     end
 
