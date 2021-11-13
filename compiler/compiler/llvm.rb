@@ -55,20 +55,24 @@ class LLVM
   end
 
   def final_string(is_main:)
-    struct_declarations = @structs.values.map { |name:, fields:|
+    struct_declarations = @structs.values.map { |a|
+      name, fields = a.values_at(:name, :fields)
       "#{name} = type { #{fields.values.join ', '} }"
     }
 
-    enum_declarations = @enums.values.map { |name:, variants:|
+    enum_declarations = @enums.values.map { |a|
+      name, variants = a.values_at(:name, :variants)
       len = variants.map { |x| x.fields.length }.max * 8
       "#{name} = type { i64, [#{len} x i8] }"
     }
 
-    global_declarations = @globals.values.map {|name:, type:|
+    global_declarations = @globals.values.map { |a|
+      name, type = a.values_at(:name, :type)
       "#{name} = #{type.private? ? 'internal ' : '' }global #{type} #{type.default}, align 8"
     }
 
-    extern_declarations = @externs.values.map {|name:, type:, externf:|
+    extern_declarations = @externs.values.map { |a|
+      name, type, externf = a.values_at(name, :type, :externf)
       if externf
         "declare #{type.return_type} #{name}(#{type.args.join(', ')})"
       else
