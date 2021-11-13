@@ -8,7 +8,7 @@ class TypeDecl
 
     # typedecl-ident := <identifier>
     def self.parse(parser)
-      name = parser.guard(:identifier) or return
+      name = parser.guard(:identifier, '!') or return
 
       new name
     end

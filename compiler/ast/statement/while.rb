@@ -31,8 +31,9 @@ class Statement
       jmp_statement = $fn.write_nop
 
       top_of_body = $fn.declare_label
-      @body.compile
-      $fn.write "br label #{top}"
+      if @body.compile
+        $fn.write "br label #{top}"
+      end
 
       bottom = $fn.declare_label
 

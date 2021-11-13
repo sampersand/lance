@@ -8,6 +8,22 @@ class Compiler
       8
     end
 
+    class NeverClass < Type
+      def name
+        '!'
+      end
+
+      def to_s
+        Primitive::TYPES['void'].to_s
+      end
+
+      def ==(rhs)
+        rhs.is_a? Type
+      end
+    end
+
+    Never = NeverClass.new
+
     class Primitive < Type
       def initialize(name)
         @name = name
@@ -104,11 +120,12 @@ class Compiler
     end
 
     class Struct < Type
-      attr_reader :name, :fields
+      attr_reader :name
+      attr_accessor :fields
 
       def initialize(name, fields)
         @name = name.to_s
-        @fields = fields.transform_values(&:llvm_type)
+        @fields = fields&.transform_values(&:llvm_type)
       end
 
       def hash

@@ -1,0 +1,8 @@
+struct Expression
+struct Statement
+
+struct IfStmt {
+	cond: Expression,
+	ift: [Statement],
+	iff: [Statement]
+}

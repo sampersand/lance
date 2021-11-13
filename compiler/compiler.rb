@@ -29,7 +29,7 @@ class Compiler
     'str.member.to_ascii' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),
     'num.member.to_ascii' => PredeclaredExternFunction.new('ascii_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'str.member.substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
-    'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Primitive::Void),
+    'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Never),
     'list.member.insert' => PredeclaredExternFunction.new('insert', [Type::List, :any, Type::Primitive::Num], Type::Primitive::Bool),
     'list.member.delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
     'str.member.length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
@@ -149,7 +149,9 @@ class Compiler
 
   def declare_type(type)
     if (old = @types[type.name])
-      if type == old
+      if old.fields.nil? && !type.fields.nil?
+        old.fields = type.fields
+      elsif type == old
         warn "warning: type '#{type.name}' declared twice"
       else
         raise "type '#{type.name}' is already declared: #{old.inspect}"
@@ -160,6 +162,7 @@ class Compiler
   end
 
   def lookup_type(name, error: true)
+    return Type::Never if name == '!'
     Type::Primitive.lookup(name) || @types[name.to_s] or (error && raise("unknown type name #{name.inspect}"))
   end
 

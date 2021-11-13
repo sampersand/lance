@@ -19,13 +19,13 @@ class Declaration
       end
 
       struct_name = parser.identifier err: 'missing name for struct'
-      parser.expect '{', err: 'missing `{` for struct'
-
-      fields = parser.delineated delim: ',', end: '}' do
-        field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
-        field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
-        [field_name, field_type]
-      end.to_h
+      if parser.guard '{', err: 'missing `{` for struct'
+        fields = parser.delineated delim: ',', end: '}' do
+          field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
+          field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
+          [field_name, field_type]
+        end.to_h
+      end
 
       new struct_name, fields
     end

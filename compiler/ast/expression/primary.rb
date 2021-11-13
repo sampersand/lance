@@ -46,7 +46,13 @@ class Expression
         args = @args.map { |a| "#{a.llvm_type} #{a.compile(type: a.llvm_type)}" } # we already verified it with `fn`
         return_type = @fn.llvm_type.return_type
 
-        $fn.write( (return_type == Compiler::Type::Primitive::Void ? nil : :new), "call #{return_type} #{fn}(#{args.join ', '})")
+        str = "call #{return_type} #{fn}(#{args.join ', '})"
+        if return_type == Compiler::Type::Primitive::Void  || return_type == Compiler::Type::Never
+          $fn.write str
+          $fn.write 'unreachable' if return_type == Compiler::Type::Never
+        else
+          $fn.write :new, str
+        end
       end
 
       def llvm_type

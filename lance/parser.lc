@@ -2,16 +2,75 @@ import "lexer.lch"
 import "parser.lch"
 
 fn Parser_new(l: Lexer): Parser {
-	return Parser { l }
+	return Parser { l, peeked: false }
 }
 
-//import "utils.lc"
-//import "lexer.lc"
+fn Parser.peek(): Token {
+	if !self.peeked {
+		set self._token = self.l.next()
+		set self.peeked = true
+	}
+
+	return self._token
+}
+
+fn Parser.take() {
+	do assert(self.peeked, "took when not peeked")
+	set self.peeked = false
+}
+
+fn Parser.next(): Token {
+	let p = self.peek()
+	do self.take()
+	return p
+}
+
+fn Parser.is_eof(): bool {
+	switch self.peek().kind {
+		case _: TokenKind::EOF { return true }
+		case { return false }
+	}
+	unreachable
+}
+
+fn Parser.guardkw(s: str): GuardResult {
+	let t = self.peek()
+
+	switch t.kind {
+		case sy: TokenKind::Symbol {
+			if sy.s == s {
+				do self.take()
+				return GuardResult { t, v: true }
+			}
+		}
+	}
+
+	return GuardResult { t, v: false }
+}
+
+fn Parser.guardident(s: str): str {
+	let t = self.peek()
+	switch t.kind {
+		case id: TokenKind::Identifier { return id.i }
+		case { return "" }
+	}
+	unreachable
+}
+
+import "lexer.lc"
+import "utils.lc"
 
 fn main(): num {
-	let l: Lexer = Lexer_new("foobar", "filename")
+	let l: Lexer = Lexer_new("fn main(){}", "filename")
 	//let y = Lexer_new("A","BB")
 	let p = Parser_new(l)
+
+	let r =  p.guardkw('fn')
+	if r.v {
+		do print("valid: " + r.t.kind.inspect())
+	} else {
+		do print("invalid!\n")
+	}
 	//let l = Lexer_new("a", "b")
 	//do print(add(3,4).to_str())
 	return 0

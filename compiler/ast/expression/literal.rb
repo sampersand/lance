@@ -146,7 +146,7 @@ class Expression
 
         # p st
 
-        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8;  !"
+        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
       end
 
       cast

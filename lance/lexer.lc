@@ -67,14 +67,13 @@ fn priv Lexer.take_if_starts_with(s: str): bool {
 	return false
 }
 
-fn priv StreamPos.abort(m: str) {
+fn StreamPos.abort(m: str): ! {
 	do abort(self.to_str() + ": " + m)
 }
 
-fn priv Lexer.abort(m: str) {
+fn priv Lexer.abort(m: str): ! {
 	do self.pos().abort(m)
 }
-
 
 fn priv isspace(s: str): bool {
 	return string_contains(" \n\t\r\f", s)
@@ -116,7 +115,6 @@ fn priv Lexer.strip_multiline_comment(): bool {
 
 	let start = self.pos()
 	let nesting = 1
-
 	while nesting != 0 {
 		if self.is_eof() {
 			do start.abort("Missing closing `*/`")
@@ -209,7 +207,6 @@ fn priv tohex(s: str, start: StreamPos): num {
 	}
 
 	do start.abort("unknown hex character " + inspect_str(s))
-	unreachable
 }
 
 fn priv Lexer.parse_string(): TokenKind {
@@ -305,10 +302,9 @@ fn priv Lexer._parse(): TokenKind {
 	}
 
 	do self.abort("unknown token start encountered: " + inspect_str(c))
-	unreachable
 }
 
-fn Lexer.parse(): Token {
+fn Lexer.next(): Token {
 	let pos = self.pos()
 	return Token { kind: self._parse(), pos }
 }

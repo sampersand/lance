@@ -2,6 +2,8 @@ require_relative '../expression'
 
 class Statement
   class Do
+    attr_reader :expr
+
     def initialize(expr)
       @expr = expr
     end

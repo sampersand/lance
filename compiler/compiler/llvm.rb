@@ -13,7 +13,7 @@ class LLVM
   def struct_type(name, fields)
     name =~ /^enum\./ and return (@enums.fetch $')[:name]+'*'
     (@structs[name.to_s] ||= {
-      name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields.transform_values(&:llvm_type)
+      name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields&.transform_values(&:llvm_type)
     })[:name] + '*'
   end
 
