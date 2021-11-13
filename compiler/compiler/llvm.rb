@@ -72,7 +72,7 @@ class LLVM
     }
 
     extern_declarations = @externs.values.map { |a|
-      name, type, externf = a.values_at(name, :type, :externf)
+      name, type, externf = a.values_at(:name, :type, :externf)
       if externf
         "declare #{type.return_type} #{name}(#{type.args.join(', ')})"
       else
