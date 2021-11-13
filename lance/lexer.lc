@@ -162,7 +162,7 @@ fn priv Lexer.parse_number(): TokenKind {
 
 	do assert(n != "", "parse number parsed nothing")
 
-	return TokenKind::Number { n: n.to_num() }
+	return TokenKind::Number { _: n.to_num() }
 }
 
 fn priv iskeyword(s: str): bool {
@@ -190,7 +190,7 @@ fn priv Lexer.parse_identifier(): TokenKind {
 	let i = self.take_while(isalnum)
 	do assert(i != "", "parsing an identifier returned nothing")
 
-	return iskeyword(i) ? TokenKind::Symbol { s: i } : TokenKind::Identifier { i }
+	return iskeyword(i) ? TokenKind::Symbol { _: i } : TokenKind::Identifier { _: i }
 }
 
 fn priv tohex(s: str, start: StreamPos): num {
@@ -255,7 +255,7 @@ fn priv Lexer.parse_string(): TokenKind {
 		}
 	}
 
-	return TokenKind::String { s }
+	return TokenKind::String { _: s }
 }
 
 fn priv Lexer._parse(): TokenKind {
@@ -281,7 +281,7 @@ fn priv Lexer._parse(): TokenKind {
 
 	do self.advance()
 	if string_contains('-+*/%<>!;,[]{}():.?', c) {
-		return TokenKind::Symbol { s: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	if string_contains("=!<>", c) {
@@ -290,7 +290,7 @@ fn priv Lexer._parse(): TokenKind {
 			do self.advance();
 		}
 
-		return TokenKind::Symbol { s: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	if (c == '&') || (c == '|') {
@@ -298,7 +298,7 @@ fn priv Lexer._parse(): TokenKind {
 			do self.abort("unknown token start encountered: " + inspect_str(c))
 		}
 
-		return TokenKind::Symbol { s: c + c }
+		return TokenKind::Symbol { _: c + c }
 	}
 
 	do self.abort("unknown token start encountered: " + inspect_str(c))
@@ -312,10 +312,10 @@ fn Lexer.next(): Token {
 fn TokenKind.inspect(): str {
 	switch self {
 		case _: TokenKind::EOF { return "EOF()" }
-		case tn: TokenKind::Number { return "Number(" + tn.n.to_str() + ")" }
-		case ts: TokenKind::String { return "String(" + inspect_str(ts.s) + ")" }
-		case ti: TokenKind::Identifier { return "Identifier(" + ti.i + ")" }
-		case ty: TokenKind::Symbol { return "Symbol(" + ty.s + ")" }
+		case tn: TokenKind::Number { return "Number(" + tn._.to_str() + ")" }
+		case ts: TokenKind::String { return "String(" + inspect_str(ts._) + ")" }
+		case ti: TokenKind::Identifier { return "Identifier(" + ti._ + ")" }
+		case ty: TokenKind::Symbol { return "Symbol(" + ty._ + ")" }
 		case { do abort("unknown TokenKind encountered.") }
 	}
 

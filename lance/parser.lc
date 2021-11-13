@@ -38,7 +38,7 @@ fn Parser.guardkw(s: str): GuardResult {
 
 	switch t.kind {
 		case sy: TokenKind::Symbol {
-			if sy.s == s {
+			if sy._ == s {
 				do self.take()
 				return GuardResult { t, v: true }
 			}
@@ -51,7 +51,7 @@ fn Parser.guardkw(s: str): GuardResult {
 fn Parser.guardident(s: str): str {
 	let t = self.peek()
 	switch t.kind {
-		case id: TokenKind::Identifier { return id.i }
+		case id: TokenKind::Identifier { return id._ }
 		case { return "" }
 	}
 	unreachable

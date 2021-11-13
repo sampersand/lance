@@ -1,3 +1,17 @@
+enum yup { x: struct{a:num} }
+struct Foo { a: num, b: str }
+enum Bar {
+	f: Foo,
+	l: num
+}
+
+fn main(): num {
+	let ell = Bar::l { _: 34 }
+	switch ell {
+		case q: Bar::l { do print(q._.to_str()) }
+	}
+}
+__EOF__
 enum Foo
 struct Bar {f: Foo }
 enum Foo {

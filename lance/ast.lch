@@ -1,8 +1,48 @@
-struct Expression
-struct Statement
+enum Statement
+enum Expression
 
 struct IfStmt {
 	cond: Expression,
 	ift: [Statement],
 	iff: [Statement]
 }
+struct SwitchStmt {/*todo*/}
+
+struct WhileStmt {
+	cond: Expression,
+	body: [Statement]
+}
+struct BreakStmt { /* empty */ }
+struct ContinueStmt { /* empty */ }
+
+struct LetStmt { /* todo */ }
+struct SetStmt { /* todo */ }
+struct DoStmt {
+	expr: Expression
+}
+enum ReturnStmt {
+	Nothing: struct{},
+	Something: struct{e: Expression}
+}
+
+enum Statement {
+	if_: struct { i: IfStmt },
+	switch_: struct { s: SwitchStmt },
+
+	while_: struct { w: WhileStmt },
+	break_: struct { b: BreakStmt },
+	continue_: struct { c: ContinueStmt },
+
+	let_: struct { l: LetStmt },
+	set_: struct { s: Setstmt },
+
+	do_: struct { d: DoStmt },
+	return_: struct { r: ReturnStmt },
+	unreachable_: struct {}
+}
+
+enum Expression {
+	l: struct { a: num }
+}
+
+fn main(){}

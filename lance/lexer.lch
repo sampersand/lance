@@ -6,11 +6,11 @@ struct Lexer {
 }
 
 enum TokenKind {
-	EOF{},
-	Number { n: num },
-	String { s: str },
-	Identifier { i: str },
-	Symbol { s: str },
+	EOF: void,
+	Number: num,
+	String: str,
+	Identifier: str,
+	Symbol: str
 }
 
 struct StreamPos {
