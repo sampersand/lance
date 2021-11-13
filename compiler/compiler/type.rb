@@ -142,7 +142,7 @@ class Compiler
       end
 
       def byte_length
-        8
+        @fields.values.map(&:byte_length).reduce(0, &:+)
       end
     end
 
@@ -193,7 +193,7 @@ class Compiler
       end
 
       def byte_length
-        8
+        8 + variants.map(&:byte_length).max
       end
 
       def variants_length
@@ -255,7 +255,7 @@ class Compiler
         end
 
         def byte_length
-          8
+          @struct.byte_length
         end
       end
 
