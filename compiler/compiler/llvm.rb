@@ -91,7 +91,8 @@ class LLVM
       LLVM
     }
 
-    functions = @functions.values.map { |name:, args:, return_type:, body:, is_private:|
+    functions = @functions.values.map { |a|
+      name, args, return_type, body, is_private = a.values_at(:name, :args, :return_type, :body, :is_private)
       <<~EOS
         define #{is_private ? "internal " : ""}#{return_type} #{name}(#{
             args.map { |a, i| "#{a.type} #{a.local}" }.join ', '
