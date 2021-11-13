@@ -1,3 +1,28 @@
+enum Foo
+struct Bar {f: Foo }
+enum Foo {
+	b: struct { b: Bar },
+	o: struct { n: num },
+	q: struct { n: bool }
+}
+
+fn main(): num {
+	let a = Foo::o { n: 1 }
+	let b = Bar { f: a }
+	let c: Foo = Foo::b { b: b }
+
+	switch c {
+		case d: Foo::b {
+			switch d.b.f {
+				case e: Foo::o {
+					do print("o=" + e.n.to_str() + "\n")
+				}
+			}
+		}
+	}
+	return 0
+}
+__EOF__
 struct Foo
 
 enum Bar {

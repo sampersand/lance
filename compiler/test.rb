@@ -43,8 +43,8 @@ opts[:input].each do |filename|
 
   begin
     Parser.new(Lexer.new file: filename).parse_program.each(&:compile)
-  rescue RuntimeError
-    abort "#$!"
+  #rescue RuntimeError
+   # abort "#$!"
   end
 
   File.write File.join(outdir, File.basename(filename, '.*') + '.ll'), $compiler.to_llvm(is_main: false)

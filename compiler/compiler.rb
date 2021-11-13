@@ -148,18 +148,21 @@ class Compiler
   end
 
   def declare_type(type)
-    p type
     if (old = @types[type.name])
-      if old.fields.nil? && !type.fields.nil?
+      if old.is_a?(Compiler::Type::Struct) && old.fields.nil?
         old.fields = type.fields
+      elsif old.is_a?(Compiler::Type::Enum) && !old.variants?
+        old.variants = type.variants_
       elsif type == old
-        warn "warning: type '#{type.name}' declared twice"
+        warn "warning: type '#{type.name}' declared twice" unless type.equal? old
       else
         raise "type '#{type.name}' is already declared: #{old.inspect}"
       end
     else
       @types[type.name.to_s] = type
     end
+
+    true
   end
 
   def lookup_type(name, error: true)

@@ -178,7 +178,7 @@ class Expression
       def self.parse(primary, parser)
         parser.guard '.' or return
         field = parser.guard(:identifier) or parser.error 'expected identifier after `.`'
-        if primary.is_a?(Expression::Literal) && (type= $compiler.lookup_type(primary.value.to_s, error: false))
+        if primary.is_a?(Expression::Literal) && $compiler.lookup_type(primary.value.to_s, error: false)
           Expression::Literal.new :"#{primary.value}.member.#{field}"
         else
           new primary, field

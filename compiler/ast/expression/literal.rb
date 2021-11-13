@@ -29,7 +29,7 @@ class Expression
       num = parser.guard(:number) and return new num
       str = parser.guard(:string) and return new str
       if (ident = parser.guard(:identifier)&.to_sym)
-        return new ident unless $compiler.lookup_type(ident, error: false) && parser.guard('{')
+        return new ident unless ($compiler.lookup_type(ident, error: false) || ident.to_s.include?('-')) && parser.guard('{')
         return new StructDecl.new ident, {} if parser.guard '}'
         return new StructDecl.new ident, parser.delineated(delim: ',', end: '}'){
           name = parser.expect :identifier, err: "missing identifier for struct decl of type '#{ident}'"

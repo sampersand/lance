@@ -172,6 +172,17 @@ class Compiler
         @variants_ = variants
       end
 
+      def variants=(vars)
+        raise "variants already defined" if @variants_
+        @variants_ = vars
+      end
+
+      def variants?
+        !@variants_.nil?
+      end
+
+      def variants_; @variants_ end
+
       def variants
         @variants ||= @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
       end
