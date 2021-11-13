@@ -159,7 +159,8 @@ class Compiler
       end
 
       def byte_length
-        @fields.values.map(&:byte_length).reduce(0, &:+)
+        #@fields.values.map(&:byte_length).reduce(0, &:+)
+        @fields.values.length * 8 # 'cause everything is just 8 bytes
       end
     end
 

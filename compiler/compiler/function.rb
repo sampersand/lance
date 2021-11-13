@@ -143,6 +143,8 @@ class Compiler
 
         if @return_type == Compiler::Type::Primitive::Void
           write 'ret void'
+        elsif @name == 'main'
+          write 'ret i64 0'
         end
 
         @lines
