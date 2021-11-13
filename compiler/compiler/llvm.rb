@@ -57,7 +57,6 @@ class LLVM
   def final_string(is_main:)
     struct_declarations = @structs.values.map { |a|
       name, fields = a.values_at(:name, :fields)
-      p [name, fields]
       "#{name} = type { #{fields.values.join ', '} }"
     }
 

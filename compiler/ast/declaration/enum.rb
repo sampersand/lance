@@ -21,8 +21,12 @@ class Declaration
         kinds = parser.delineated delim: ',', end: '}' do
           name = parser.guard(:identifier) or next
           parser.expect ':'
-          Struct.parse(parser, struct_name: "#{name}")
-            .tap { |x| x.name.prepend "#{enum_name}-" }
+          if rhs=parser.guard(:identifier)
+            p(Struct.new name, '_' => TypeDecl::IdentDecl.new(rhs))
+          else
+            p(Struct.parse(parser, struct_name: "#{name}"))
+          end
+            .tap { |x| p(x.name.prepend "#{enum_name}-") }
         end
       end
 
