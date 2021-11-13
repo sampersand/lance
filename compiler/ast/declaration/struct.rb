@@ -13,12 +13,10 @@ class Declaration
 
     # struct-decl := 'struct' <ident> '{' {<ident> <typedecl> ','} '}'
     #                 note the last `,` is optional
-    def self.parse(parser, require_struct_keyword: true)
-      if require_struct_keyword
-        parser.guard 'struct' or return
-      end
+    def self.parse(parser, struct_name: nil)
+      parser.guard 'struct' or return
 
-      struct_name = parser.identifier err: 'missing name for struct'
+      struct_name ||= parser.identifier err: 'missing name for struct'
       if parser.guard '{', err: 'missing `{` for struct'
         fields = parser.delineated delim: ',', end: '}' do
           field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"

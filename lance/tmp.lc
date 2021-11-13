@@ -1,18 +1,30 @@
-struct Foo
-
 enum Bar {
-	f: Foo1{f: Foo},
-	b: Bar
+	a: struct { b: str },
+	//b: num
 }
 
-struct Foo {
-	b: Bar
-}
-
-fn main() : num {
-	let f = Foo { b: Bar { f: Foo{} } }
-	do print("f.b.")
-
-	//let f = Foo { b: Bar { f: Foo {} }}
+fn main(): num {
+	let f = foo { b: "" }
+//	let b: Bar = Bar { a: "" }
+//
+//	switch b {
+//		case l: Bar::a {
+//			do print(l.a);
+//		}
+//	}
 	return 0
 }
+
+//struct Foo
+//
+//struct Foo {
+//	b: Bar
+//}
+//
+//fn main() : num {
+//	let f = Foo { b: Bar { f: Foo{} } }
+//	do print("f.b.")
+//
+//	//let f = Foo { b: Bar { f: Foo {} }}
+//	return 0
+//}

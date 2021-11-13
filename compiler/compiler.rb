@@ -148,6 +148,7 @@ class Compiler
   end
 
   def declare_type(type)
+    p type
     if (old = @types[type.name])
       if old.fields.nil? && !type.fields.nil?
         old.fields = type.fields

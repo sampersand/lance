@@ -20,8 +20,10 @@ class Declaration
       parser.expect '{', err: 'missing `{` for enum'
 
       kinds = parser.delineated delim: ',', end: '}' do
-        str = Struct.parse(parser, require_struct_keyword: false) or next
-        str.tap { |x| x.name.prepend "#{enum_name}-" }
+        name = parser.guard(:identifier) or next
+        parser.expect ':', err: 'expected `:` after enum decl'
+
+        str = Struct.parse(parser, struct_name: "#{enum_name}-#{name}") and next str
       end
 
       new enum_name, kinds
