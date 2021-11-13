@@ -16,13 +16,3 @@ void *xrealloc(void *ptr, ll len) {
 void quit(ll val) {
 	exit(val);
 }
-
-#include "list.h"
-#include "str.h"
-ll length1(list *l) {
-	return l->len;
-}
-
-ll length2(str *s) {
-	return s->len;
-}

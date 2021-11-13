@@ -1,10 +1,12 @@
 import "lexer.lch"
+import "parser.lch"
 
 fn Parser_new(l: Lexer): Parser {
 	return Parser { l }
 }
 
-import "utils.lc"
+//import "utils.lc"
+//import "lexer.lc"
 
 fn main(): num {
 	let l: Lexer = Lexer_new("foobar", "filename")
