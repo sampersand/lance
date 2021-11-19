@@ -1,6 +1,6 @@
 class Expression
   class Binary
-    OPERATORS = %w(+ - * / % < > <= >= == != && || ? :)
+    OPERATORS = %w(+ - * / % ^ < > <= >= == != && || ? :)
 
     attr_reader :lhs, :rhs
 
@@ -35,7 +35,7 @@ class Expression
       when Compiler::Type::Primitive::Str
         $fn.write :new, "call %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* #{lhs}, %struct.builtin.str* #{rhs})"
       when Compiler::Type::Primitive::List
-        $fn.write :new, "call %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* #{lhs}, %struct.builtin.list* #{rhs}, i64 #{@lhs.llvm_type.byte_length})"
+        $fn.write :new, "call %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* #{lhs}, %struct.builtin.list* #{rhs})"
       else 
         raise "type error: cannot add #{type}s."
       end
@@ -50,7 +50,7 @@ class Expression
       when Compiler::Type::Primitive::Str
         $fn.write :new, "call %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* #{lhs}, %num #{rhs})"
       when Compiler::Type::Primitive::List
-        $fn.write :new, "call %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* #{lhs}, %num #{rhs}, i64 #{@lhs.llvm_type.byte_length})"
+        $fn.write :new, "call %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* #{lhs}, %num #{rhs})"
       else 
         raise "type error: cannot add #{type}s."
       end
@@ -70,6 +70,14 @@ class Expression
       rhs = @rhs.compile type: Compiler::Type::Primitive::Num
 
       $fn.write :new, "srem %num #{lhs}, #{rhs}"
+    end
+
+    def compile_pow(type)
+      $fn.validate_types expected: Compiler::Type::Primitive::Num, given: type
+      lhs = @lhs.compile type: Compiler::Type::Primitive::Num
+      rhs = @rhs.compile type: Compiler::Type::Primitive::Num
+
+      $fn.write :new, "call %num @fn.builtin.powll(%num #{lhs}, %num #{rhs})"
     end
 
     def compile_cmp_op(type, math_op)
@@ -144,8 +152,6 @@ class Expression
 #       return @rhs.lhs.compile type: type
 #       return
 #       raise
-#       p @lhs
-#       p @rhs
 #       exit 0
 #       #       Statement::If.new(@lhs, Statements.new())
 #       # class Statement
@@ -175,6 +181,7 @@ class Expression
       when '*' then compile_mul type
       when '/' then compile_div type
       when '%' then compile_mod type
+      when '^' then compile_pow type
       when '==' then compile_cmp_op type, 'eq'
       when '!=' then compile_cmp_op type, 'ne'
       when '<' then compile_cmp_op type, 'slt'
@@ -190,7 +197,7 @@ class Expression
 
     def llvm_type
       case @op
-      when ?+, ?-, ?*, ?/, ?% then @lhs.llvm_type
+      when ?+, ?-, ?*, ?/, ?%, ?^ then @lhs.llvm_type
       when ?? then @rhs.lhs.llvm_type
       when '==', '!=', ?!, ?<, ?>, '<=', '>=', '&&', '||' then Compiler::Type::Primitive::Bool
       else raise "unknown operator llvm type '#@op'"

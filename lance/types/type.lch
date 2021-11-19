@@ -1,0 +1,14 @@
+import "primitive.lch"
+import "void.lch"
+import "never.lch"
+import "list.lch"
+
+enum LLVMType {
+	primitive: PrimitiveType,
+	void_: VoidType,
+	never_: NeverType,
+	list: ListType,
+	generic: str,
+}
+
+//fn LLVMType.to_llvm_str: fn(): str

@@ -1,78 +1,130 @@
-//import "abort"
-//externf abort: fn(str);
-fn abort(msg: str) {
-	do print(msg + "\n");
-	do quit(1);
-}
-struct Parser {
-	s: str,
-	idx: num
+import "parser.lch"
+import "shared.lch"
+import "value.lch"
+import "function.lch"
+
+fn Parser_new(str): Parser {
+	return Parser { str, num: 0 }
 }
 
-fn new_parser(s: str): Parser {
-	return Parser{ s: s, idx: 0 };
+fn priv Parser.is_eof(): bool {
+	return self.str.length() <= self.num
 }
 
-fn is_eof(p: Parser): bool {
-	return length(p.s) == 0;
+fn priv Parser.peek(): str {
+	return self.is_eof() ? "" : self.str[self.num]
 }
 
+fn priv Parser.advance() {
+	do assert(self.num < self.str.length(), "parsed past the end?")
 
-fn peek(p: Parser): str {
-	if is_eof(p) {
-		return '';
-	}
-
-	return p.s[0];
+	set self.num = self.num + 1 
 }
 
-fn advance(p: Parser) {
-	if is_eof(p) {
-		do abort("Advanced after EOF");
-	} else {
-		set p.idx = p.idx + 1;
-	}
+fn priv Parser.peek_advance(): str {
+	let c = self.peek()
+	do self.advance()
+	return c
 }
 
-fn contains(s: str, c: str): bool {
-	let i = 0;
+fn priv str.contains(c: str): bool {
+	let i = 0
 
-	while i < length(s) {
-		if c == s[i] {
-			return true;
+	while i < self.length() {
+		if self[i] == c {
+			return true
 		}
 
-		set i = i + 1;
+		set i = i + 1
 	}
 
-	return false;
+	return false
 }
 
-fn islower(c: str): bool {
-	return (c == '_') || (('a' <= c) && (c <= 'z'));
+fn priv Parser.strip() {
+	loop {
+		while " \n\t\r\f(){}[]:".contains(self.peek()) {
+			do self.advance()
+			do assert(!self.is_eof(), "out of bounds")
+		}
+
+		if self.peek() != '#' {
+			break
+		}
+
+		while self.peek_advance() != "\n" {
+			do assert(!self.is_eof(), "out of bounds")
+		}
+	}
 }
 
-fn isupper(c: str): bool {
-	return ('A' <= c) && (c <= 'Z');
+fn priv str.isdigit(): bool {
+	return ('0' <= self) && (self <= '9')
 }
 
-fn isspace(c: str): bool {
-	return contains(" \t\n\r\f(){}[]:", c);
+fn priv str.islower(): bool {
+	return (('a' <= self) && (self <= 'z')) || (self == '_')
 }
 
-//fn parse() {
+fn priv str.isupper(): bool {
+	return (('A' <= self) && (self <= 'Z')) || (self == '_')
+}
 
-//}
+fn priv Parser.take_while(cond: fn(str): bool): str {
+	let s = ''
 
-fn main(_: [str]): num {
-	let l = "A";
-	if islower(l) {
-		do print("yup\n");
+	while cond(self.peek()) {
+		set s = s + self.peek_advance()
+	}
+
+	return s
+}
+
+fn Parser.next(): Value {
+	do self.strip()
+	do assert(!self.is_eof(), "nothing left to parse");
+
+	let c = self.peek()
+
+	if c.isdigit() {
+		return Value::num { _: self.take_while(str.isdigit).to_num() }
+	}
+
+	if c.islower() {
+		return Value::Variable { _: Variable_new(self.take_while(str.islower)) }
+	}
+
+	if (c == "'") || (c == '"') {
+		do self.advance()
+		let s = ''
+
+		while self.peek() != c {
+			set s = s + self.peek_advance()
+		}
+		do self.advance()
+
+		return Value::str { _: s }
+	}
+
+	if c.isupper() {
+		do self.take_while(str.isupper)
 	} else {
-		do print("nope\n");
+		do self.advance()
 	}
-	return 0;
-}
 
-fn _strip_whitespace(p: Parser) {
+	if c == 'T' { return Value::bool { _: true } }
+	if c == 'F' { return Value::bool { _: false } }
+	if c == 'N' { return Value::Null{} }
+
+	let func = Function_lookup(c)
+	let args: [Value] = []
+	let i = 0
+
+	while i < func.arity {
+		do args.insert(args.length(), self.next())
+
+		set i = i + 1
+	}
+
+	return Value::Ast { _: Ast { func, args } }
 }

@@ -1,0 +1,13 @@
+import 'void.lch'
+
+fn VoidType_tryfrom(s: str): VoidType_TryFrom {
+	return VoidType_TryFrom { t: VoidType{}, v: s == 'void' }
+}
+
+fn VoidType.inspect(): str {
+	return 'VoidType'
+}
+
+fn VoidType.to_llvm_str(): str {
+	return 'void'
+}

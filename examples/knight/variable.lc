@@ -1,52 +1,44 @@
-import "value.lc";
+import 'variable.lch'
+import 'value.lch'
+import 'ast.lch'
 
-struct Variable {
-	name: str,
-	value: Value,
-	assigned: bool
-}
-
-
-global variables: [Variable];
+global priv variables: [Variable]
 fn init_variables() {
-	let v: [Variable] = [0];
-	do delete(v, 0); // todo: lol...
-	set variables = v;
+	set variables = []
 }
 
+fn Variable_new(name: str): Variable {
+	let i = 0
+	let len = variables.length()
 
-fn get_variable(name: str): Variable {
-	let i = 0;
-	let len = length(variables);
-
-	while i < (len) {
+	while i < len {
 		if name == variables[i].name {
-			return variables[i];
+			return variables[i]
 		}
 
-		set i = i + 1;
+		set i = i + 1
 	}
 
-	let v = Value::Null{};
-	set variables[i] = Variable {
-		name: name,
-		value: v,
-		assigned: false
-	};
+	let value = Value::Null{}
+	let var = Variable { name, assigned: false, value }
+	do variables.insert(i, var)
 
-	return variables[i];
+	return var
 }
 
-/*
-fn run_variable(var: Variable): any {
-	if (var.assigned) {
-		return var.value;
+fn Variable.run(): Value {
+	if self.assigned {
+		return self.value
 	}
-	do die("unassigned variable '" + var.name + "'!");
+
+	do abort("Unassigned variable '" + self.name + "' executed!")
 }
 
-fn assign_variable(var: Variable, value: any): void {
-	set var.value = value;
-	set var.assigned = true;
+fn Variable.assign(value: Value) {
+	set self.value = value
+	set self.assigned = true
 }
-*/
+
+fn Variable.inspect(): str {
+	return "Variable(" + self.name + ", " + (self.assigned ? self.value.inspect() : "<unassigned>") + ")"
+}

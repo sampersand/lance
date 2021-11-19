@@ -43,7 +43,7 @@ opts[:input].each do |filename|
 
   begin
     Parser.new(Lexer.new file: filename).parse_program.each(&:compile)
-  #rescue RuntimeError
+  #rescue Parser::ParseError
    # abort "#$!"
   end
 

@@ -2,7 +2,7 @@
 #define STRING_H
 #include "shared.h"
 
-typedef struct {
+typedef struct _str {
 	char *ptr;
 	ll len;
 } str;

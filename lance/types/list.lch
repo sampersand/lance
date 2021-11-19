@@ -1,0 +1,16 @@
+enum LLVMType
+
+struct ListType {
+	of: LLVMType
+}
+
+struct ListType_TryFrom { valid: bool, type: ListType }
+externf ListType_tryfrom: fn(str): ListType_TryFrom
+
+externf ListType.inspect: fn(ListType): str
+externf ListType.alignment: fn(ListType): num
+externf ListType.byte_length: fn(ListType): num
+externf ListType.to_llvm_str: fn(ListType): str
+
+enum Expression
+externf ListType.default: fn(ListType): Expression

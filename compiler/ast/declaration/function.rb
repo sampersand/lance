@@ -27,7 +27,7 @@ class Declaration
 
       args = parser.delineated delim: ',', end: ')' do
         arg_name = parser.identifier err: "invalid name for field of fn #{fn_name}"
-        arg_type = TypeDecl.parse(parser) or parser.error "missing kind for fn #{fn_name}'s argument #{arg_name}"
+        arg_type = TypeDecl.parse(parser) || TypeDecl::IdentDecl.new(arg_name)
         [arg_name, arg_type]
       end
 

@@ -1,0 +1,61 @@
+import "primitivetype.lch"
+import "../ast.lch"
+
+fn PrimitiveType.inspect(): str {
+	switch self {
+		case _: PrimitiveType::Num { return 'PrimitiveType::Num' }
+		case _: PrimitiveType::Str { return 'PrimitiveType::Str' }
+		case _: PrimitiveType::Bool { return 'PrimitiveType::Bool' }
+	}
+	unreachable
+}
+
+fn PrimitiveType_tryfrom(s: str): PrimitiveType_TryFrom {
+	let tf: PrimitiveType_TryFrom = PrimitiveType_TryFrom { valid: true }
+
+	if s == 'num' {
+		set tf.type = PrimitiveType::Num{}
+	} else if s == 'str' {
+		set tf.type = PrimitiveType::Str{}
+	} else if s == 'bool' {
+		set tf.type = PrimitiveType::Bool{}
+	} else {
+		set tf.valid = false
+	}
+	
+	return tf
+}
+
+fn PrimitiveType.alignment(): num {
+	return self.byte_length() // they just happen to be the same.
+}
+
+fn PrimitiveType.byte_length(): num {
+	switch self {
+		case _: PrimitiveType::Num { return 8 }
+		case _: PrimitiveType::Str { return 8 }
+		case _: PrimitiveType::Bool { return 1 }
+	}
+	unreachable
+}
+
+fn PrimitiveType.to_llvm_str(): str {
+	switch self {
+		case _: PrimitiveType::Num { return 'i64' }
+		case _: PrimitiveType::Bool { return 'i1' }
+		case _: PrimitiveType::Str { return '%struct.builtin.str*' }
+	}
+	unreachable
+}
+
+fn PrimitiveType.default(): Expression {
+	let literal: Literal
+
+	switch self {
+		case _: PrimitiveType::Num { set literal = Literal::Bool { _: 0 } }
+		case _: PrimitiveType::Bool { set literal = Literal::Bool { _: false } }
+		case _: PrimitiveType::Str { set literal = Literal::Str { _: "" } }
+	}
+
+	return Expression::Literal { _: literal }
+}

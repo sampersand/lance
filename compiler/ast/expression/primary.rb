@@ -72,14 +72,14 @@ class Expression
           end
 
           list = @args[0].compile type: list_type
-          value = @args[1].compile type: list_type.inner
-          index = @args[2].compile type: Compiler::Type::Primitive::Num
+          index = @args[1].compile type: Compiler::Type::Primitive::Num
+          value = @args[2].compile type: list_type.inner
 
           ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
           $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
 
           void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
-          $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
+          $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i64 #{index}, i8* #{void_ptr})"
         when :'list.member.delete'
           raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
 

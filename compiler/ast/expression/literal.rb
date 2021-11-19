@@ -76,26 +76,28 @@ class Expression
         end
     end
 
-    def compile_non_empty_array
+    def compile_non_empty_array(type:)
       # we pass `any` as the check's already been done earlier.
-      eles = @value.map {|ele| ele.compile type: :any }
-      align = nil
-      kind = @value.first.llvm_type.tap { |x| align = x.byte_length }.to_s
-      # align = kind.byte_length
+      eles = @value.map {|ele| ele.compile type: type }
+      align = type.align
+      type = type.to_s
+      # align = type.byte_length
 
       # note that we use `8` as the size for all types
       list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.allocate_list(i64 #{eles.length})"
-      bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{kind}**"
-      ptr  = $fn.write :new, "load #{kind}*, #{kind}** #{bitcast}, align #{align}"
-      $fn.write "store #{kind} #{eles.first}, #{kind}* #{ptr}, align 8"
+      if eles.first
+        bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{type}**"
+        ptr  = $fn.write :new, "load #{type}*, #{type}** #{bitcast}, align #{align}"
+        $fn.write "store #{type} #{eles.first}, #{type}* #{ptr}, align 8"
 
-      eles[1..-1].each_with_index do |ele, idx|
-        # +1 for index as we alreadyd id the first one
-        tmp = $fn.write :new, "getelementptr inbounds #{kind}, #{kind}* #{ptr}, i64 #{idx + 1}"
-        $fn.write "store #{kind} #{ele}, #{kind}* #{tmp}, align 8"
+        eles[1..-1].each_with_index do |ele, idx|
+          # +1 for index as we alreadyd id the first one
+          tmp = $fn.write :new, "getelementptr inbounds #{type}, #{type}* #{ptr}, i64 #{idx + 1}"
+          $fn.write "store #{type} #{ele}, #{type}* #{tmp}, align 8"
+        end
       end
 
-      len = $fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 2"
+      len = $fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 1"
       $fn.write "store %num #{eles.length}, %num* #{len}, align 8"
       list
     end
@@ -125,7 +127,8 @@ class Expression
     end
 
     def compile_struct_decl(type)
-      struct_ty = @value.llvm_type
+      struct_ty = @value.llvm_type # $compiler.lookup_type(@value.llvm_type.name).llvm_type
+      #p [struct_ty, @value.llvm_type, @value.llvm_type.name, type.name]
       args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
       struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
       mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
@@ -144,8 +147,6 @@ class Expression
           # type = type.enum
         # end
 
-        # p st
-
         $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
       end
 
@@ -161,12 +162,11 @@ class Expression
       when Integer then compile_literal '%num', @value, 8
       when String then compile_literal '%struct.builtin.str*', $llvm.string_literal(@value), 8
       when Array
-        if @value.empty?
-          compile_literal '%struct.builtin.list*', 'null', 8
-          return
-        end
-
-        compile_non_empty_array
+        # if @value.empty?
+        #   compile_literal '%struct.builtin.list*', 'null', 8
+        # else
+          compile_non_empty_array type: type.inner
+        # end
       when Symbol then compile_symbol type
       when StructDecl
         # p @value.llvm_type

@@ -1,0 +1,5 @@
+import 'literal.lch'
+
+enum Primary {
+	Literal
+}

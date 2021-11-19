@@ -1,0 +1,6 @@
+struct VoidType{}
+
+struct VoidType_TryFrom { t: VoidType, v: bool }
+externf VoidType_tryfrom: fn(str): VoidType_TryFrom
+externf VoidType.inspect: fn(VoidType): str
+externf VoidType.to_llvm_str: fn(VoidType): str

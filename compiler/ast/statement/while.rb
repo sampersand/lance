@@ -9,7 +9,7 @@ class Statement
 
     def self.parse(parser)
       if parser.guard 'loop'
-        cond = Expression::Literal.new :true
+        cond = Expression::Literal.new :true # `loop { ... }` is literally just `while true { ... }`
       else
         parser.guard 'while' or return
         cond = Expression.parse(parser) or parser.error 'missing condition for `while`'

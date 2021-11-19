@@ -1,0 +1,20 @@
+import "value.lc"
+import "ast.lc"
+import "variable.lc"
+import "function.lc"
+import "parser.lc"
+import "shared.lc"
+struct Foo { num, bool, num2: num, str }
+fn main(): num {
+	//let p = Parser_new("# ABC\n \t  OUTPUT T")
+	let p = Parser_new('
+		; = i 0
+		: WHILE < i 10
+			; OUTPUT i
+			: = i + i 1')
+
+	do init_functions()
+	do init_variables()
+
+	do p.next().run()
+}

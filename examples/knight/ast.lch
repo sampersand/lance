@@ -1,0 +1,10 @@
+import "function.lch"
+enum Value
+
+struct Ast {
+	func: Function,
+	args: [Value]
+}
+
+externf Ast.run: fn(Ast): Value
+externf Ast.inspect: fn(Ast): str

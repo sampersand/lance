@@ -1,0 +1,9 @@
+import 'nevertype.lch'
+
+fn NeverType_tryfrom(s: str): NeverType_TryFrom {
+	return NeverType_TryFrom { t: NeverType{}, v: s == 'never' }
+}
+
+fn NeverType.inspect(): str {
+	return 'NeverType'
+}

@@ -1,0 +1,10 @@
+enum LLVMType
+
+struct StructTypeField {
+	name: str,
+	kind: LLVMType
+}
+
+struct StructType {
+	fields: [StructTypeField]
+}

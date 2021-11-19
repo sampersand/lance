@@ -57,12 +57,13 @@ class LLVM
   def final_string(is_main:)
     struct_declarations = @structs.values.map { |a|
       name, fields = a.values_at(:name, :fields)
+      raise "unfinished struct declaration for '#{name}'" unless fields
       "#{name} = type { #{fields.values.join ', '} }"
     }
 
     enum_declarations = @enums.values.map { |a|
       name, variants = a.values_at(:name, :variants)
-      len = variants.map { |x| x.fields.length }.max * 8
+      len = (variants.map { |x| x.fields.length }.max || 0) * 8
       "#{name} = type { i64, [#{len} x i8] }"
     }
 
@@ -111,16 +112,19 @@ class LLVM
       %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
 
+      ; Number builtins
+      declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
+      declare %num @fn.builtin.powll(%num %0, %num %1)
+
       ; List builtins builtins
       declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0) 
       declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1)
       declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1)
-      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2)
+      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i64 %1, i8* %2)
       declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2)
 
       ; String builtins
       declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 
-      declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
       declare %num @fn.builtin.str_to_num(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
@@ -132,7 +136,10 @@ class LLVM
       ; Misc builtins
       declare i8* @fn.builtin.xmalloc(i64 %0)
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
+      declare %struct.builtin.str* @fn.builtin.prompt() 
+      declare %num @fn.builtin.random_()
       declare void @fn.builtin.quit(%num %0) 
+      declare void @fn.builtin.abort_msg(%struct.builtin.str* %0) 
 
       ; Struct declarations
       #{struct_declarations.join "\n"}

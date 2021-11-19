@@ -1,0 +1,5 @@
+struct NeverType{}
+
+struct NeverType_TryFrom { t: NeverType, v: bool }
+externf NeverType_tryfrom: fn(str): NeverType_TryFrom
+externf NeverType.inspect: fn(NeverType): str

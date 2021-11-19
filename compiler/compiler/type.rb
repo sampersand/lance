@@ -166,6 +166,20 @@ class Compiler
 
     class Enum < Type
       attr_reader :name
+      TYPES={}
+
+      def self.new(name, variants)
+        if k = TYPES[name]
+          if k.variants_.nil?
+            k.variants = variants unless variants.nil?
+          elsif variants
+            warn "tried making a new enum with variants: #{k.variants.inspect} #{variants.inspect}"
+          end
+          k
+        else
+          TYPES[name] = super
+        end
+      end
 
       def initialize(name, variants)
         @name = name.to_s
@@ -174,6 +188,7 @@ class Compiler
 
       def variants=(vars)
         raise "variants already defined" if @variants_
+        @variants = nil
         @variants_ = vars
       end
 
@@ -184,7 +199,13 @@ class Compiler
       def variants_; @variants_ end
 
       def variants
-        @variants ||= @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+        @variants ||= begin
+          if @variants_.nil?
+            raise "enum '#{name}' doesn't have any fields associated with it."
+          end
+
+          @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+        end
       end
 
       def hash

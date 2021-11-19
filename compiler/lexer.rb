@@ -14,18 +14,39 @@ class Lexer
     unreachable
   ).freeze
 
+
+  def import(filename)
+    path = File.realpath filename
+
+    if @imports[path]
+      return ""
+    else
+      @imports[path] = true
+    end
+
+    begin
+      olddir = Dir.pwd
+      # p path
+      Dir.chdir File.dirname path
+      contents = File.read path
+      contents.gsub! /import "(.*?)"/ do
+        # p [olddir, Dir.pwd]
+        "\n" + import($1) + "\n"
+      end
+    ensure
+      Dir.chdir olddir
+    end
+
+    contents
+  end
+
   def next
     n = next_
     return n unless n == [:symbol, 'import']
-    import = next_
-    raise "need a string" unless import[0] == :string
+    imports = next_
+    raise "need a string" unless imports[0] == :string
 
-    f = File.realpath import[1]
-    @imports[f] ||= begin
-      @stream.prepend f=File.read(f)
-      @lineno -= f.count "\n"
-      true
-    end
+    @stream.prepend import imports[1]
     self.next
   end
 
@@ -36,7 +57,7 @@ class Lexer
     return if @stream.empty?
     @stream.slice! /\A\d+\b/ and return [:number, $&.to_i]
     @stream.slice! /\A[a-zA-Z_][\w_]*\b(?:::[a-zA-Z_]\w*\b)?/ and return [KEYWORDS.include?($&) ? :symbol : :identifier, $&.sub('::', '-')]
-    @stream.slice! /\A([=!><]?=|[&|]{2}|[-+*\/%<>!;,\[\]\{\}\(\):.?])/ and return [:symbol, $&]
+    @stream.slice! /\A([=!><]?=|[&|]{2}|[-+*\/%^<>!;,\[\]\{\}\(\):.?])/ and return [:symbol, $&]
     if @stream.slice! /\A'((?:\\[\']|[^'])*)'/
       @lineno += $&.count "\n"
       return [:string, $1.gsub(/\\(['"])/, '\1')]

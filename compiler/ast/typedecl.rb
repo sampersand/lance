@@ -9,6 +9,7 @@ class TypeDecl
       parser.guard ':' or return
     end
 
+    nil while parser.guard '*' # remove pointers
     IdentDecl.parse(parser) ||
       ArrayDecl.parse(parser) ||
       FnDecl.parse(parser) ||

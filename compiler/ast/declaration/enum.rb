@@ -11,6 +11,7 @@ class Declaration
       kinds&.each do |k|
         k.instance_variable_set :@enum, self
       end
+
       compile
     end
 
@@ -20,18 +21,23 @@ class Declaration
       if parser.guard '{', err: 'missing `{` for enum'
         kinds = parser.delineated delim: ',', end: '}' do
           name = parser.guard(:identifier) or next
-          parser.expect ':'
+          variant_name = :"#{enum_name}-#{name}"
 
-          if rhs=parser.guard(:identifier)
-            if rhs == 'void'
-              Struct.new name, {}
+          if parser.guard ':'
+            if rhs=parser.guard(:identifier)
+              if rhs == 'void'
+                Struct.new variant_name, {}
+              else
+                Struct.new variant_name, '_' => TypeDecl::IdentDecl.new(rhs)
+              end
+            elsif rhs = TypeDecl::ArrayDecl.parse(parser)
+              Struct.new variant_name, '_' => rhs
             else
-              Struct.new name, '_' => TypeDecl::IdentDecl.new(rhs)
+              Struct.parse(parser, struct_name: variant_name)
             end
           else
-            Struct.parse(parser, struct_name: "#{name}")
+            Struct.new variant_name, '_' => TypeDecl::IdentDecl.new(name)
           end
-            .tap { |x| x.name.prepend "#{enum_name}-" }
         end
       end
 
@@ -52,7 +58,7 @@ class Declaration
     def compile
       @compiled ||= begin
         $compiler.declare_type llvm_type
-        if @kinds
+        if @kinds# && false
           llvm_type.variants.each do |var|
             $compiler.declare_type var
           end

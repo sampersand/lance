@@ -1,48 +1,99 @@
-enum Statement
-enum Expression
+//enum TopLevelDeclaration
 
-struct IfStmt {
-	cond: Expression,
-	ift: [Statement],
-	iff: [Statement]
-}
-struct SwitchStmt {/*todo*/}
-
-struct WhileStmt {
-	cond: Expression,
-	body: [Statement]
-}
-struct BreakStmt { /* empty */ }
-struct ContinueStmt { /* empty */ }
-
-struct LetStmt { /* todo */ }
-struct SetStmt { /* todo */ }
-struct DoStmt {
-	expr: Expression
-}
-enum ReturnStmt {
-	Nothing: struct{},
-	Something: struct{e: Expression}
-}
-
-enum Statement {
-	if_: struct { i: IfStmt },
-	switch_: struct { s: SwitchStmt },
-
-	while_: struct { w: WhileStmt },
-	break_: struct { b: BreakStmt },
-	continue_: struct { c: ContinueStmt },
-
-	let_: struct { l: LetStmt },
-	set_: struct { s: Setstmt },
-
-	do_: struct { d: DoStmt },
-	return_: struct { r: ReturnStmt },
-	unreachable_: struct {}
+enum Literal {
+	Bool: bool,
+	Num: num,
+	Str: str
 }
 
 enum Expression {
-	l: struct { a: num }
+	Literal: Literal
 }
 
-fn main(){}
+
+//enum TypeDeclaration
+
+
+// 
+// 
+// struct NamedTypeDeclaration {
+// 	name: str,
+// 	type: TypeDeclaration
+// }
+// 
+// struct ExternDecl {
+// 	nt: NamedTypeDeclaration,
+// 	is_fn: bool // if it's not a function, it's a global.
+// }
+// 
+// struct GlobalDeclaration = TypeDeclaration
+// struct StructDeclaration {
+// 	name: str,
+// 	fields: [NamedTypeDeclaration]
+// }
+// struct 
+// 
+//fn main(){}
+
+// 
+// enum Statement
+// enum Expression
+// 
+// struct IfStmt {
+// 	cond: Expression,
+// 	ift: [Statement],
+// 	iff: [Statement]
+// }
+// 
+// struct SwitchStmtBranch { /* TODO */ }
+// 
+// struct SwitchStmt {
+// 	cond: Expression,
+// 	branches: [SwitchStmtBranch],
+// 	else_: [Statement]
+// }
+// 
+// struct WhileStmt {
+// 	cond: Expression,
+// 	body: [Statement]
+// }
+// 
+// struct BreakStmt { /* empty */ }
+// 
+// struct ContinueStmt { /* empty */ }
+// 
+// struct LetStmt { /* todo */ }
+// 
+// struct SetStmt { /* todo */ }
+// 
+// struct DoStmt {
+// 	expr: Expression
+// }
+// 
+// enum ReturnStmt {
+// 	Nothing: void,
+// 	Something: Expression
+// }
+// 
+// enum Statement {
+// 	if_: IfStmt,
+// 	switch_: SwitchStmt,
+// 
+// 	while_: WhileStmt,
+// 	break_: BreakStmt,
+// 	continue_: ContinueStmt,
+// 
+// 	let_: LetStmt,
+// 	set_: SetStmt,
+// 
+// 	do_: DoStmt,
+// 	return_: ReturnStmt,
+// 	unreachable_: void
+// }
+// 
+// 
+// enum Expression {
+// 	l: struct { a: num }
+// }
+// 
+// fn main(){}

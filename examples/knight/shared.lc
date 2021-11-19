@@ -1,4 +1,5 @@
-fn abort(msg: str) {
-	do print(msg + "\n");
-	do quit(1);
+fn assert(cond: bool, msg: str) {
+	if !cond {
+		do abort(msg)
+	}
 }

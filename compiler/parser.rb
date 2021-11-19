@@ -11,10 +11,10 @@ class Parser
   end
 
   def peek?(val)
-    p = peek
+    pk = peek
 
     if guard val
-      @peeked = p
+      @peeked = pk
       true
     else
       false

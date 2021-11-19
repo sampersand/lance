@@ -35,19 +35,19 @@ list *repeat_list(const list *src, ll amnt) {
 	return l;
 }
 
-ll insert_into_list(list *l, ll *ele, ll pos) {
+ll insert_into_list(list *l, ll pos, ll *ele) {
 	if (l->len < pos || pos < 0)
 		return false;
 
 	if (l->cap == l->len)
 		l->ptr = xrealloc(l->ptr, (l->cap *= 2)*LLSIZE);
 
-	// for (ll i = l->len + 1; i >= pos; --i) {
-		// ((ll*)l->ptr)[i] = ((ll*)l->ptr)[i-1];
+	for (ll i = l->len + 1; i >= pos; --i) {
+		l->ptr[i] = l->ptr[i-1];
 		// memmove(l->ptr + i*ele_size, l->ptr + (i-1)*ele_size, ele_size);
-	// }
+	}
 
-	memmove(l->ptr + pos + 1, l->ptr + pos, LLSIZE*(l->len - pos)+1);
+	// memmove(l->ptr + pos + 1, l->ptr + pos, LLSIZE*(l->len - pos)+1);
 
 	l->ptr[pos] = *ele;
 	l->len++;
@@ -56,13 +56,14 @@ ll insert_into_list(list *l, ll *ele, ll pos) {
 }
 
 ll delete_from_list(list *l, ll *dst, ll pos) {
-	if (l->len < pos || pos < 0)
+	if (l->len <= pos || pos < 0)
 		return false;
 
 	*dst = l->ptr[pos];
 	memmove(l->ptr + pos-1, l->ptr + pos, LLSIZE*(l->len - pos));
 
 	l->len--;
+	printf("yupp: %lld\n", l->len);
 
 	return true;
 }

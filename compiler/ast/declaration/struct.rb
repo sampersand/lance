@@ -8,7 +8,7 @@ class Declaration
     def initialize(name, fields)
       @name = name
       @fields = fields
-      compile
+      compile unless @name =~ /-/
     end
 
     # struct-decl := 'struct' <ident> '{' {<ident> <typedecl> ','} '}'
@@ -20,9 +20,17 @@ class Declaration
       if parser.guard '{', err: 'missing `{` for struct'
         fields = parser.delineated delim: ',', end: '}' do
           field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
-          field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
+          field_type = TypeDecl.parse(parser) || TypeDecl::IdentDecl.new(field_name) # or parser.error "missing kind for '#{struct_name}.#{field_name}'"
           [field_name, field_type]
         end.to_h
+      elsif parser.guard '='
+        toalias = parser.expect(:identifier).to_s
+
+        return Class.new do
+          define_method :compile do 
+            $compiler.alias_type struct_name, $compiler.lookup_type(toalias)
+          end
+        end.new
       end
 
       new struct_name, fields

@@ -4,13 +4,13 @@
 #include <stdbool.h>
 
 typedef struct {
-	ll *ptr, cap, len;
+	ll *ptr, len, cap;
 } list;
 
 list *allocate_list(ll cap);
 list *concat_lists(const list *l, const list *r);
 list *repeat_list(const list *l, ll amnt);
-ll insert_into_list(list *l, ll *ele, ll pos);
+ll insert_into_list(list *l, ll pos, ll *ele);
 ll delete_from_list(list *l, ll *dst, ll pos);
 
 #endif
