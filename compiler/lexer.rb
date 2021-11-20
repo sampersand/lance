@@ -41,6 +41,7 @@ class Lexer
   end
 
   def next
+    
     n = next_
     return n unless n == [:symbol, 'import']
     imports = next_

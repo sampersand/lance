@@ -1,6 +1,7 @@
 # CC?=gcc
 # LFLAGS+=-Wall -Wextra -Wpedantic -std=c11
-LCC=/Users/samp/code/lance/compiler/test.rb
+LCC=../compiler/test.rb
+INCLUDE=$(shell find ../include/out -type f)
 LFLAGS=
 SRCDIR?=src
 OBJDIR?=obj
@@ -19,10 +20,10 @@ clean:
 	-@rm -r $(OBJDIR) $(BINDIR)
 
 $(exe): $(objects) | $(BINDIR)
-	$(LCC) $(LFLAGS) -o $@ -i $+
+	$(CC) -o $@ $+ $(INCLUDE)
 
 $(BINDIR) $(OBJDIR):
 	@mkdir -p $@
 
-$(OBJDIR)/%.ll: $(SRCDIR)/%.lc | $(patsubst $(SRCDIR),$(OBJDIR),$(shell dirname "$@"))
-	$(LCC) $(LFLAGS) -i $< -o $| --no-compile
+$(OBJDIR)/%.ll: $(SRCDIR)/%.lc | $(OBJDIR)
+	$(LCC) $(LFLAGS) -i $< -o $(shell dirname $< | sed 's!$(SRCDIR)!$(OBJDIR)!') --no-compile

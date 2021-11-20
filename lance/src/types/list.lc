@@ -29,10 +29,10 @@ fn ListType.default(): Expression {
 	if !listtype_default_set {
 		set listtype_default_set = true
 		let ary: [Expression] = [] // required because of a bug in the ruby bootstrapper
-
-		set ListType_default = Expression::Primary {
-			_: Primary::Literal { _: Literal::Array { _: ary } }
-		}
+		let la: Literal = Literal::Array { _: ary }
+//		set ListType_default = Expression::Primary {
+//			_: Primary::Literal { _: la }
+//		}
 	}
 
 	return ListType_default

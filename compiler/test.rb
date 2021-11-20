@@ -14,7 +14,8 @@ end
 opts = {
   input: [],
   output: 'out',
-  compile: true
+  compile: true,
+  clean: false
 }
 
 OptParse.new do |op|
@@ -29,6 +30,10 @@ OptParse.new do |op|
   op.on '-c', '--[no-]compile[=file]', 'Compile the code to the output file,', 'which defaults to `lance.out` in output dir' do |c|
     opts[:compile] = c
   end
+
+  op.on '--[no-]clean', 'remove old directory' do |c|
+    opts[:clean] = clean
+  end
 end.parse! $*
 
 (warn "no input files, aborting"; return) if opts[:input].empty?
@@ -36,13 +41,18 @@ end.parse! $*
 require 'fileutils'
 
 TARGET_TRIPLE = 'arm64-apple-macosx12' if !$OLD_VERSION
-FileUtils.rm_r(opts[:output]) rescue nil
+FileUtils.rm_r(opts[:output]) rescue nil if opts[:clean]
 FileUtils.mkdir_p (outdir=opts[:output])
+
 opts[:input].each do |filename|
   $compiler = Compiler.new target_triple: TARGET_TRIPLE
 
   begin
-    Parser.new(Lexer.new file: filename).parse_program.each(&:compile)
+    olddir = Dir.pwd
+    Dir.chdir File.dirname filename
+    Parser.new(Lexer.new file: File.basename(filename)).parse_program.each(&:compile)
+  ensure
+    Dir.chdir olddir
   #rescue Parser::ParseError
    # abort "#$!"
   end
