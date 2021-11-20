@@ -11,4 +11,5 @@ enum LLVMType {
 	generic: str,
 }
 
+externf LLVMType.inspect: fn(LLVMType): str
 //fn LLVMType.to_llvm_str: fn(): str

@@ -20,7 +20,7 @@ fn ListType.to_llvm_str(): str {
 	do abort("todo: to_llvm_str")
 }
 
-import '../ast/expression.lch'
+import "../parser/ast/expression.lch"
 
 global priv ListType_default: Expression
 global priv listtype_default_set: bool
@@ -28,8 +28,10 @@ global priv listtype_default_set: bool
 fn ListType.default(): Expression {
 	if !listtype_default_set {
 		set listtype_default_set = true
+		let ary: [Expression] = [] // required because of a bug in the ruby bootstrapper
+
 		set ListType_default = Expression::Primary {
-			_: Primary::Literal { _: Literal::Array { _: [] } }
+			_: Primary::Literal { _: Literal::Array { _: ary } }
 		}
 	}
 

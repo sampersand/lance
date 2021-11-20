@@ -1,4 +1,4 @@
-import 'primary.lch'
+import "primary.lch"
 
 enum Expression {
 	Primary

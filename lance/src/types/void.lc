@@ -1,4 +1,4 @@
-import 'void.lch'
+import "void.lch"
 
 fn VoidType_tryfrom(s: str): VoidType_TryFrom {
 	return VoidType_TryFrom { t: VoidType{}, v: s == 'void' }

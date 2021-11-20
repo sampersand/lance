@@ -2,6 +2,6 @@ enum LLVMType
 
 struct Global {
 	name: str,
-	priv: bool,
+	private: bool,
 	kind: LLVMType,
 }

@@ -1,5 +1,6 @@
 import "lexer.lch"
 import "parser.lch"
+import "../utils.lch"
 
 fn Parser_new(l: Lexer): Parser {
 	return Parser { l, peeked: false }

@@ -14,7 +14,7 @@ enum Declaration {
 
 enum Option_Declaration {
 	Some: Declaration,
-	None
+	None: void
 }
 
 struct Parser

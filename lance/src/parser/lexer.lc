@@ -1,5 +1,5 @@
-//import "lexer.lch"
-//import "utils.lch"
+import "../utils.lch"
+import "lexer.lch"
 
 // in the future, we could have it automatically read from `filename`?
 fn priv Lexer_new(stream: str, filename: str): Lexer {

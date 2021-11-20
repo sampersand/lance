@@ -1,4 +1,4 @@
-import 'literal.lch'
+import "literal.lch"
 
 enum Primary {
 	Literal

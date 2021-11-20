@@ -1,7 +1,0 @@
-import "type.lch"
-
-enum LLVMType {
-	primitive: PrimitiveType
-}
-
-externf LLVMType.to_llvm_str: fn(): str

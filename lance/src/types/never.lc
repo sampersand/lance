@@ -1,4 +1,4 @@
-import 'nevertype.lch'
+import "never.lch"
 
 fn NeverType_tryfrom(s: str): NeverType_TryFrom {
 	return NeverType_TryFrom { t: NeverType{}, v: s == 'never' }

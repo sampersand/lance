@@ -1,5 +1,5 @@
-import "primitivetype.lch"
-import "../ast.lch"
+import "primitive.lch"
+import "../parser/ast.lch"
 
 fn PrimitiveType.inspect(): str {
 	switch self {

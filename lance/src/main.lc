@@ -1,10 +1,14 @@
-import "lexer.lc"
-import "parser.lc"
-import "utils.lc"
+import "compiler/compiler.lch"
+import "parser/parser.lch"
+//import "compiler/compiler.lc"
+//import "parser/lexer.lc"
+//import "parser/parser.lc"
+//import "types/type.lch"
+//import "utils.lc"
 
 fn main(): num {
 	let p = Parser_new(Lexer_new("fn main(){ do print('hello') }", "filename"))
-	let g = Declaration_parse()
+	//let g = Declaration_parse()
 //
 //	let r =  p.guardkw('fn')
 //	if r.v {
