@@ -2,7 +2,7 @@ import "../utils.lch"
 import "lexer.lch"
 
 // in the future, we could have it automatically read from `filename`?
-fn priv Lexer_new(stream: str, filename: str): Lexer {
+fn Lexer_new(stream: str, filename: str): Lexer {
 	return Lexer { stream, index: 0, filename, lineno: 1 }
 }
 

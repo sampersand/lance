@@ -1,8 +1,8 @@
 # CC?=gcc
 # LFLAGS+=-Wall -Wextra -Wpedantic -std=c11
 LCC=../compiler/test.rb
-INCLUDE=$(shell find ../include/out -type f)
 LFLAGS=
+LLVM=clang
 SRCDIR?=src
 OBJDIR?=obj
 BINDIR?=bin
@@ -19,11 +19,15 @@ all: $(exe)
 clean:
 	-@rm -r $(OBJDIR) $(BINDIR)
 
-$(exe): $(objects) | $(BINDIR)
-	$(CC) -o $@ $+ $(INCLUDE)
+$(exe): $(objects) | $(BINDIR) $(OBJDIR)/include
+	$(LLVM) -o $(exe) $+ $(shell find $(OBJDIR)/include -type f)
 
 $(BINDIR) $(OBJDIR):
 	@mkdir -p $@
+
+$(OBJDIR)/include: $(OBJDIR)
+	mkdir $(OBJDIR)/include
+	$(LCC) -o $@ --include --no-compile
 
 $(OBJDIR)/%.ll: $(SRCDIR)/%.lc | $(OBJDIR)
 	$(LCC) $(LFLAGS) -i $< -o $(shell dirname $< | sed 's!$(SRCDIR)!$(OBJDIR)!') --no-compile

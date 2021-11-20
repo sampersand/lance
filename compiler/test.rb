@@ -15,7 +15,8 @@ opts = {
   input: [],
   output: 'out',
   compile: true,
-  clean: false
+  clean: false,
+  finished: false
 }
 
 OptParse.new do |op|
@@ -34,15 +35,24 @@ OptParse.new do |op|
   op.on '--[no-]clean', 'remove old directory' do |c|
     opts[:clean] = clean
   end
+
+  op.on '--include', 'output files to include' do |m|
+    opts[:include] = true
+  end
+
 end.parse! $*
 
-(warn "no input files, aborting"; return) if opts[:input].empty?
+(warn "no input files, aborting"; return) if opts[:input].empty? && !opts[:include]
 
 require 'fileutils'
 
 TARGET_TRIPLE = 'arm64-apple-macosx12' if !$OLD_VERSION
 FileUtils.rm_r(opts[:output]) rescue nil if opts[:clean]
 FileUtils.mkdir_p (outdir=opts[:output])
+
+if opts[:include]
+  FileUtils.cp_r File.join(__dir__, '..', 'include', 'out'), outdir
+end
 
 opts[:input].each do |filename|
   $compiler = Compiler.new target_triple: TARGET_TRIPLE
@@ -60,10 +70,13 @@ opts[:input].each do |filename|
   File.write File.join(outdir, File.basename(filename, '.*') + '.ll'), $compiler.to_llvm(is_main: false)
 end
 
-$compiler = Compiler.new target_triple: TARGET_TRIPLE
-File.write File.join(outdir, '___main.ll'), $compiler.to_llvm(is_main: true)
+if opts[:compile] || opts[:include]
+  $compiler = Compiler.new target_triple: TARGET_TRIPLE
+  File.write File.join(outdir, '___main.ll'), $compiler.to_llvm(is_main: true)
 
-if opts[:compile]
-  opts[:compile] = outdir + '/lance.out' if opts[:compile] == true
-  system 'clang', '-o', opts[:compile], '-xir', *Dir[outdir + '/*.ll'], *Dir[__dir__ + '/../include/out/*.ll']
+  if opts[:compile]
+    opts[:compile] = outdir + '/lance.out' if opts[:compile] == true
+    system 'clang', '-o', opts[:compile], '-xir', *Dir[outdir + '/*.ll'], *Dir[__dir__ + '/../include/out/*.ll']
+    exit $?.to_i
+  end
 end
