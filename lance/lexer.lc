@@ -1,8 +1,8 @@
-import "lexer.lch"
-import "utils.lch"
+//import "lexer.lch"
+//import "utils.lch"
 
 // in the future, we could have it automatically read from `filename`?
-fn Lexer_new(stream: str, filename: str): Lexer {
+fn priv Lexer_new(stream: str, filename: str): Lexer {
 	return Lexer { stream, index: 0, filename, lineno: 1 }
 }
 
@@ -67,11 +67,11 @@ fn priv Lexer.take_if_starts_with(s: str): bool {
 	return false
 }
 
-fn StreamPos.abort(m: str): ! {
+fn StreamPos.abort(m: str): never {
 	do abort(self.to_str() + ": " + m)
 }
 
-fn priv Lexer.abort(m: str): ! {
+fn priv Lexer.abort(m: str): never {
 	do self.pos().abort(m)
 }
 

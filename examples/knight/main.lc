@@ -4,7 +4,7 @@ import "variable.lc"
 import "function.lc"
 import "parser.lc"
 import "shared.lc"
-struct Foo { num, bool, num2: num, str }
+
 fn main(): num {
 	//let p = Parser_new("# ABC\n \t  OUTPUT T")
 	let p = Parser_new('

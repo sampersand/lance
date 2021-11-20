@@ -1,0 +1,18 @@
+import "lexer.lc"
+import "parser.lc"
+import "utils.lc"
+
+fn main(): num {
+	let p = Parser_new(Lexer_new("fn main(){ do print('hello') }", "filename"))
+	let g = Declaration_parse()
+//
+//	let r =  p.guardkw('fn')
+//	if r.v {
+//		do print("valid: " + r.t.kind.inspect())
+//	} else {
+//		do print("invalid!\n")
+//	}
+//	//let l = Lexer_new("a", "b")
+//	//do print(add(3,4).to_str())
+	return 0
+}

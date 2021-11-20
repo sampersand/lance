@@ -48,7 +48,7 @@ class Compiler
     @globals = {}
     @externs = {}
     @types = {}
-    @llvm = LLVM.new(**opts)
+    $llvm = @llvm = LLVM.new(**opts)
   end
 
   def function(name)
@@ -158,6 +158,8 @@ class Compiler
     @types[newname.to_s] = type
   end
 
+  TypeDeclError = Class.new RuntimeError
+
   def declare_type(type)
     if (old = @types[type.name])
       if old.is_a?(Compiler::Type::Struct) && old.fields.nil?
@@ -168,7 +170,7 @@ class Compiler
         warn "warning: type '#{type.name}' declared twice" unless type.equal? old
       elsif !(old.is_a?(Compiler::Type::Enum) && !type.variants?) && !(
         old.is_a?(Compiler::Type::Struct) && type.fields.nil?)
-        raise "type '#{type.name}' is already declared: #{old.inspect}"
+        raise TypeDeclError, "type '#{type.name}' is already declared: #{old.inspect}"
       end
     else
       @types[type.name.to_s] = type
@@ -184,7 +186,6 @@ class Compiler
 
   def to_llvm(is_main:)
     $compiler = self
-    $llvm = @llvm
 
     @types.each do |_name, type|
       type.to_s

@@ -56,22 +56,3 @@ fn Parser.guardident(s: str): str {
 	}
 	unreachable
 }
-
-import "lexer.lc"
-import "utils.lc"
-
-fn main(): num {
-	let l: Lexer = Lexer_new("fn main(){}", "filename")
-	//let y = Lexer_new("A","BB")
-	let p = Parser_new(l)
-
-	let r =  p.guardkw('fn')
-	if r.v {
-		do print("valid: " + r.t.kind.inspect())
-	} else {
-		do print("invalid!\n")
-	}
-	//let l = Lexer_new("a", "b")
-	//do print(add(3,4).to_str())
-	return 0
-}

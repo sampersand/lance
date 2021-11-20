@@ -1,0 +1,21 @@
+import "declaration/global.lch"
+import "declaration/extern.lch"
+import "declaration/struct.lch"
+import "declaration/enum.lch"
+import "declaration/function.lch"
+
+enum Declaration {
+	Global,
+	Extern,
+	Struct,
+	Enum,
+	Function
+}
+
+enum Option_Declaration {
+	Some: Declaration,
+	None
+}
+
+struct Parser
+externf Declaration_parse: fn(Parser): Option_Declaration

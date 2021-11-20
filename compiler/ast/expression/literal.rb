@@ -50,9 +50,11 @@ class Expression
     end
 
     def compile_literal(type, value, align)
-      local = $fn.write :new, "alloca #{type}, align #{align}"
-      $fn.write "store #{type} #{value}, #{type}* #{local}, align #{align}"
-      $fn.write :new, "load #{type}, #{type}* #{local}, align #{align}"
+      $fn.section "Compile literal of #{type}: #{value}" do
+        local = $fn.write :new, "alloca #{type}, align #{align}"
+        $fn.write "store #{type} #{value}, #{type}* #{local}, align #{align}"
+        $fn.write :new, "load #{type}, #{type}* #{local}, align #{align}"
+      end
     end
 
     def llvm_type
@@ -77,42 +79,46 @@ class Expression
     end
 
     def compile_non_empty_array(type:)
-      # we pass `any` as the check's already been done earlier.
-      eles = @value.map {|ele| ele.compile type: type }
-      align = type.align
-      type = type.to_s
-      # align = type.byte_length
+      $fn.section "compiling array of type #{type}: #@value" do
+        # we pass `any` as the check's already been done earlier.
+        eles = @value.map {|ele| ele.compile type: type }
+        align = type.align
+        type = type.to_s
+        # align = type.byte_length
 
-      # note that we use `8` as the size for all types
-      list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.allocate_list(i64 #{eles.length})"
-      if eles.first
-        bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{type}**"
-        ptr  = $fn.write :new, "load #{type}*, #{type}** #{bitcast}, align #{align}"
-        $fn.write "store #{type} #{eles.first}, #{type}* #{ptr}, align 8"
+        # note that we use `8` as the size for all types
+        list = $fn.write :new, "call %struct.builtin.list* @fn.builtin.allocate_list(i64 #{eles.length})"
+        if eles.first
+          bitcast = $fn.write :new, "bitcast %struct.builtin.list* #{list} to #{type}**"
+          ptr  = $fn.write :new, "load #{type}*, #{type}** #{bitcast}, align #{align}"
+          $fn.write "store #{type} #{eles.first}, #{type}* #{ptr}, align 8"
 
-        eles[1..-1].each_with_index do |ele, idx|
-          # +1 for index as we alreadyd id the first one
-          tmp = $fn.write :new, "getelementptr inbounds #{type}, #{type}* #{ptr}, i64 #{idx + 1}"
-          $fn.write "store #{type} #{ele}, #{type}* #{tmp}, align 8"
+          eles[1..-1].each_with_index do |ele, idx|
+            # +1 for index as we alreadyd id the first one
+            tmp = $fn.write :new, "getelementptr inbounds #{type}, #{type}* #{ptr}, i64 #{idx + 1}"
+            $fn.write "store #{type} #{ele}, #{type}* #{tmp}, align 8"
+          end
         end
-      end
 
-      len = $fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 1"
-      $fn.write "store %num #{eles.length}, %num* #{len}, align 8"
-      list
+        len = $fn.write :new, "getelementptr inbounds %struct.builtin.list, %struct.builtin.list* #{list}, i64 0, i32 1"
+        $fn.write "store %num #{eles.length}, %num* #{len}, align 8"
+        list
+      end
     end
 
     def compile_symbol(type)
       val = $fn.lookup @value
 
-      if val.is_a?(Compiler::Function) || val.is_a?(Compiler::PredeclaredExternFunction)
-        fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
-        $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
-        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
-      elsif val.is_a?(Compiler::Function::Variable) && val.arg? || val.is_a?(Compiler::Global)
-        val.local
-      else
-        $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
+      $fn.section "compiling symbol of type #{type}: #{val}" do
+        if val.is_a?(Compiler::Function) || val.is_a?(Compiler::PredeclaredExternFunction)
+          fn = $fn.write :new, "alloca #{val.llvm_type}, align 8"
+          $fn.write "store #{val.llvm_type} #{val}, #{val.llvm_type}* #{fn}, align 8"
+          $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{fn}, align 8"
+        elsif val.is_a?(Compiler::Function::Variable) && val.arg? || val.is_a?(Compiler::Global)
+          val.local
+        else
+          $fn.write :new, "load #{val.llvm_type}, #{val.llvm_type}* #{val}, align #{val.llvm_type.align}"
+        end
       end
     end
 
@@ -127,30 +133,32 @@ class Expression
     end
 
     def compile_struct_decl(type)
-      struct_ty = @value.llvm_type # $compiler.lookup_type(@value.llvm_type.name).llvm_type
-      #p [struct_ty, @value.llvm_type, @value.llvm_type.name, type.name]
-      args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
-      struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
-      mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
-      cast = $fn.write :new, "bitcast i8* #{mallc} to #{struct_ty}"
-      $fn.write "store #{struct_ty} #{cast}, #{struct_ty}* #{struct_local}, align 8"
+      $fn.section "compiling struct declaration of type #{type}: #{@value}" do
+        struct_ty = @value.llvm_type # $compiler.lookup_type(@value.llvm_type.name).llvm_type
+        #p [struct_ty, @value.llvm_type, @value.llvm_type.name, type.name]
+        args = @value.args.values.map { |a| [a.llvm_type, a.compile(type: a.llvm_type)] }
+        struct_local = $fn.write :new, "alloca #{struct_ty}, align 8"
+        mallc = $fn.write :new, "call i8* @xmalloc(i64 #{struct_ty.byte_length})"
+        cast = $fn.write :new, "bitcast i8* #{mallc} to #{struct_ty}"
+        $fn.write "store #{struct_ty} #{cast}, #{struct_ty}* #{struct_local}, align 8"
 
-      args.each_with_index do |(type, local), offset|
-        tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
+        args.each_with_index do |(type, local), offset|
+          tmp = $fn.write :new, "getelementptr inbounds #{struct_ty.to_s.chop}, #{struct_ty} #{cast}, i32 0, i32 #{offset}"
 
-        if struct_ty.name =~ /\Aenum\./ && offset == 1
-          newty = "[#{$compiler.lookup_type($').variants_length} x i8]"
-          tmp = $fn.write :new, "bitcast #{newty}* #{tmp} to #{type}*" # this is probably unsound
+          if struct_ty.name =~ /\Aenum\./ && offset == 1
+            newty = "[#{$compiler.lookup_type($').variants_length} x i8]"
+            tmp = $fn.write :new, "bitcast #{newty}* #{tmp} to #{type}*" # this is probably unsound
+          end
+
+          # if type.is_a? Compiler::Type::Enum::Variant
+            # type = type.enum
+          # end
+
+          $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
         end
 
-        # if type.is_a? Compiler::Type::Enum::Variant
-          # type = type.enum
-        # end
-
-        $fn.write "store #{type} #{local}, #{type}* #{tmp}, align 8"
+        cast
       end
-
-      cast
     end
 
 

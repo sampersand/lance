@@ -42,16 +42,18 @@ class Expression
           end
         end
 
-        fn = @fn.compile type: @fn.llvm_type
-        args = @args.map { |a| "#{a.llvm_type} #{a.compile(type: a.llvm_type)}" } # we already verified it with `fn`
-        return_type = @fn.llvm_type.return_type
+        $fn.section "compiling function with return type #{type}: #@fn #@args" do
+          fn = @fn.compile type: @fn.llvm_type
+          args = @args.map { |a| "#{a.llvm_type} #{a.compile(type: a.llvm_type)}" } # we already verified it with `fn`
+          return_type = @fn.llvm_type.return_type
 
-        str = "call #{return_type} #{fn}(#{args.join ', '})"
-        if return_type == Compiler::Type::Primitive::Void  || return_type == Compiler::Type::Never
-          $fn.write str
-          $fn.write 'unreachable' if return_type == Compiler::Type::Never
-        else
-          $fn.write :new, str
+          str = "call #{return_type} #{fn}(#{args.join ', '})"
+          if return_type == Compiler::Type::Primitive::Void  || return_type == Compiler::Type::Never
+            $fn.write str
+            $fn.write 'unreachable' if return_type == Compiler::Type::Never
+          else
+            $fn.write :new, str
+          end
         end
       end
 
@@ -61,54 +63,56 @@ class Expression
       end
 
       private def compile_special(type)
-        case @fn.value
-        when :'list.member.insert'
-          raise "invalid argc for insert: needed 3, got #{@args.length}" unless @args.length == 3
+        $fn.section "compiling symbol of type #{type}: #{@fn.value}" do
+          case @fn.value
+          when :'list.member.insert'
+            raise "invalid argc for insert: needed 3, got #{@args.length}" unless @args.length == 3
 
-          list_type = @args[0].llvm_type
+            list_type = @args[0].llvm_type
 
-          if !list_type.is_a?(Compiler::Type::List)
-            raise "can only insert into lists, not #{list_type.inspect}"
+            if !list_type.is_a?(Compiler::Type::List)
+              raise "can only insert into lists, not #{list_type.inspect}"
+            end
+
+            list = @args[0].compile type: list_type
+            index = @args[1].compile type: Compiler::Type::Primitive::Num
+            value = @args[2].compile type: list_type.inner
+
+            ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+            $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
+
+            void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+            $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i64 #{index}, i8* #{void_ptr})"
+          when :'list.member.delete'
+            raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
+
+            list_type = @args[0].llvm_type
+            if !list_type.is_a?(Compiler::Type::List)
+              raise "can only insert into lists, not #{list_type.inspect}"
+            end
+
+            list = @args[0].compile type: list_type
+            index = @args[1].compile type: Compiler::Type::Primitive::Num
+
+            ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+            void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+            $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
+          when :'str.member.length', :'list.member.length'
+            raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
+
+            ty = @args[0].llvm_type
+
+            if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List)
+              raise "invalid type for length, given #{ty}, expected string or list"
+            end
+
+            val = @args[0].compile type: :any
+
+            tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
+            $fn.write :new, "load i64, i64* #{tmp}, align 8"
+          else
+            raise "unknown special function '#{@fn.value}'"
           end
-
-          list = @args[0].compile type: list_type
-          index = @args[1].compile type: Compiler::Type::Primitive::Num
-          value = @args[2].compile type: list_type.inner
-
-          ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
-          $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
-
-          void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
-          $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i64 #{index}, i8* #{void_ptr})"
-        when :'list.member.delete'
-          raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
-
-          list_type = @args[0].llvm_type
-          if !list_type.is_a?(Compiler::Type::List)
-            raise "can only insert into lists, not #{list_type.inspect}"
-          end
-
-          list = @args[0].compile type: list_type
-          index = @args[1].compile type: Compiler::Type::Primitive::Num
-
-          ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
-          void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
-          $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
-        when :'str.member.length', :'list.member.length'
-          raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
-
-          ty = @args[0].llvm_type
-
-          if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List)
-            raise "invalid type for length, given #{ty}, expected string or list"
-          end
-
-          val = @args[0].compile type: :any
-
-          tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
-          $fn.write :new, "load i64, i64* #{tmp}, align 8"
-        else
-          raise "unknown special function '#{@fn.value}'"
         end
       end
     end
@@ -135,13 +139,15 @@ class Expression
         inner_type = @ary.llvm_type.inner 
         $fn.validate_types expected: type, given: inner_type
 
-        ary = @ary.compile type: :any
-        idx = @index.compile type: Compiler::Type::Primitive::Num
+        $fn.section "compiling array index (ary=#@ary, index=#@index) with return type #{type}:" do
+          ary = @ary.compile type: :any
+          idx = @index.compile type: Compiler::Type::Primitive::Num
 
-        tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
-        tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
-        tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
-        $fn.write :new, "load #{inner_type}, #{inner_type}* #{tmp3}, align 8"
+          tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
+          tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
+          tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
+          $fn.write :new, "load #{inner_type}, #{inner_type}* #{tmp3}, align 8"
+        end
       end
 
       def compile_string(type)
@@ -150,21 +156,23 @@ class Expression
         src = @ary.compile type: Compiler::Type::Primitive::Str
         idx = @index.compile type: Compiler::Type::Primitive::Num
 
-        tmp3 = $fn.write :new, "call %struct.builtin.str* @fn.builtin.allocate_str(i64 1)"
-        tmp4 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{src}, i64 0, i32 0"
-        tmp5 = $fn.write :new, "load i8*, i8** #{tmp4}, align 8"
-        tmp6 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp5}, i64 #{idx}"
-        tmp7 = $fn.write :new, "load i8, i8* #{tmp6}, align 1"
-        tmp8 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{tmp3}, i64 0, i32 0"
-        tmp9 = $fn.write :new, "load i8*, i8** #{tmp8}, align 8"
-        tmp10 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp9}, i64 0"
-        $fn.write "store i8 #{tmp7}, i8* #{tmp10}, align 1"
-        tmp3
+        $fn.section "compiling string index (string=#@ary, index=#@index)" do
+          tmp3 = $fn.write :new, "call %struct.builtin.str* @fn.builtin.allocate_str(i64 1)"
+          tmp4 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{src}, i64 0, i32 0"
+          tmp5 = $fn.write :new, "load i8*, i8** #{tmp4}, align 8"
+          tmp6 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp5}, i64 #{idx}"
+          tmp7 = $fn.write :new, "load i8, i8* #{tmp6}, align 1"
+          tmp8 = $fn.write :new, "getelementptr inbounds %struct.builtin.str, %struct.builtin.str* #{tmp3}, i64 0, i32 0"
+          tmp9 = $fn.write :new, "load i8*, i8** #{tmp8}, align 8"
+          tmp10 = $fn.write :new, "getelementptr inbounds i8, i8* #{tmp9}, i64 0"
+          $fn.write "store i8 #{tmp7}, i8* #{tmp10}, align 1"
+          tmp3
+        end
       end
 
 
       def llvm_type
-       @llvm_type ||= (@ary.llvm_type == Compiler::Type::Primitive::Str ? Compiler::Type::Primitive::Str : @ary.llvm_type.inner)
+        @llvm_type ||= (@ary.llvm_type == Compiler::Type::Primitive::Str ? Compiler::Type::Primitive::Str : @ary.llvm_type.inner)
       end
     end
 
@@ -194,15 +202,17 @@ class Expression
       end
 
       def compile type:
-        $fn.validate_types expected: type, given: llvm_type
-        primary = @primary.compile type: struct_type
-        offset = (
-          struct_type.fields.each_with_index.find { |(k, v), _idx| k == @field } ||
-          raise("unknown struct field '#@field' for type '#{struct_type.name}'")
-        ).last
+        $fn.section "compiling field access on #@primary . #@field with return type #{type}" do
+          $fn.validate_types expected: type, given: llvm_type
+          primary = @primary.compile type: struct_type
+          offset = (
+            struct_type.fields.each_with_index.find { |(k, v), _idx| k == @field } ||
+            raise("unknown struct field '#@field' for type '#{struct_type.name}'")
+          ).last
 
-        idx = $fn.write :new, "getelementptr inbounds #{struct_type.to_s.chop}, #{struct_type} #{primary}, i32 0, i32 #{offset}"
-        $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{idx}, align 8"
+          idx = $fn.write :new, "getelementptr inbounds #{struct_type.to_s.chop}, #{struct_type} #{primary}, i32 0, i32 #{offset}"
+          $fn.write :new, "load #{llvm_type}, #{llvm_type}* #{idx}, align 8"
+        end
       end
     end
 

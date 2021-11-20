@@ -47,6 +47,7 @@ class Compiler
       @is_private = is_private
       @lines = []
       @whiles = []
+      @debug_counter = 0
 
       @args = args.map { |name, type|  define_variable name, type, arg: true }
       next_local # ignore it for some reason, idk why llvm does it
@@ -95,6 +96,13 @@ class Compiler
       if expected != given
         raise "invalid type: expected #{expected.inspect}, got a #{given.inspect}"
       end
+    end
+
+    def section(msg)
+      return yield unless $DEBUG
+      debug_counter = (@debug_counter += 1)
+      write "; [#{debug_counter}] Begin #{msg}"
+      yield.tap { write "; [#{debug_counter}] End #{msg}" }
     end
 
     def write(local=nil, line, at: nil)

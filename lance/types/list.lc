@@ -17,7 +17,7 @@ fn ListType.byte_length(): num {
 }
 
 fn ListType.to_llvm_str(): str {
-	return 0
+	do abort("todo: to_llvm_str")
 }
 
 import '../ast/expression.lch'
