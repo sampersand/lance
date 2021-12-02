@@ -8,24 +8,30 @@ class Declaration
     def initialize(name, fields)
       @name = name
       @fields = fields
-      compile
+      compile unless @name =~ /-/
     end
 
     # struct-decl := 'struct' <ident> '{' {<ident> <typedecl> ','} '}'
     #                 note the last `,` is optional
-    def self.parse(parser, require_struct_keyword: true)
-      if require_struct_keyword
-        parser.guard 'struct' or return
+    def self.parse(parser, struct_name: nil)
+      parser.guard 'struct' or return
+
+      struct_name ||= parser.identifier err: 'missing name for struct'
+      if parser.guard '{', err: 'missing `{` for struct'
+        fields = parser.delineated delim: ',', end: '}' do
+          field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
+          field_type = TypeDecl.parse(parser) || TypeDecl::IdentDecl.new(field_name) # or parser.error "missing kind for '#{struct_name}.#{field_name}'"
+          [field_name, field_type]
+        end.to_h
+      elsif parser.guard '='
+        toalias = parser.expect(:identifier).to_s
+
+        return Class.new do
+          define_method :compile do 
+            $compiler.alias_type struct_name, $compiler.lookup_type(toalias)
+          end
+        end.new
       end
-
-      struct_name = parser.identifier err: 'missing name for struct'
-      parser.expect '{', err: 'missing `{` for struct'
-
-      fields = parser.delineated delim: ',', end: '}' do
-        field_name = parser.identifier err: "invalid name for field of struct #{struct_name}"
-        field_type = TypeDecl.parse(parser) or parser.error "missing kind for '#{struct_name}.#{field_name}'"
-        [field_name, field_type]
-      end.to_h
 
       new struct_name, fields
     end

@@ -1,0 +1,305 @@
+import 'function.lch'
+import 'value.lch'
+import 'parser.lch'
+
+fn priv kn_prompt(_: [Value]): Value {
+	return Value::str { _: prompt() }
+}
+
+fn priv kn_random(_: [Value]): Value {
+	return Value::num { _: random() }
+}
+
+fn priv kn_eval(args: [Value]): Value {
+	return Parser_new(args[0].to_str()).next().run()
+}
+
+fn priv kn_block(args: [Value]): Value {
+	return args[0]
+}
+
+fn priv kn_call(args: [Value]): Value {
+	return args[0].run().run()
+}
+
+fn priv kn_system(args: [Value]): Value {
+	do abort("todo")
+}
+
+fn priv kn_quit(args: [Value]): Value {
+	do quit(args[0].to_num())
+}
+
+fn priv kn_not(args: [Value]): Value {
+	return Value::bool { _: !args[0].to_bool() }
+}
+
+fn priv kn_length(args: [Value]): Value {
+	return Value::num { _: args[0].to_str().length() }
+}
+
+fn priv kn_dump(args: [Value]): Value {
+	let v = args[0].run()
+
+	do print(v.inspect() + "\n")
+
+	return v
+}
+
+fn priv kn_output(args: [Value]): Value {
+	let s = args[0].to_str()
+
+	if (s != '') && (s[s.length() - 1] == "\\") {
+		do print(s.substr(0, s.length() - 2))
+	} else {
+		do print(s + "\n")
+	}
+
+	return Value::Null{}
+}
+
+fn priv kn_ascii(args: [Value]): Value {
+	switch args[0].run() {
+		case s: Value::str { return Value::num { _: s._.to_ascii() }}
+		case n: Value::num { return Value::str { _: n._.to_ascii() }}
+	}
+
+	do abort("invalid kind given to `A`")
+}
+
+fn priv kn_negate(args: [Value]): Value {
+	return Value::num { _: -args[0].to_num() }
+}
+
+fn priv kn_value(args: [Value]): Value {
+	return Variable_new(args[0].to_str()).run()
+}
+
+fn priv kn_add(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ + args[1].to_num() } }
+		case s: Value::str { return Value::str { _: s._ + args[1].to_str() } }
+	}
+
+	do abort("invalid kind given to `+`") 
+}
+
+fn priv kn_sub(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ - args[1].to_num() } }
+	}
+
+	do abort("invalid kind given to `-`")
+}
+
+fn priv kn_mul(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ * args[1].to_num() } }
+		case s: Value::str { return Value::str { _: s._ * args[1].to_num() } }
+	}
+
+	do abort("invalid kind given to `*`")
+}
+
+fn priv kn_div(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ / args[1].to_num() } }
+	}
+
+	do abort("invalid kind given to `/`")
+}
+
+fn priv kn_mod(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ % args[1].to_num() } }
+	}
+
+	do abort("invalid kind given to `%`")
+}
+
+fn priv kn_pow(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::num { _: n._ ^ args[1].to_num() } }
+	}
+
+	do abort("invalid kind given to `^`")
+}
+
+fn priv kn_lth(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::bool { _: n._ < args[1].to_num() } }
+		case s: Value::str { return Value::bool { _: s._ < args[1].to_str() } }
+		case b: Value::bool { return Value::bool { _: args[1].to_bool() && !b._ } }
+	}
+
+	do abort("invalid kind given to `<`")
+}
+
+fn priv kn_gth(args: [Value]): Value {
+	switch args[0].run() {
+		case n: Value::num { return Value::bool { _: n._ > args[1].to_num() } }
+		case s: Value::str { return Value::bool { _: s._ > args[1].to_str() } }
+		case b: Value::bool { return Value::bool { _: !args[1].to_bool() && b._ } }
+	}
+
+	do abort("invalid kind given to `>`")
+}
+
+fn priv kn_eql(args: [Value]): Value {
+	let l = args[0].run()
+	let r = args[1].run()
+
+	switch l {
+		case _: Value::Null {
+			switch r {
+				case _: Value::Null { return Value::bool { _: true } }
+				case { return Value::bool { _: false } }
+			}
+		}
+
+		case ln: Value::num {
+			switch r {
+				case rn: Value::num { return Value::bool { _: ln._ == rn._ } }
+				case { return Value::bool { _: false } }
+			}
+		}
+
+		case ls: Value::str {
+			switch r {
+				case rs: Value::str { return Value::bool { _: ls._ == rs._ } }
+				case { return Value::bool { _: false } }
+			}
+		}
+
+		case lb: Value::bool {
+			switch r {
+				case rb: Value::bool { return Value::bool { _: lb._ == rb._ } }
+				case { return Value::bool { _: false } }
+			}
+		}
+	}
+
+	do abort("invalid kind given to `?`")
+}
+
+fn priv kn_and(args: [Value]): Value {
+	let l = args[0].run()
+
+	return l.to_bool() ? args[1].run() : l
+}
+
+fn priv kn_or(args: [Value]): Value {
+	let l = args[0].run()
+
+	return l.to_bool() ? l : args[1].run()
+}
+
+fn priv kn_then(args: [Value]): Value {
+	do args[0].run()
+	return args[1].run()
+}
+
+fn priv kn_assign(args: [Value]): Value {
+	let var: Variable
+
+	switch args[0] {
+		case v: Value::Variable { set var = v._ }
+		case { set var = Variable_new(args[1].to_str()) }
+	}
+
+	let val = args[1].run()
+	do var.assign(val)
+
+	return val
+}
+
+fn priv kn_while(args: [Value]): Value {
+	while args[0].to_bool() {
+		do args[1].run()
+	}
+
+	return Value::Null{}
+}
+
+fn priv kn_if(args: [Value]): Value {
+	return args[args[0].to_bool() ? 1 : 2].run()
+}
+
+fn priv kn_get(args: [Value]): Value {
+	let string = args[0].to_str()
+	let start = args[1].to_num()
+	let length = args[2].to_num()
+
+	return Value::str { _: string.substr(start, length) }
+}
+
+fn priv kn_subs(args: [Value]): Value {
+	let string = args[0].to_str()
+	let start = args[1].to_num()
+	let length = args[2].to_num()
+	let repl = args[3].to_str()
+
+	return Value::str {
+		_: string.substr(0, start) + repl + string.substr(start + length, string.length() - (start + length))
+	}
+}
+
+global priv functions: [Function]
+fn priv register(name: str, arity: num, func: fn([Value]): Value) {
+	set functions = functions + [Function { name, arity, func }]
+	// there's a bug with `insert`...
+	// do functions.insert(functions.length(), Function { name, arity, func })
+}
+
+fn init_functions() {
+	set functions = []
+
+	do register('P', 0, kn_prompt)
+	do register('R', 0, kn_random)
+
+	do register('E', 1, kn_eval)
+	do register('B', 1, kn_block)
+	do register('C', 1, kn_call)
+	do register('`', 1, kn_system)
+	do register('Q', 1, kn_quit)
+	do register('!', 1, kn_not)
+	do register('L', 1, kn_length)
+	do register('D', 1, kn_dump)
+	do register('O', 1, kn_output)
+	do register('A', 1, kn_ascii)
+	do register('~', 1, kn_negate)
+	do register('V', 1, kn_value)
+
+	do register('+', 2, kn_add)
+	do register('-', 2, kn_sub)
+	do register('*', 2, kn_mul)
+	do register('/', 2, kn_div)
+	do register('%', 2, kn_mod)
+	do register('^', 2, kn_pow)
+	do register('<', 2, kn_lth)
+	do register('>', 2, kn_gth)
+	do register('?', 2, kn_eql)
+	do register('&', 2, kn_and)
+	do register('|', 2, kn_or)
+	do register(';', 2, kn_then)
+	do register('=', 2, kn_assign)
+	do register('W', 2, kn_while)
+
+	do register('I', 3, kn_if)
+	do register('G', 3, kn_get)
+
+	do register('S', 4, kn_subs)
+}
+
+fn Function_lookup(name: str): Function {
+	let i = 0
+
+	while i < functions.length() {
+		if functions[i].name == name {
+			return functions[i]
+		}
+		set i = i + 1
+	}
+
+	do abort("unknown function name '" + name + "'")
+}

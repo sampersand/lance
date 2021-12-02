@@ -9,7 +9,7 @@ class Statement
 
     def self.parse(parser)
       if parser.guard 'loop'
-        cond = Expression::Literal.new :true
+        cond = Expression::Literal.new :true # `loop { ... }` is literally just `while true { ... }`
       else
         parser.guard 'while' or return
         cond = Expression.parse(parser) or parser.error 'missing condition for `while`'
@@ -31,8 +31,9 @@ class Statement
       jmp_statement = $fn.write_nop
 
       top_of_body = $fn.declare_label
-      @body.compile
-      $fn.write "br label #{top}"
+      if @body.compile
+        $fn.write "br label #{top}"
+      end
 
       bottom = $fn.declare_label
 

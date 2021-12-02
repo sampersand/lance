@@ -1,0 +1,7 @@
+enum LLVMType
+
+struct Global {
+	name: str,
+	private: bool,
+	kind: LLVMType,
+}

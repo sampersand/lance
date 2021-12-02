@@ -1,0 +1,11 @@
+enum Value
+
+struct Function {
+	name: str,
+	arity: num,
+	func: fn([Value]): Value
+}
+
+
+externf init_functions: fn()
+externf Function_lookup: fn(str): Function

@@ -6,11 +6,11 @@ struct Lexer {
 }
 
 enum TokenKind {
-	EOF{},
-	Number { n: num },
-	String { s: str },
-	Identifier { i: str },
-	Symbol { s: str },
+	EOF: void,
+	Number: num,
+	String: str,
+	Identifier: str,
+	Symbol: str
 }
 
 struct StreamPos {
@@ -25,6 +25,7 @@ struct Token {
 
 externf Lexer_new: fn(str, str): Lexer
 externf Lexer.pos: fn(Lexer): StreamPos
-externf Lexer.parse: fn(Lexer): Token
+externf Lexer.next: fn(Lexer): Token
 externf StreamPos.to_str: fn(StreamPos): str
+externf StreamPos.abort: fn(StreamPos): never
 externf TokenKind.inspect: fn(TokenKind): str

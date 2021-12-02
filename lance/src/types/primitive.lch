@@ -1,0 +1,16 @@
+enum PrimitiveType {
+	Num: void,
+	Str: void,
+	Bool: void,
+}
+
+struct PrimitiveType_TryFrom { valid: bool, type: PrimitiveType }
+externf PrimitiveType_tryfrom: fn(str): PrimitiveType_TryFrom
+
+externf PrimitiveType.inspect: fn(PrimitiveType): str
+externf PrimitiveType.alignment: fn(PrimitiveType): num
+externf PrimitiveType.byte_length: fn(PrimitiveType): num
+externf PrimitiveType.to_llvm_str: fn(PrimitiveType): str
+
+enum Expression
+externf PrimitiveType.default: fn(PrimitiveType): Expression

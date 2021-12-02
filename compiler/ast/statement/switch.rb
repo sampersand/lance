@@ -45,7 +45,7 @@ class Statement
 
     def compile
       enum = @cond.llvm_type
-      raise "can only switch on enums" unless enum.is_a? Compiler::Type::Enum
+      raise "can only switch on enums, not #{enum.inspect}" unless enum.is_a? Compiler::Type::Enum
 
       cond = @cond.compile type: enum
       casted = $fn.write :new, "bitcast #{enum} #{cond} to i64*"

@@ -1,0 +1,14 @@
+enum Value
+
+struct Variable {
+	name: str,
+	assigned: bool,
+	value: Value
+}
+
+externf init_variables: fn()
+externf Variable_new: fn(str): Variable
+
+externf Variable.run: fn(Variable): Value
+externf Variable.assign: fn(Variable, Value)
+externf Variable.inspect: fn(Variable): str

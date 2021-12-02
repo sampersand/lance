@@ -1,0 +1,39 @@
+import "list.lch"
+import "type.lch"
+
+//struct ListType_TryFrom { valid: bool, type: ListType }
+//externf ListType_tryfrom: fn(str): ListType_TryFrom
+
+fn ListType.inspect(): str {
+	return "ListType(" + self.of.inspect() + ")"
+}
+
+fn ListType.alignment(): num {
+	return 8 // maximum alignment of pointers and i64s.
+}
+
+fn ListType.byte_length(): num {
+	return 24 // (ptr, len, cap)
+}
+
+fn ListType.to_llvm_str(): str {
+	do abort("todo: to_llvm_str")
+}
+
+import "../parser/ast/expression.lch"
+
+global priv ListType_default: Expression
+global priv listtype_default_set: bool
+
+fn ListType.default(): Expression {
+	if !listtype_default_set {
+		set listtype_default_set = true
+		let ary: [Expression] = [] // required because of a bug in the ruby bootstrapper
+		let la: Literal = Literal::Array { _: ary }
+//		set ListType_default = Expression::Primary {
+//			_: Primary::Literal { _: la }
+//		}
+	}
+
+	return ListType_default
+}

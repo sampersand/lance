@@ -18,11 +18,6 @@ fn string_contains(s: str, c: str): bool {
 	return count_char_occurrences(s, c) != 0 // this could probably be optimized
 }
 
-fn abort(msg: str) {
-	do print("error: " + msg + "\n")
-	do quit(1)
-}
-
 fn assert(cond: bool, msg: str) {
 	if !cond {
 		do abort("assertion failed: " + msg)

@@ -1,0 +1,105 @@
+__EOF__
+enum yup { x: struct{a:num} }
+struct Foo { a: num, b: str }
+enum Bar {
+	f: Foo,
+	l: num
+}
+
+fn main(): num {
+	let ell = Bar::l { _: 34 }
+	switch ell {
+		case q: Bar::l { do print(q._.to_str()) }
+	}
+}
+__EOF__
+enum Foo
+struct Bar {f: Foo }
+enum Foo {
+	b: struct { b: Bar },
+	o: struct { n: num },
+	q: struct { n: bool }
+}
+
+fn main(): num {
+	let a = Foo::o { n: 1 }
+	let b = Bar { f: a }
+	let c: Foo = Foo::b { b: b }
+
+	switch c {
+		case d: Foo::b {
+			switch d.b.f {
+				case e: Foo::o {
+					do print("o=" + e.n.to_str() + "\n")
+				}
+			}
+		}
+	}
+	return 0
+}
+__EOF__
+struct Foo
+
+enum Bar {
+	f: struct { f: Foo },
+	n: struct { l: num }
+}
+
+struct Foo { 
+	a: Bar,
+	n: num
+}
+
+fn main():num {
+	let n: Bar = Bar::n { l: 4 }
+	let f: Foo = Foo { a: n, n: 1 }
+	let q: Bar = Bar::f { f: f }
+	let y = Foo { a: q, n: 2 }
+
+	do print("y.n=" + y.n.to_str() + "\n")
+	switch y.a {
+		case _f: Bar::f {
+			do print("y.a.f.n=" + _f.f.n.to_str() + "\n")
+			switch _f.f.a {
+				case _n: Bar::n {
+					do print("y.a.f.a.n=" + _n.l.to_str() + "\n")
+				}
+			}
+		}
+	}
+	//return 0
+}
+__EOF__
+enum Thing {
+	foo: struct { lol: str },
+//	bar: enum {
+//		yup: struct { l: str }
+//	}
+	//b: num
+}
+
+fn main(): num {
+	let f = Thing::foo { lol: "A" }
+//	let b: Bar = Bar { a: "" }
+//
+//	switch b {
+//		case l: Bar::a {
+//			do print(l.a);
+//		}
+//	}
+	return 0
+}
+
+//struct Foo
+//
+//struct Foo {
+//	b: Bar
+//}
+//
+//fn main() : num {
+//	let f = Foo { b: Bar { f: Foo{} } }
+//	do print("f.b.")
+//
+//	//let f = Foo { b: Bar { f: Foo {} }}
+//	return 0
+//}

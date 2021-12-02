@@ -1,0 +1,5 @@
+struct Compiler {
+
+}
+
+externf Compiler.parse: fn(Compiler, Parser)

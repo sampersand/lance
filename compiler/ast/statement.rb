@@ -47,6 +47,12 @@ class Statements
   def compile
     @lines.each do |line|
       line.compile
+
+      if line.is_a?(Statement::Do) && line.expr.llvm_type == Compiler::Type::Never
+        return false
+      end
     end
+
+    true
   end
 end

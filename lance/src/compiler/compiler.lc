@@ -1,0 +1,9 @@
+import "compiler.lch"
+import "../parser/ast/declaration.lch"
+import "../types/type.lch"
+import "../parser/ast/expression.lch"
+import "../parser/parser.lch"
+
+fn Compiler.parse(parser: Parser) {
+
+}

@@ -1,0 +1,17 @@
+import "variable.lch"
+import "ast.lch"
+
+enum Value {
+	Null: void,
+	num,
+	str,
+	bool,
+	Variable,
+	Ast,
+}
+
+externf Value.inspect: fn(Value): str
+externf Value.run: fn(Value): Value
+externf Value.to_str: fn(Value): str
+externf Value.to_bool: fn(Value): bool
+externf Value.to_num: fn(Value): num

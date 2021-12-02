@@ -1,0 +1,4 @@
+struct Parser { str, num }
+	
+externf Parser_new: fn(str): Parser
+externf Parser.next: fn(Parser): Value

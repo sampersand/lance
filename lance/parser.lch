@@ -1,7 +1,0 @@
-import "lexer.lch"
-
-struct Parser {
-	l: Lexer,
-}
-
-externf Parser_new: fn(Lexer): Parser

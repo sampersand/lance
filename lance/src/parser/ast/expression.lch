@@ -1,0 +1,5 @@
+import "primary.lch"
+
+enum Expression {
+	Primary
+}

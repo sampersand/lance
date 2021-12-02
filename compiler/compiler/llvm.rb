@@ -13,7 +13,7 @@ class LLVM
   def struct_type(name, fields)
     name =~ /^enum\./ and return (@enums.fetch $')[:name]+'*'
     (@structs[name.to_s] ||= {
-      name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields.transform_values(&:llvm_type)
+      name: "%struct.user.#{name.to_s.tr '%', ''}", fields: fields&.transform_values(&:llvm_type)
     })[:name] + '*'
   end
 
@@ -55,20 +55,25 @@ class LLVM
   end
 
   def final_string(is_main:)
-    struct_declarations = @structs.values.map { |name:, fields:|
+    struct_declarations = @structs.values.map { |a|
+      name, fields = a.values_at(:name, :fields)
+      raise "unfinished struct declaration for '#{name}'" unless fields
       "#{name} = type { #{fields.values.join ', '} }"
     }
 
-    enum_declarations = @enums.values.map { |name:, variants:|
-      len = variants.map { |x| x.fields.length }.max * 8
+    enum_declarations = @enums.values.map { |a|
+      name, variants = a.values_at(:name, :variants)
+      len = (variants.map { |x| x.fields.length }.max || 0) * 8
       "#{name} = type { i64, [#{len} x i8] }"
     }
 
-    global_declarations = @globals.values.map {|name:, type:|
+    global_declarations = @globals.values.map { |a|
+      name, type = a.values_at(:name, :type)
       "#{name} = #{type.private? ? 'internal ' : '' }global #{type} #{type.default}, align 8"
     }
 
-    extern_declarations = @externs.values.map {|name:, type:, externf:|
+    extern_declarations = @externs.values.map { |a|
+      name, type, externf = a.values_at(:name, :type, :externf)
       if externf
         "declare #{type.return_type} #{name}(#{type.args.join(', ')})"
       else
@@ -87,7 +92,8 @@ class LLVM
       LLVM
     }
 
-    functions = @functions.values.map { |name:, args:, return_type:, body:, is_private:|
+    functions = @functions.values.map { |a|
+      name, args, return_type, body, is_private = a.values_at(:name, :args, :return_type, :body, :is_private)
       <<~EOS
         define #{is_private ? "internal " : ""}#{return_type} #{name}(#{
             args.map { |a, i| "#{a.type} #{a.local}" }.join ', '
@@ -107,16 +113,19 @@ class LLVM
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
       %struct.builtin.io = type { %struct.builtin.str*, %struct.builtin.str*, i8* } ; (name, mode, file)
 
+      ; Number builtins
+      declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
+      declare %num @fn.builtin.powll(%num %0, %num %1)
+
       ; List builtins builtins
       declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0) 
       declare %struct.builtin.list* @fn.builtin.concat_lists(%struct.builtin.list* %0, %struct.builtin.list* %1)
       declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1)
-      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i8* %1, i64 %2)
+      declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i64 %1, i8* %2)
       declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2)
 
       ; String builtins
       declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 
-      declare %struct.builtin.str* @fn.builtin.num_to_str(%num %0) 
       declare %num @fn.builtin.str_to_num(%struct.builtin.str* %0) 
       declare %struct.builtin.str* @fn.builtin.concat_strs(%struct.builtin.str* %0, %struct.builtin.str* %1) 
       declare %struct.builtin.str* @fn.builtin.repeat_str(%struct.builtin.str* %0, %num %1) 
@@ -136,6 +145,8 @@ class LLVM
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
       declare void @fn.builtin.quit(%num %0) noreturn 
       declare void @fn.builtin.abort_msg(%struct.builtin.str* %0) noreturn 
+      declare %struct.builtin.str* @fn.builtin.prompt() 
+      declare %num @fn.builtin.random_()
 
       ; Struct declarations
       #{struct_declarations.join "\n"}

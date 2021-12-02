@@ -1,0 +1,19 @@
+import "lexer.lch"
+
+struct Parser {
+	l: Lexer,
+	peeked: bool,
+	_token: Token,
+}
+
+struct GuardResult {
+	t: Token,
+	v: bool
+}
+
+externf Parser_new: fn(Lexer): Parser
+externf Parser.peek: fn(Parser): Token 
+externf Parser.take: fn(Parser): Token 
+externf Parser.next: fn(Parser): Token 
+externf Parser.is_eof: fn(Parser): bool 
+externf Parser.guardkw: fn(Parser, str): GuardResult

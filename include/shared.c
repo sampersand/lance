@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 #include "shared.h"
 #include "str.h"
 #include <stdio.h>
@@ -22,4 +24,25 @@ void abort_msg(str *msg) {
 
 void quit(ll val) {
 	exit(val);
+}
+
+ll powll(ll base, ll exp) {
+	return pow(base, exp);
+}
+
+ll random_(void) {
+	srandomdev();
+	return random();
+}
+
+struct _str *prompt(void) {
+	char *line = NULL;
+	size_t alloc_len;
+	ssize_t len = getline(&line, &alloc_len, stdin);
+	str *s = allocate_str(0);
+	free(s->ptr);
+
+	s->len = len;
+	s->ptr = line;
+	return s;
 }

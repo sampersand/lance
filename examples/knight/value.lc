@@ -1,7 +1,59 @@
-enum Value {
-	Null {},
-	Boolean { b: bool },
-	Number { n: num },
-	Text { t: str }
+import 'value.lch'
+import 'variable.lch'
+import 'ast.lch'
+
+fn Value.inspect(): str {
+	switch self {
+		case _: Value::Null { return "Null()" }
+		case n: Value::num { return "Number(" + n._.to_str() + ")" }
+		case s: Value::str { return "Text(" + s._ + ")" }
+		case b: Value::bool { return "Boolean(" + (b._ ? "true" : "false") + ")" }
+		case v: Value::Variable { return v._.inspect() }
+		case a: Value::Ast { return a._.inspect() }
+	}
+
+	unreachable
+}
+
+fn Value.run(): Value {
+	switch self {
+		case v: Value::Variable { return v._.run() }
+		case a: Value::Ast { return a._.run() }
+	}
+
+	return self
+}
+
+fn Value.to_str(): str {
+	switch self {
+		case _: Value::Null { return 'null' }
+		case s: Value::str { return s._ }
+		case b: Value::bool { return b._ ? 'true' : 'false' }
+		case n: Value::num { return n._.to_str() }
+	}
+
+	return self.run().to_str() 
+}
+
+fn Value.to_bool(): bool {
+	switch self {
+		case _: Value::Null { return false }
+		case s: Value::str { return s._ != "" }
+		case b: Value::bool { return b._ }
+		case n: Value::num { return n._ != 0 }
+	}
+
+	return self.run().to_bool()
+}
+
+fn Value.to_num(): num {
+	switch self {
+		case _: Value::Null { return 0 }
+		case s: Value::str { return s._.to_num() }
+		case b: Value::bool { return b._ ? 1 : 0 }
+		case n: Value::num { return n._ }
+	}
+
+	return self.run().to_num()
 }
 

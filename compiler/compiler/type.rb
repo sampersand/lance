@@ -8,6 +8,22 @@ class Compiler
       8
     end
 
+    class NeverClass < Type
+      def name
+        '!'
+      end
+
+      def to_s
+        Primitive::TYPES['void'].to_s
+      end
+
+      def ==(rhs)
+        rhs.is_a? Type
+      end
+    end
+
+    Never = NeverClass.new
+
     class Primitive < Type
       def initialize(name)
         @name = name
@@ -104,11 +120,12 @@ class Compiler
     end
 
     class Struct < Type
-      attr_reader :name, :fields
+      attr_reader :name
+      attr_accessor :fields
 
       def initialize(name, fields)
         @name = name.to_s
-        @fields = fields.transform_values(&:llvm_type)
+        @fields = fields&.transform_values(&:llvm_type)
       end
 
       def hash
@@ -142,20 +159,53 @@ class Compiler
       end
 
       def byte_length
-        8
+        #@fields.values.map(&:byte_length).reduce(0, &:+)
+        @fields.values.length * 8 # 'cause everything is just 8 bytes
       end
     end
 
     class Enum < Type
       attr_reader :name
+      TYPES={}
+
+      def self.new(name, variants)
+        if k = TYPES[name]
+          if k.variants_.nil?
+            k.variants = variants unless variants.nil?
+          elsif variants
+            warn "tried making a new enum with variants: #{k.variants.inspect} #{variants.inspect}"
+          end
+          k
+        else
+          TYPES[name] = super
+        end
+      end
 
       def initialize(name, variants)
         @name = name.to_s
         @variants_ = variants
       end
 
+      def variants=(vars)
+        raise "variants already defined" if @variants_
+        @variants = nil
+        @variants_ = vars
+      end
+
+      def variants?
+        !@variants_.nil?
+      end
+
+      def variants_; @variants_ end
+
       def variants
-        @variants ||= @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+        @variants ||= begin
+          if @variants_.nil?
+            raise "enum '#{name}' doesn't have any fields associated with it."
+          end
+
+          @variants_.each_with_index.map { |s, i| Variant.new(self, i, s.llvm_type) }
+        end
       end
 
       def hash
@@ -193,7 +243,7 @@ class Compiler
       end
 
       def byte_length
-        8
+        8 + variants.map(&:byte_length).max
       end
 
       def variants_length
@@ -255,7 +305,7 @@ class Compiler
         end
 
         def byte_length
-          8
+          @struct.byte_length
         end
       end
 

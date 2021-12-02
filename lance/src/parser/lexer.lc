@@ -1,5 +1,5 @@
+import "../utils.lch"
 import "lexer.lch"
-import "utils.lch"
 
 // in the future, we could have it automatically read from `filename`?
 fn Lexer_new(stream: str, filename: str): Lexer {
@@ -67,14 +67,13 @@ fn priv Lexer.take_if_starts_with(s: str): bool {
 	return false
 }
 
-fn priv StreamPos.abort(m: str) {
+fn StreamPos.abort(m: str): never {
 	do abort(self.to_str() + ": " + m)
 }
 
-fn priv Lexer.abort(m: str) {
+fn priv Lexer.abort(m: str): never {
 	do self.pos().abort(m)
 }
-
 
 fn priv isspace(s: str): bool {
 	return string_contains(" \n\t\r\f", s)
@@ -116,7 +115,6 @@ fn priv Lexer.strip_multiline_comment(): bool {
 
 	let start = self.pos()
 	let nesting = 1
-
 	while nesting != 0 {
 		if self.is_eof() {
 			do start.abort("Missing closing `*/`")
@@ -164,7 +162,7 @@ fn priv Lexer.parse_number(): TokenKind {
 
 	do assert(n != "", "parse number parsed nothing")
 
-	return TokenKind::Number { n: n.to_num() }
+	return TokenKind::Number { _: n.to_num() }
 }
 
 fn priv iskeyword(s: str): bool {
@@ -192,7 +190,7 @@ fn priv Lexer.parse_identifier(): TokenKind {
 	let i = self.take_while(isalnum)
 	do assert(i != "", "parsing an identifier returned nothing")
 
-	return iskeyword(i) ? TokenKind::Symbol { s: i } : TokenKind::Identifier { i }
+	return iskeyword(i) ? TokenKind::Symbol { _: i } : TokenKind::Identifier { _: i }
 }
 
 fn priv tohex(s: str, start: StreamPos): num {
@@ -209,7 +207,6 @@ fn priv tohex(s: str, start: StreamPos): num {
 	}
 
 	do start.abort("unknown hex character " + inspect_str(s))
-	unreachable
 }
 
 fn priv Lexer.parse_string(): TokenKind {
@@ -258,7 +255,7 @@ fn priv Lexer.parse_string(): TokenKind {
 		}
 	}
 
-	return TokenKind::String { s }
+	return TokenKind::String { _: s }
 }
 
 fn priv Lexer._parse(): TokenKind {
@@ -284,7 +281,7 @@ fn priv Lexer._parse(): TokenKind {
 
 	do self.advance()
 	if string_contains('-+*/%<>!;,[]{}():.?', c) {
-		return TokenKind::Symbol { s: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	if string_contains("=!<>", c) {
@@ -293,7 +290,7 @@ fn priv Lexer._parse(): TokenKind {
 			do self.advance();
 		}
 
-		return TokenKind::Symbol { s: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	if (c == '&') || (c == '|') {
@@ -301,14 +298,13 @@ fn priv Lexer._parse(): TokenKind {
 			do self.abort("unknown token start encountered: " + inspect_str(c))
 		}
 
-		return TokenKind::Symbol { s: c + c }
+		return TokenKind::Symbol { _: c + c }
 	}
 
 	do self.abort("unknown token start encountered: " + inspect_str(c))
-	unreachable
 }
 
-fn Lexer.parse(): Token {
+fn Lexer.next(): Token {
 	let pos = self.pos()
 	return Token { kind: self._parse(), pos }
 }
@@ -316,10 +312,10 @@ fn Lexer.parse(): Token {
 fn TokenKind.inspect(): str {
 	switch self {
 		case _: TokenKind::EOF { return "EOF()" }
-		case tn: TokenKind::Number { return "Number(" + tn.n.to_str() + ")" }
-		case ts: TokenKind::String { return "String(" + inspect_str(ts.s) + ")" }
-		case ti: TokenKind::Identifier { return "Identifier(" + ti.i + ")" }
-		case ty: TokenKind::Symbol { return "Symbol(" + ty.s + ")" }
+		case tn: TokenKind::Number { return "Number(" + tn._.to_str() + ")" }
+		case ts: TokenKind::String { return "String(" + inspect_str(ts._) + ")" }
+		case ti: TokenKind::Identifier { return "Identifier(" + ti._ + ")" }
+		case ty: TokenKind::Symbol { return "Symbol(" + ty._ + ")" }
 		case { do abort("unknown TokenKind encountered.") }
 	}
 

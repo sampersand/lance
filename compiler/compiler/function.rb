@@ -47,6 +47,7 @@ class Compiler
       @is_private = is_private
       @lines = []
       @whiles = []
+      @debug_counter = 0
 
       @args = args.map { |name, type|  define_variable name, type, arg: true }
       next_local # ignore it for some reason, idk why llvm does it
@@ -97,6 +98,13 @@ class Compiler
       end
     end
 
+    def section(msg)
+      return yield unless $DEBUG
+      debug_counter = (@debug_counter += 1)
+      write "; [#{debug_counter}] Begin #{msg}"
+      yield.tap { write "; [#{debug_counter}] End #{msg}" }
+    end
+
     def write(local=nil, line, at: nil)
       if local == :new
         local = next_local
@@ -143,6 +151,8 @@ class Compiler
 
         if @return_type == Compiler::Type::Primitive::Void
           write 'ret void'
+        elsif @name == 'main'
+          write 'ret i64 0'
         end
 
         @lines
