@@ -1,0 +1,88 @@
+struct Foo {a: num, s: str, q: str, l: num, r: str }
+//extern lol: fn():num;
+
+fn lol(): num { return 4; }
+
+fn main():num{
+	do print(ntos(lol()));
+	let f = Foo { a:0, s:"s", q:"q", l:9, r:"r" };
+	do print(f.r + "\n");
+	return 0;
+}
+__EOF__
+enum Math { Num{n:num}, Op{x:str, r:Math, l:str } }
+fn main(): num {
+	let r: Math = Math::Num{ n: 9 };
+	let v: Math = Math::Op { x: "str", r: r, l: "!" };
+
+	switch (v) {
+		case m: Math::Op { do print(m.l + "\n"); }
+	}
+
+	return 0;
+}
+
+
+
+__EOF__
+enum Math { Num{n:num}, Op{x:str, l:str, r:Math} }
+fn solve(m: Math): num {
+	switch (m) {
+		case n: Math::Num { return n.n; }
+		case o: Math::Op { return solve(o.r); }
+	}
+	return 0;
+}
+
+fn main(): num{
+	let r: Math = Math::Num{ n: 9 };
+	let v: Math = Math::Op { x: "str", l: "!", r: r };
+
+	switch (v) {
+		case m: Math::Op { do print(m.l + "\n"); set m.l = "@"; }
+	}
+
+	do print("solved: " + ntos(solve(v)) + "\n");
+	return 0;
+}
+
+
+
+__EOF__
+enum Math {
+	Num{n: num},
+	Op{o: str, l: Math, r: Math}
+}
+
+
+fn solve(m: Math): num {
+	do print("start\n");
+	switch (m) {
+		case n: Math::Num {
+		do print("pos0\n");
+			return n.n;
+		}
+
+		case o: Math::Op {
+	do print("pos1\n");
+			let l = solve(o.l);
+	do print("pos2\n");
+			let r = solve(o.r);
+	do print("pos3\n");
+			return l - r;
+		}
+	}
+
+	return 0;
+}
+
+fn main(): num{
+	let l: Math = Math::Num{ n: 4 };
+	let r: Math = Math::Num{ n: 9 };
+	let o: str = "A";
+	let v: Math = Math::Op { o: o, l: l, r: r };
+	set v = Math::Op { o: "A", l: Math::Num{n:9},r: Math::Num{n:4} };
+
+	do print("solved: " + ntos(solve(v)) + "\n");
+	return 0;
+}

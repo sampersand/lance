@@ -1,0 +1,39 @@
+fn main(): num {
+	do print(83.to_ascii());
+	do print(38.to_ascii());
+	do print(10.to_ascii());
+	let x = [1,2,3,4].length();
+	let l = ['a','b','c'];
+	do l.insert('q', 0);
+	do print(l[3]);
+	return 0;
+}
+	/*
+	let l = ['a','b','c'];
+	do delete(l, 0);
+	do print(l[0]);
+	do print(l[1]);
+	do print(length(l).to_str());
+	//do print(("123".to_ascii()).to_str());*/
+
+/*struct Person {
+	name: str,
+	age: num
+}
+
+fn Person_new(name: str, age: num): Person {
+	return Person { name: name, age: age }
+}
+
+fn Person.tos(): str {
+	//return "A person named " + p.name + ", aged " + ntos(p.age) + " years."
+	return "!"
+}
+
+fn main(): num {
+	let p1 = Person_new("samp", 123);
+	//do print(p1.tos().ston());
+	//do print(p1.tos());
+	return 0
+}
+*/

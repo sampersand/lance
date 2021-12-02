@@ -1,0 +1,6 @@
+extern greeting: str;
+
+fn greet(name: str): void {
+	do print(greeting + ", " + name + "\n");
+}
+

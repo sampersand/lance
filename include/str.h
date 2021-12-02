@@ -2,12 +2,13 @@
 #define STRING_H
 #include "shared.h"
 
-typedef struct {
+typedef struct _str {
 	char *ptr;
 	ll len;
 } str;
 
 str *allocate_str(ll length);
+str *create_str_from_borrowed(const char *str);
 void print_str(const str *str);
 str *substr(const str *str, ll start, ll len);
 

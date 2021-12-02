@@ -24,7 +24,7 @@ class Compiler
         'num' => (Num = new 'num'),
         'str' => (Str = new 'str'),
         'bool' => (Bool = new 'bool'),
-        'any' => (Any = new 'any'),
+        'io' => (Io = new 'io'),
       }
 
       def name
@@ -37,7 +37,7 @@ class Compiler
         when 'num' then '%num'
         when 'bool' then '%bool'
         when 'str' then '%struct.builtin.str*'
-        when 'any' then '%struct.builtin.any*'
+        when 'io' then '%struct.builtin.io*'
         else raise "bad type: #@name (?)"
         end
       end
@@ -45,7 +45,7 @@ class Compiler
       def default
         case @name
         when 'num', 'bool' then '0'
-        when 'str', 'any' then 'null' # { i8* null, i64 0 }'
+        when 'str', 'io' then 'null' # { i8* null, i64 0 }'
         else raise "bad type for default: #{name}"
         end
       end

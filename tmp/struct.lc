@@ -1,0 +1,36 @@
+struct parser {
+	stream: str
+}
+
+fn peek(p: parser): str {
+	if "" == p.stream  {
+		return "";
+	}
+
+	set p.stream = "!1";
+	return p.stream;
+	//return p.stream[0];
+}
+
+struct person {
+	name: str,
+	age: [num]
+}
+
+fn main(_: [str]): num {
+	//let s = parser { stream: "lol" };
+
+	let a = ["a"];
+	do print(ntos(length(["a","b","c"])));
+	do print(ntos(length("hitherefriendlol"))); // 16
+//	do print(substr("1foo", 1, 2));
+//	do print(peek(s) + "\n");
+//	do print(s.stream[0]);
+//	let p = person { name: "foo", age: [34, 45] };
+//
+//	set p.age[1] = 5;
+//	do print(ntos(p.age[1]));
+	return 0;
+	//do print(p.name);
+	//do print(ntos(p.age));
+}

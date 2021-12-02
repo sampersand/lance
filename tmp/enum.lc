@@ -1,0 +1,121 @@
+enum Op { Add{}, Sub{}, Mul{}, Div{} }
+enum Math {
+	Num{n: num},
+	Op{o:Op, l: Math, r: Math, ll: str,ll: Math, rr: Math, qw: Math, ax: Math }
+}
+
+
+fn solve(m: Math): num {
+	do print("start\n");
+	switch (m) {
+		case n: Math::Num {
+		do print("pos0\n");
+			return n.n;
+		}
+
+		case o: Math::Op {
+	do print("pos1\n");
+			let l = solve(o.l);
+	do print("pos2\n");
+			let r = solve(o.r);
+	do print("pos3\n");
+
+			switch o.o {
+				case _: Op::Add { return l + r; }
+				case _: Op::Sub { return l - r; }
+				case _: Op::Mul { return l * r; }
+				case _: Op::Div { return l / r; }
+			}
+		}
+	}
+
+	return 0;
+}
+
+fn main(): num{
+	let l: Math = Math::Num { n : 4 };
+	let r: Math = Math::Num { n : 9 };
+	let o: Op = Op::Add{};
+	let v: Math = Math::Op { o: o, l: l, r: r };
+	do print("solved: " + ntos(solve(v)) + "\n");
+	return 0;
+}
+//	let m = Op::Add{};
+//	let n = Math::Num{n:4};
+//	let q = Math::Op{o:m, l:n, r:n};
+//
+//	switch (n) {
+//		case n1: Math::Num {
+//			do print("it's a num: " + ntos(n1.n) + "\n");
+//		}
+//
+//		case o: Math::Op {
+//		//	do print("it's an op: " + ntos(o.l) + ", " + ntos(o.r) + "\n");
+//		}
+//		case {
+//			do print("default case\n");
+//		}
+//	}
+//
+	//return 0;
+//	}
+// enum Op {
+// 	Add {}, Sub {}, Mul {}, Div {}
+// }
+// 
+// enum Math {
+// 	Num { n: num },
+// 	Op { o: Op, l: Math, r: Math }
+// }
+// 
+// fn do_math(m: Math): num {
+// 	switch (m) {
+// 		case n: Math::Num {
+// 			return n.n;
+// 		}
+// 
+// 		case o: Math::Op {
+// 			let l = do_math(o.l);
+// 			let r = do_math(o.r);
+// 
+// 			switch (o.o) {
+// 				case _: Op::Add { return l + r; }
+// 				case _: Op::Sub { return l - r; }
+// 				case _: Op::Mul { return l * r; }
+// 				case _: Op::Div { return l / r; }
+// 			}
+// 		}
+// 	}
+// 
+// 	return 0;
+// }
+// 
+// 
+// fn main(_: [str]): num {
+// 	// expression: 1 + ((2 * 3) / 4)
+// 	//let a = Op::Add {n:3};2
+// 	let o = Op::Add{};
+// 	let l =Math::Num { n: 3 } ;
+// 	let r = Math::Num { n: 3 };
+// 	let expr = Math::Op {
+// 		o: o,
+// 		l: l,
+// 		r: r
+// 	};
+// //	let expr = Math::Op {
+// //		o: Op::Add {},
+// //		l: Math::Num { n: 1 },
+// //		r: Math::Op {
+// //			o: Op::Div {},
+// //			l: Math::Op {
+// //				o: Op::Mul {},
+// //				l: Math::Num { n: 2 },
+// //				r: Math::Num { n: 3 },
+// //			},
+// //			r: Math::Num { n: 4 }
+// //		}
+// //	};
+// 
+// 	do print("1+(2*3)/4 = " + ntos(do_math(expr)) + "\n");
+// 	return 0;
+// }

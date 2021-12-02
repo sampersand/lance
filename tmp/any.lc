@@ -1,0 +1,104 @@
+import "any.lc";
+struct Token {
+	v: str
+}
+
+enum L { a { a: num} }
+
+enum ParseResult {
+	Error { e: str },
+	Nothing {},
+	Token { t: Token },
+	Misc { q: ParseResult },
+}
+
+fn main(): num {
+	let r = ParseResult::Token { t: Token { v: "if" } };
+	set r = ParseResult::Error { e: "oops" };
+	set r = ParseResult::Nothing {};
+	set r = ParseResult::Misc {};
+
+	switch (r) {
+		case e: ParseResult::Error {
+			let e2: ParseResult::Error = e;
+			do print("error: " + (e.e) + "\n");
+			return 1;
+		}
+
+		case _: ParseResult::Nothing {
+			do print("nothing parsed.\n");
+		}
+
+		case t: ParseResult::Token {
+			do print("token parsed: '" + t.t.v + "'\n");
+		}
+
+		case {
+			do print("default case encountered\n");
+		}
+	}
+	return 0;
+}
+// 
+// //	switch (l) {
+// //		case p: lol::p {
+// //			let l = 3;
+// //		}
+// //	}
+// //	//let f = foo { l: 1, n: 2};
+// 	//do print(ntos(f.n));
+// 	return 0;
+// }
+// // enum p {
+// // 	foo { x: num },
+// // 	bar { x: str, y: [num] }
+// // }
+// // 
+// // fn main() : num {
+// // 	let x: p = p::foo { x: 3 };
+// // 	//do print(ntos(x));
+// // 	return 0;
+// // }
+// //
+// //fn foo(): p {
+// //	return p{};
+// //}
+// //
+// //fn main(_:[num]): num {
+// //	let x = foo();
+// //	do print("hi" + 1);
+// //	return 0;
+// //}
+// /*enum foo {
+// 	Bar()
+// }
+// fn yup(): bool {
+// 	do print("[yup]\n");
+// 	return true;
+// }
+// 
+// fn nope(): bool {
+// 	do print("[nope]\n");
+// 	return false;
+// }
+// 
+// fn foo(x: bool): str {
+// 	return x ? "123" : "456";
+// }
+// 
+// fn main(x: num): num {
+// 	if yup() && nope() {
+// 		do print("!\n");
+// 	} else {
+// 		do print("?\n");
+// 	}
+// 	do print(foo(true) + "\n");
+// 	do print(foo(false) + "\n");
+// 	return 0;
+// }
+// 
+// // fn main(a: [str]): num {
+// // 	let x: any = any("A");
+// // 	let y: str = (x: str);
+// // }
+// */

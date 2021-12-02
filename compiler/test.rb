@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-$OLD_VERSION = TARGET_TRIPLE = 'x86_64-apple-macosx10.13.0' 
+# $OLD_VERSION = TARGET_TRIPLE = 'x86_64-apple-macosx10.13.0' 
 
 require_relative 'parser'
 require_relative 'compiler'
@@ -18,7 +18,7 @@ opts = {
 }
 
 OptParse.new do |op|
-  op.on '-i', '--input=file', 'input file. CAn be specified multiple times' do |f|
+  op.on '-i', '--input=file', 'input file. Can be specified multiple times' do |f|
     opts[:input].push f
   end
 
@@ -35,7 +35,7 @@ end.parse! $*
 
 require 'fileutils'
 
-TARGET_TRIPLE = 'arm64-apple-macosx12' if !$OLD_VERSION
+TARGET_TRIPLE = 'arm64-apple-macosx12.0.0' if !$OLD_VERSION
 FileUtils.rm_r(opts[:output]) rescue nil
 FileUtils.mkdir_p (outdir=opts[:output])
 opts[:input].each do |filename|

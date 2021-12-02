@@ -23,7 +23,12 @@ class Compiler
 
   PREDCLARED_EXTERNS = {
     'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
+    'abort' => PredeclaredExternFunction.new('abort_msg', [Type::Primitive::Str], Type::Primitive::Void),
     # 'str.member.print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
+    'io_open' => PredeclaredExternFunction.new('open_io', [Type::Primitive::Str, Type::Primitive::Str], Type::Primitive::Io),
+    'io.member.readline' => PredeclaredExternFunction.new('readline_io', [Type::Primitive::Io], Type::Primitive::Str),
+    'io.member.readall' => PredeclaredExternFunction.new('readall_io', [Type::Primitive::Io], Type::Primitive::Str),
+    'io.member.write' => PredeclaredExternFunction.new('write_io', [Type::Primitive::Io, Type::Primitive::Str], Type::Primitive::Void),
     'num.member.to_str' => PredeclaredExternFunction.new('num_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'str.member.to_num' => PredeclaredExternFunction.new('str_to_num', [Type::Primitive::Str], Type::Primitive::Num),
     'str.member.to_ascii' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),

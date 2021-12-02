@@ -12,6 +12,12 @@ str *allocate_str(ll length) {
 	return s;
 }
 
+str *create_str_from_borrowed(const char *c) {
+	str *s = allocate_str(strlen(c));
+	s->ptr = strdup(c);
+	return s;
+}
+
 void print(const str *s) {
 	printf("%.*s", (int) s->len, s->ptr);
 	fflush(stdout);

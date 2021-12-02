@@ -105,6 +105,7 @@ class LLVM
       %struct.builtin.str = type { i8*, i64 } ; (ptr, len)
       %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
+      %struct.builtin.io = type { %struct.builtin.str*, %struct.builtin.str*, i8* } ; (name, mode, file)
 
       ; List builtins builtins
       declare %struct.builtin.list* @fn.builtin.allocate_list(i64 %0) 
@@ -124,10 +125,17 @@ class LLVM
       declare %struct.builtin.str* @fn.builtin.ascii_to_str(%num %0)
       declare %num @fn.builtin.str_to_ascii(%struct.builtin.str* %0)
 
+      ; IO Builtins
+      declare %struct.builtin.io* @fn.builtin.open_io(%struct.builtin.str* %0, %struct.builtin.str* %1)
+      declare %struct.builtin.str* @fn.builtin.readline_io(%struct.builtin.io* %0)
+      declare %struct.builtin.str* @fn.builtin.readall_io(%struct.builtin.io* %0)
+      declare void @fn.builtin.write_io(%struct.builtin.io* %0, %struct.builtin.str* %1)
+
       ; Misc builtins
       declare i8* @fn.builtin.xmalloc(i64 %0)
       declare void @fn.builtin.print(%struct.builtin.str* %0) 
-      declare void @fn.builtin.quit(%num %0) 
+      declare void @fn.builtin.quit(%num %0) noreturn 
+      declare void @fn.builtin.abort_msg(%struct.builtin.str* %0) noreturn 
 
       ; Struct declarations
       #{struct_declarations.join "\n"}

@@ -1,6 +1,6 @@
 CC=clang
 CFLAGS=-g # -fsanitize=address,undefined -g
-all: list.ll shared.ll str.ll
+all: list.ll shared.ll str.ll io.ll
 list.ll: list.c | out
 	$(CC) $(CFLAGS) list.c -S -emit-llvm -o out/list.ll #-O3
 
@@ -9,6 +9,9 @@ shared.ll: shared.c | out
 
 str.ll: str.c | out
 	$(CC) $(CFLAGS) str.c -S -emit-llvm -o out/str.ll #-O3
+
+io.ll: io.c | out
+	$(CC) $(CFLAGS) io.c -S -emit-llvm -o out/io.ll #-O3
 
 out:
 	mkdir out

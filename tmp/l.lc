@@ -1,0 +1,7 @@
+externf greet: fn(str);
+global greeting: str;
+
+fn main(): void {
+	set greeting = "Hello";
+	do greet("hi");
+}
