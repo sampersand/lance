@@ -1,5 +1,6 @@
 #ifndef SHARED_H
 #define SHARED_H
+#include <stdbool.h>
 
 struct _str;
 typedef long long ll;
@@ -13,4 +14,5 @@ ll powll(ll, ll);
 ll random_(void);
 struct _str *prompt(void);
 
+bool compare_val(ll, ll);
 #endif

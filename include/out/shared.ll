@@ -185,6 +185,20 @@ declare %struct._str* @allocate_str(i64) #5
 
 declare void @free(i8*) #5
 
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define zeroext i1 @compare_val(i64 %0, i64 %1) #0 !dbg !139 {
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  store i64 %0, i64* %3, align 8
+  call void @llvm.dbg.declare(metadata i64* %3, metadata !143, metadata !DIExpression()), !dbg !144
+  store i64 %1, i64* %4, align 8
+  call void @llvm.dbg.declare(metadata i64* %4, metadata !145, metadata !DIExpression()), !dbg !146
+  %5 = load i64, i64* %3, align 8, !dbg !147
+  %6 = load i64, i64* %4, align 8, !dbg !148
+  %7 = icmp eq i64 %5, %6, !dbg !149
+  ret i1 %7, !dbg !150
+}
+
 attributes #0 = { noinline nounwind optnone ssp uwtable "disable-tail-calls"="false" "frame-pointer"="non-leaf" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="true" "probe-stack"="__chkstk_darwin" "stack-protector-buffer-size"="8" "target-cpu"="apple-m1" "target-features"="+aes,+crc,+crypto,+dotprod,+fp-armv8,+fp16fml,+fullfp16,+lse,+neon,+ras,+rcpc,+rdm,+sha2,+sha3,+sm4,+v8.5a,+zcm,+zcz" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nofree nosync nounwind readnone speculatable willreturn }
 attributes #2 = { allocsize(0) "disable-tail-calls"="false" "frame-pointer"="non-leaf" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="true" "probe-stack"="__chkstk_darwin" "stack-protector-buffer-size"="8" "target-cpu"="apple-m1" "target-features"="+aes,+crc,+crypto,+dotprod,+fp-armv8,+fp16fml,+fullfp16,+lse,+neon,+ras,+rcpc,+rdm,+sha2,+sha3,+sm4,+v8.5a,+zcm,+zcz" "unsafe-fp-math"="false" "use-soft-float"="false" }
@@ -220,7 +234,7 @@ attributes #10 = { noreturn }
 !16 = !DISubroutineType(types: !17)
 !17 = !{!18, !19}
 !18 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: null, size: 64)
-!19 = !DIDerivedType(tag: DW_TAG_typedef, name: "ll", file: !20, line: 5, baseType: !21)
+!19 = !DIDerivedType(tag: DW_TAG_typedef, name: "ll", file: !20, line: 6, baseType: !21)
 !20 = !DIFile(filename: "./shared.h", directory: "/Users/sampersand/code/lance/include")
 !21 = !DIBasicType(name: "long long int", size: 64, encoding: DW_ATE_signed)
 !22 = !DILocalVariable(name: "len", arg: 1, scope: !15, file: !10, line: 8, type: !19)
@@ -340,3 +354,15 @@ attributes #10 = { noreturn }
 !136 = !DILocation(line: 46, column: 9, scope: !102)
 !137 = !DILocation(line: 47, column: 9, scope: !102)
 !138 = !DILocation(line: 47, column: 2, scope: !102)
+!139 = distinct !DISubprogram(name: "compare_val", scope: !10, file: !10, line: 50, type: !140, scopeLine: 50, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!140 = !DISubroutineType(types: !141)
+!141 = !{!142, !19, !19}
+!142 = !DIBasicType(name: "_Bool", size: 8, encoding: DW_ATE_boolean)
+!143 = !DILocalVariable(name: "lhs", arg: 1, scope: !139, file: !10, line: 50, type: !19)
+!144 = !DILocation(line: 50, column: 21, scope: !139)
+!145 = !DILocalVariable(name: "rhs", arg: 2, scope: !139, file: !10, line: 50, type: !19)
+!146 = !DILocation(line: 50, column: 29, scope: !139)
+!147 = !DILocation(line: 51, column: 9, scope: !139)
+!148 = !DILocation(line: 51, column: 16, scope: !139)
+!149 = !DILocation(line: 51, column: 13, scope: !139)
+!150 = !DILocation(line: 51, column: 2, scope: !139)

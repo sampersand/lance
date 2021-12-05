@@ -35,6 +35,8 @@ class Expression
           list.member.len
           list.member.push
           list.member.pop
+          dict.member.len
+          dict.member.has_key
         ).include?(@fn.value)
           return compile_special type
         end
@@ -143,12 +145,12 @@ class Expression
             ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
             void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
             $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
-          when :'str.member.len', :'list.member.len'
+          when :'str.member.len', :'list.member.len', :'dict.member.len'
             raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
 
             ty = @args[0].llvm_type
 
-            if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List)
+            if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List) && !ty.is_a?(Compiler::Type::Dict)
               raise "invalid type for len, given #{ty}, expected string or list"
             end
 
@@ -156,6 +158,24 @@ class Expression
 
             tmp = $fn.write :new, "getelementptr inbounds #{ty.to_s.chop}, #{ty} #{val}, i64 0, i32 1"
             $fn.write :new, "load i64, i64* #{tmp}, align 8"
+          when :'dict.member.has_key'
+            raise "invalid argc for push: needed 2, got #{@args.length}" unless @args.length == 2
+
+            dict_type = @args[0].llvm_type
+
+            if !dict_type.is_a?(Compiler::Type::Dict)
+              raise "can only has_key for dicts, not #{dict_type.inspect}"
+            end
+
+            list = @args[0].compile type: dict_type
+            value = @args[1].compile type: dict_type.key
+
+            ele_ptr = $fn.write :new, "alloca #{dict_type.key}, align #{dict_type.key.align}"
+            $fn.write "store #{dict_type.key} #{value}, #{dict_type.key}* #{ele_ptr}, align #{dict_type.key.align}"
+
+            void_ptr = $fn.write :new, "bitcast #{dict_type.key}* #{ele_ptr} to i8*"
+            $fn.write :new, "call zeroext %bool @fn.builtin.has_key(%struct.builtin.dict* #{list}, i8* #{void_ptr})"
+
           else
             raise "unknown special function '#{@fn.value}'"
           end

@@ -111,7 +111,8 @@ class LLVM
       %struct.builtin.str = type { i8*, i64 } ; (ptr, len)
       %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
       %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
-      %struct.builtin.dict = type { %struct.builtin.dict_eles*, i64, i64, i1 (i64, i64)* }
+      %struct.builtin.dict = type { %struct.builtin.dict_eles*, i64, i64, i1 (i64, i64)* } ; (eles, len, cap, eql)
+
       %struct.builtin.dict_eles = type { i64, i64 }
       %struct.builtin.io = type { %struct.builtin.str*, %struct.builtin.str*, i8* } ; (name, mode, file)
 
@@ -129,10 +130,15 @@ class LLVM
       declare void @fn.builtin.pop_from_list(%struct.builtin.list* %0, i8* %1)
 
       ; Dict builtins builtins
-      declare %struct.builtin.dict* @fn.builtin.allocate_dict(i64 %0) 
+      declare %struct.builtin.dict* @fn.builtin.allocate_dict(i64 %0, i1 (i64,i64)* %1) 
       declare %bool @fn.builtin.fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
-      declare void @fn.builtin.insert_into_dict(%struct.builtin.list* %0, i8* %1, i64 %2)
-      declare %bool @fn.builtin.has_key(%struct.builtin.list* %0, i8* %1)
+      declare void @fn.builtin.insert_into_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
+      declare %bool @fn.builtin.has_key(%struct.builtin.dict* %0, i8* %1)
+
+      declare i1 @fn.builtin.compare_val(i64 %0, i64 %1)
+      declare i1 @fn.builtin.compare_str(i64 %0, i64 %1)
+      declare i1 @fn.builtin.compare_list(i64 %0, i64 %1)
+      declare i1 @fn.builtin.compare_dict(i64 %0, i64 %1)
 
       ; String builtins
       declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 

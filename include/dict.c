@@ -1,8 +1,8 @@
 #include "dict.h"
-
+#include <stdio.h>
 #define LLSIZE (sizeof(ll))
 
-dict *allocate_dict(bool (*eql)(ll,ll), ll cap) {
+dict *allocate_dict(ll cap, bool (*eql)(ll,ll)) {
 	if (cap == 0) cap = 1; // for the realloc function
 
 	dict *d = xmalloc(sizeof(dict));
@@ -16,6 +16,7 @@ dict *allocate_dict(bool (*eql)(ll,ll), ll cap) {
 }
 
 bool fetch_from_dict(dict *d, ll *key, ll *out) {
+
 	for (ll i = 0; i < d->len; ++i)
 		if (d->eql(*key, d->eles[i].key))
 			return *out = d->eles[i].val, true;

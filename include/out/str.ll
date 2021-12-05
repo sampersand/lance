@@ -14,26 +14,26 @@ target triple = "arm64-apple-macosx12.0.0"
 @.str.2 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
-define %struct._str* @allocate_str(i64 %0) #0 !dbg !15 {
+define %struct._str* @allocate_str(i64 %0) #0 !dbg !28 {
   %2 = alloca i64, align 8
   %3 = alloca %struct._str*, align 8
   store i64 %0, i64* %2, align 8
-  call void @llvm.dbg.declare(metadata i64* %2, metadata !30, metadata !DIExpression()), !dbg !31
-  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !32, metadata !DIExpression()), !dbg !33
-  %4 = call i8* @xmalloc(i64 16), !dbg !34
-  %5 = bitcast i8* %4 to %struct._str*, !dbg !34
-  store %struct._str* %5, %struct._str** %3, align 8, !dbg !33
-  %6 = load i64, i64* %2, align 8, !dbg !35
-  %7 = call i8* @xmalloc(i64 %6), !dbg !36
-  %8 = load %struct._str*, %struct._str** %3, align 8, !dbg !37
-  %9 = getelementptr inbounds %struct._str, %struct._str* %8, i32 0, i32 0, !dbg !38
-  store i8* %7, i8** %9, align 8, !dbg !39
-  %10 = load i64, i64* %2, align 8, !dbg !40
-  %11 = load %struct._str*, %struct._str** %3, align 8, !dbg !41
-  %12 = getelementptr inbounds %struct._str, %struct._str* %11, i32 0, i32 1, !dbg !42
-  store i64 %10, i64* %12, align 8, !dbg !43
-  %13 = load %struct._str*, %struct._str** %3, align 8, !dbg !44
-  ret %struct._str* %13, !dbg !45
+  call void @llvm.dbg.declare(metadata i64* %2, metadata !32, metadata !DIExpression()), !dbg !33
+  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !34, metadata !DIExpression()), !dbg !35
+  %4 = call i8* @xmalloc(i64 16), !dbg !36
+  %5 = bitcast i8* %4 to %struct._str*, !dbg !36
+  store %struct._str* %5, %struct._str** %3, align 8, !dbg !35
+  %6 = load i64, i64* %2, align 8, !dbg !37
+  %7 = call i8* @xmalloc(i64 %6), !dbg !38
+  %8 = load %struct._str*, %struct._str** %3, align 8, !dbg !39
+  %9 = getelementptr inbounds %struct._str, %struct._str* %8, i32 0, i32 0, !dbg !40
+  store i8* %7, i8** %9, align 8, !dbg !41
+  %10 = load i64, i64* %2, align 8, !dbg !42
+  %11 = load %struct._str*, %struct._str** %3, align 8, !dbg !43
+  %12 = getelementptr inbounds %struct._str, %struct._str* %11, i32 0, i32 1, !dbg !44
+  store i64 %10, i64* %12, align 8, !dbg !45
+  %13 = load %struct._str*, %struct._str** %3, align 8, !dbg !46
+  ret %struct._str* %13, !dbg !47
 }
 
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
@@ -42,23 +42,23 @@ declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
 declare i8* @xmalloc(i64) #2
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
-define %struct._str* @create_str_from_borrowed(i8* %0) #0 !dbg !46 {
+define %struct._str* @create_str_from_borrowed(i8* %0) #0 !dbg !48 {
   %2 = alloca i8*, align 8
   %3 = alloca %struct._str*, align 8
   store i8* %0, i8** %2, align 8
-  call void @llvm.dbg.declare(metadata i8** %2, metadata !51, metadata !DIExpression()), !dbg !52
-  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !53, metadata !DIExpression()), !dbg !54
-  %4 = load i8*, i8** %2, align 8, !dbg !55
-  %5 = call i64 @strlen(i8* %4), !dbg !56
-  %6 = call %struct._str* @allocate_str(i64 %5), !dbg !57
-  store %struct._str* %6, %struct._str** %3, align 8, !dbg !54
-  %7 = load i8*, i8** %2, align 8, !dbg !58
-  %8 = call i8* @strdup(i8* %7), !dbg !59
-  %9 = load %struct._str*, %struct._str** %3, align 8, !dbg !60
-  %10 = getelementptr inbounds %struct._str, %struct._str* %9, i32 0, i32 0, !dbg !61
-  store i8* %8, i8** %10, align 8, !dbg !62
-  %11 = load %struct._str*, %struct._str** %3, align 8, !dbg !63
-  ret %struct._str* %11, !dbg !64
+  call void @llvm.dbg.declare(metadata i8** %2, metadata !53, metadata !DIExpression()), !dbg !54
+  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !55, metadata !DIExpression()), !dbg !56
+  %4 = load i8*, i8** %2, align 8, !dbg !57
+  %5 = call i64 @strlen(i8* %4), !dbg !58
+  %6 = call %struct._str* @allocate_str(i64 %5), !dbg !59
+  store %struct._str* %6, %struct._str** %3, align 8, !dbg !56
+  %7 = load i8*, i8** %2, align 8, !dbg !60
+  %8 = call i8* @strdup(i8* %7), !dbg !61
+  %9 = load %struct._str*, %struct._str** %3, align 8, !dbg !62
+  %10 = getelementptr inbounds %struct._str, %struct._str* %9, i32 0, i32 0, !dbg !63
+  store i8* %8, i8** %10, align 8, !dbg !64
+  %11 = load %struct._str*, %struct._str** %3, align 8, !dbg !65
+  ret %struct._str* %11, !dbg !66
 }
 
 declare i64 @strlen(i8*) #2
@@ -66,7 +66,7 @@ declare i64 @strlen(i8*) #2
 declare i8* @strdup(i8*) #2
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
-define void @print_str(%struct._str* %0) #0 !dbg !65 {
+define void @print_str(%struct._str* %0) #0 !dbg !67 {
   %2 = alloca %struct._str*, align 8
   store %struct._str* %0, %struct._str** %2, align 8
   call void @llvm.dbg.declare(metadata %struct._str** %2, metadata !70, metadata !DIExpression()), !dbg !71
@@ -352,136 +352,154 @@ define i32 @compare_strs(%struct._str* %0, %struct._str* %1) #0 !dbg !156 {
 }
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
-define %struct._str* @concat_strs(%struct._str* %0, %struct._str* %1) #0 !dbg !218 {
+define zeroext i1 @compare_str(i64 %0, i64 %1) #0 !dbg !218 {
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  store i64 %0, i64* %3, align 8
+  call void @llvm.dbg.declare(metadata i64* %3, metadata !222, metadata !DIExpression()), !dbg !223
+  store i64 %1, i64* %4, align 8
+  call void @llvm.dbg.declare(metadata i64* %4, metadata !224, metadata !DIExpression()), !dbg !225
+  %5 = load i64, i64* %3, align 8, !dbg !226
+  %6 = inttoptr i64 %5 to %struct._str*, !dbg !227
+  %7 = load i64, i64* %4, align 8, !dbg !228
+  %8 = inttoptr i64 %7 to %struct._str*, !dbg !229
+  %9 = call i32 @compare_strs(%struct._str* %6, %struct._str* %8), !dbg !230
+  %10 = icmp ne i32 %9, 0, !dbg !231
+  %11 = xor i1 %10, true, !dbg !231
+  ret i1 %11, !dbg !232
+}
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define %struct._str* @concat_strs(%struct._str* %0, %struct._str* %1) #0 !dbg !233 {
   %3 = alloca %struct._str*, align 8
   %4 = alloca %struct._str*, align 8
   %5 = alloca %struct._str*, align 8
   store %struct._str* %0, %struct._str** %3, align 8
-  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !221, metadata !DIExpression()), !dbg !222
+  call void @llvm.dbg.declare(metadata %struct._str** %3, metadata !236, metadata !DIExpression()), !dbg !237
   store %struct._str* %1, %struct._str** %4, align 8
-  call void @llvm.dbg.declare(metadata %struct._str** %4, metadata !223, metadata !DIExpression()), !dbg !224
-  call void @llvm.dbg.declare(metadata %struct._str** %5, metadata !225, metadata !DIExpression()), !dbg !226
-  %6 = load %struct._str*, %struct._str** %3, align 8, !dbg !227
-  %7 = getelementptr inbounds %struct._str, %struct._str* %6, i32 0, i32 1, !dbg !228
-  %8 = load i64, i64* %7, align 8, !dbg !228
-  %9 = load %struct._str*, %struct._str** %4, align 8, !dbg !229
-  %10 = getelementptr inbounds %struct._str, %struct._str* %9, i32 0, i32 1, !dbg !230
-  %11 = load i64, i64* %10, align 8, !dbg !230
-  %12 = add nsw i64 %8, %11, !dbg !231
-  %13 = call %struct._str* @allocate_str(i64 %12), !dbg !232
-  store %struct._str* %13, %struct._str** %5, align 8, !dbg !226
-  %14 = load %struct._str*, %struct._str** %5, align 8, !dbg !233
-  %15 = getelementptr inbounds %struct._str, %struct._str* %14, i32 0, i32 0, !dbg !233
-  %16 = load i8*, i8** %15, align 8, !dbg !233
-  %17 = load %struct._str*, %struct._str** %3, align 8, !dbg !233
-  %18 = getelementptr inbounds %struct._str, %struct._str* %17, i32 0, i32 0, !dbg !233
-  %19 = load i8*, i8** %18, align 8, !dbg !233
-  %20 = load %struct._str*, %struct._str** %3, align 8, !dbg !233
-  %21 = getelementptr inbounds %struct._str, %struct._str* %20, i32 0, i32 1, !dbg !233
-  %22 = load i64, i64* %21, align 8, !dbg !233
-  %23 = load %struct._str*, %struct._str** %5, align 8, !dbg !233
-  %24 = getelementptr inbounds %struct._str, %struct._str* %23, i32 0, i32 0, !dbg !233
-  %25 = load i8*, i8** %24, align 8, !dbg !233
-  %26 = call i64 @llvm.objectsize.i64.p0i8(i8* %25, i1 false, i1 true, i1 false), !dbg !233
-  %27 = call i8* @__memcpy_chk(i8* %16, i8* %19, i64 %22, i64 %26) #4, !dbg !233
-  %28 = load %struct._str*, %struct._str** %5, align 8, !dbg !234
-  %29 = getelementptr inbounds %struct._str, %struct._str* %28, i32 0, i32 0, !dbg !234
-  %30 = load i8*, i8** %29, align 8, !dbg !234
-  %31 = load %struct._str*, %struct._str** %3, align 8, !dbg !234
-  %32 = getelementptr inbounds %struct._str, %struct._str* %31, i32 0, i32 1, !dbg !234
-  %33 = load i64, i64* %32, align 8, !dbg !234
-  %34 = getelementptr inbounds i8, i8* %30, i64 %33, !dbg !234
-  %35 = load %struct._str*, %struct._str** %4, align 8, !dbg !234
-  %36 = getelementptr inbounds %struct._str, %struct._str* %35, i32 0, i32 0, !dbg !234
-  %37 = load i8*, i8** %36, align 8, !dbg !234
-  %38 = load %struct._str*, %struct._str** %4, align 8, !dbg !234
-  %39 = getelementptr inbounds %struct._str, %struct._str* %38, i32 0, i32 1, !dbg !234
-  %40 = load i64, i64* %39, align 8, !dbg !234
-  %41 = load %struct._str*, %struct._str** %5, align 8, !dbg !234
-  %42 = getelementptr inbounds %struct._str, %struct._str* %41, i32 0, i32 0, !dbg !234
-  %43 = load i8*, i8** %42, align 8, !dbg !234
-  %44 = load %struct._str*, %struct._str** %3, align 8, !dbg !234
-  %45 = getelementptr inbounds %struct._str, %struct._str* %44, i32 0, i32 1, !dbg !234
-  %46 = load i64, i64* %45, align 8, !dbg !234
-  %47 = getelementptr inbounds i8, i8* %43, i64 %46, !dbg !234
-  %48 = call i64 @llvm.objectsize.i64.p0i8(i8* %47, i1 false, i1 true, i1 false), !dbg !234
-  %49 = call i8* @__memcpy_chk(i8* %34, i8* %37, i64 %40, i64 %48) #4, !dbg !234
-  %50 = load %struct._str*, %struct._str** %5, align 8, !dbg !235
-  ret %struct._str* %50, !dbg !236
+  call void @llvm.dbg.declare(metadata %struct._str** %4, metadata !238, metadata !DIExpression()), !dbg !239
+  call void @llvm.dbg.declare(metadata %struct._str** %5, metadata !240, metadata !DIExpression()), !dbg !241
+  %6 = load %struct._str*, %struct._str** %3, align 8, !dbg !242
+  %7 = getelementptr inbounds %struct._str, %struct._str* %6, i32 0, i32 1, !dbg !243
+  %8 = load i64, i64* %7, align 8, !dbg !243
+  %9 = load %struct._str*, %struct._str** %4, align 8, !dbg !244
+  %10 = getelementptr inbounds %struct._str, %struct._str* %9, i32 0, i32 1, !dbg !245
+  %11 = load i64, i64* %10, align 8, !dbg !245
+  %12 = add nsw i64 %8, %11, !dbg !246
+  %13 = call %struct._str* @allocate_str(i64 %12), !dbg !247
+  store %struct._str* %13, %struct._str** %5, align 8, !dbg !241
+  %14 = load %struct._str*, %struct._str** %5, align 8, !dbg !248
+  %15 = getelementptr inbounds %struct._str, %struct._str* %14, i32 0, i32 0, !dbg !248
+  %16 = load i8*, i8** %15, align 8, !dbg !248
+  %17 = load %struct._str*, %struct._str** %3, align 8, !dbg !248
+  %18 = getelementptr inbounds %struct._str, %struct._str* %17, i32 0, i32 0, !dbg !248
+  %19 = load i8*, i8** %18, align 8, !dbg !248
+  %20 = load %struct._str*, %struct._str** %3, align 8, !dbg !248
+  %21 = getelementptr inbounds %struct._str, %struct._str* %20, i32 0, i32 1, !dbg !248
+  %22 = load i64, i64* %21, align 8, !dbg !248
+  %23 = load %struct._str*, %struct._str** %5, align 8, !dbg !248
+  %24 = getelementptr inbounds %struct._str, %struct._str* %23, i32 0, i32 0, !dbg !248
+  %25 = load i8*, i8** %24, align 8, !dbg !248
+  %26 = call i64 @llvm.objectsize.i64.p0i8(i8* %25, i1 false, i1 true, i1 false), !dbg !248
+  %27 = call i8* @__memcpy_chk(i8* %16, i8* %19, i64 %22, i64 %26) #4, !dbg !248
+  %28 = load %struct._str*, %struct._str** %5, align 8, !dbg !249
+  %29 = getelementptr inbounds %struct._str, %struct._str* %28, i32 0, i32 0, !dbg !249
+  %30 = load i8*, i8** %29, align 8, !dbg !249
+  %31 = load %struct._str*, %struct._str** %3, align 8, !dbg !249
+  %32 = getelementptr inbounds %struct._str, %struct._str* %31, i32 0, i32 1, !dbg !249
+  %33 = load i64, i64* %32, align 8, !dbg !249
+  %34 = getelementptr inbounds i8, i8* %30, i64 %33, !dbg !249
+  %35 = load %struct._str*, %struct._str** %4, align 8, !dbg !249
+  %36 = getelementptr inbounds %struct._str, %struct._str* %35, i32 0, i32 0, !dbg !249
+  %37 = load i8*, i8** %36, align 8, !dbg !249
+  %38 = load %struct._str*, %struct._str** %4, align 8, !dbg !249
+  %39 = getelementptr inbounds %struct._str, %struct._str* %38, i32 0, i32 1, !dbg !249
+  %40 = load i64, i64* %39, align 8, !dbg !249
+  %41 = load %struct._str*, %struct._str** %5, align 8, !dbg !249
+  %42 = getelementptr inbounds %struct._str, %struct._str* %41, i32 0, i32 0, !dbg !249
+  %43 = load i8*, i8** %42, align 8, !dbg !249
+  %44 = load %struct._str*, %struct._str** %3, align 8, !dbg !249
+  %45 = getelementptr inbounds %struct._str, %struct._str* %44, i32 0, i32 1, !dbg !249
+  %46 = load i64, i64* %45, align 8, !dbg !249
+  %47 = getelementptr inbounds i8, i8* %43, i64 %46, !dbg !249
+  %48 = call i64 @llvm.objectsize.i64.p0i8(i8* %47, i1 false, i1 true, i1 false), !dbg !249
+  %49 = call i8* @__memcpy_chk(i8* %34, i8* %37, i64 %40, i64 %48) #4, !dbg !249
+  %50 = load %struct._str*, %struct._str** %5, align 8, !dbg !250
+  ret %struct._str* %50, !dbg !251
 }
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
-define %struct._str* @repeat_str(%struct._str* %0, i64 %1) #0 !dbg !237 {
+define %struct._str* @repeat_str(%struct._str* %0, i64 %1) #0 !dbg !252 {
   %3 = alloca %struct._str*, align 8
   %4 = alloca %struct._str*, align 8
   %5 = alloca i64, align 8
   %6 = alloca %struct._str*, align 8
   %7 = alloca i8*, align 8
   store %struct._str* %0, %struct._str** %4, align 8
-  call void @llvm.dbg.declare(metadata %struct._str** %4, metadata !240, metadata !DIExpression()), !dbg !241
+  call void @llvm.dbg.declare(metadata %struct._str** %4, metadata !255, metadata !DIExpression()), !dbg !256
   store i64 %1, i64* %5, align 8
-  call void @llvm.dbg.declare(metadata i64* %5, metadata !242, metadata !DIExpression()), !dbg !243
-  %8 = load i64, i64* %5, align 8, !dbg !244
-  %9 = icmp sle i64 %8, 0, !dbg !246
-  br i1 %9, label %10, label %11, !dbg !247
+  call void @llvm.dbg.declare(metadata i64* %5, metadata !257, metadata !DIExpression()), !dbg !258
+  %8 = load i64, i64* %5, align 8, !dbg !259
+  %9 = icmp sle i64 %8, 0, !dbg !261
+  br i1 %9, label %10, label %11, !dbg !262
 
 10:                                               ; preds = %2
-  store %struct._str* null, %struct._str** %3, align 8, !dbg !248
-  br label %44, !dbg !248
+  store %struct._str* null, %struct._str** %3, align 8, !dbg !263
+  br label %44, !dbg !263
 
 11:                                               ; preds = %2
-  call void @llvm.dbg.declare(metadata %struct._str** %6, metadata !249, metadata !DIExpression()), !dbg !250
-  %12 = load %struct._str*, %struct._str** %4, align 8, !dbg !251
-  %13 = getelementptr inbounds %struct._str, %struct._str* %12, i32 0, i32 1, !dbg !252
-  %14 = load i64, i64* %13, align 8, !dbg !252
-  %15 = load i64, i64* %5, align 8, !dbg !253
-  %16 = mul nsw i64 %14, %15, !dbg !254
-  %17 = call %struct._str* @allocate_str(i64 %16), !dbg !255
-  store %struct._str* %17, %struct._str** %6, align 8, !dbg !250
-  call void @llvm.dbg.declare(metadata i8** %7, metadata !256, metadata !DIExpression()), !dbg !258
-  %18 = load %struct._str*, %struct._str** %6, align 8, !dbg !259
-  %19 = getelementptr inbounds %struct._str, %struct._str* %18, i32 0, i32 0, !dbg !260
-  %20 = load i8*, i8** %19, align 8, !dbg !260
-  store i8* %20, i8** %7, align 8, !dbg !258
-  br label %21, !dbg !261
+  call void @llvm.dbg.declare(metadata %struct._str** %6, metadata !264, metadata !DIExpression()), !dbg !265
+  %12 = load %struct._str*, %struct._str** %4, align 8, !dbg !266
+  %13 = getelementptr inbounds %struct._str, %struct._str* %12, i32 0, i32 1, !dbg !267
+  %14 = load i64, i64* %13, align 8, !dbg !267
+  %15 = load i64, i64* %5, align 8, !dbg !268
+  %16 = mul nsw i64 %14, %15, !dbg !269
+  %17 = call %struct._str* @allocate_str(i64 %16), !dbg !270
+  store %struct._str* %17, %struct._str** %6, align 8, !dbg !265
+  call void @llvm.dbg.declare(metadata i8** %7, metadata !271, metadata !DIExpression()), !dbg !273
+  %18 = load %struct._str*, %struct._str** %6, align 8, !dbg !274
+  %19 = getelementptr inbounds %struct._str, %struct._str* %18, i32 0, i32 0, !dbg !275
+  %20 = load i8*, i8** %19, align 8, !dbg !275
+  store i8* %20, i8** %7, align 8, !dbg !273
+  br label %21, !dbg !276
 
 21:                                               ; preds = %36, %11
-  %22 = load i64, i64* %5, align 8, !dbg !262
-  %23 = add nsw i64 %22, -1, !dbg !262
-  store i64 %23, i64* %5, align 8, !dbg !262
-  %24 = icmp ne i64 %22, 0, !dbg !264
-  br i1 %24, label %25, label %42, !dbg !264
+  %22 = load i64, i64* %5, align 8, !dbg !277
+  %23 = add nsw i64 %22, -1, !dbg !277
+  store i64 %23, i64* %5, align 8, !dbg !277
+  %24 = icmp ne i64 %22, 0, !dbg !279
+  br i1 %24, label %25, label %42, !dbg !279
 
 25:                                               ; preds = %21
-  %26 = load i8*, i8** %7, align 8, !dbg !265
-  %27 = load %struct._str*, %struct._str** %4, align 8, !dbg !265
-  %28 = getelementptr inbounds %struct._str, %struct._str* %27, i32 0, i32 0, !dbg !265
-  %29 = load i8*, i8** %28, align 8, !dbg !265
-  %30 = load %struct._str*, %struct._str** %4, align 8, !dbg !265
-  %31 = getelementptr inbounds %struct._str, %struct._str* %30, i32 0, i32 1, !dbg !265
-  %32 = load i64, i64* %31, align 8, !dbg !265
-  %33 = load i8*, i8** %7, align 8, !dbg !265
-  %34 = call i64 @llvm.objectsize.i64.p0i8(i8* %33, i1 false, i1 true, i1 false), !dbg !265
-  %35 = call i8* @__memcpy_chk(i8* %26, i8* %29, i64 %32, i64 %34) #4, !dbg !265
-  br label %36, !dbg !265
+  %26 = load i8*, i8** %7, align 8, !dbg !280
+  %27 = load %struct._str*, %struct._str** %4, align 8, !dbg !280
+  %28 = getelementptr inbounds %struct._str, %struct._str* %27, i32 0, i32 0, !dbg !280
+  %29 = load i8*, i8** %28, align 8, !dbg !280
+  %30 = load %struct._str*, %struct._str** %4, align 8, !dbg !280
+  %31 = getelementptr inbounds %struct._str, %struct._str* %30, i32 0, i32 1, !dbg !280
+  %32 = load i64, i64* %31, align 8, !dbg !280
+  %33 = load i8*, i8** %7, align 8, !dbg !280
+  %34 = call i64 @llvm.objectsize.i64.p0i8(i8* %33, i1 false, i1 true, i1 false), !dbg !280
+  %35 = call i8* @__memcpy_chk(i8* %26, i8* %29, i64 %32, i64 %34) #4, !dbg !280
+  br label %36, !dbg !280
 
 36:                                               ; preds = %25
-  %37 = load %struct._str*, %struct._str** %4, align 8, !dbg !266
-  %38 = getelementptr inbounds %struct._str, %struct._str* %37, i32 0, i32 1, !dbg !267
-  %39 = load i64, i64* %38, align 8, !dbg !267
-  %40 = load i8*, i8** %7, align 8, !dbg !268
-  %41 = getelementptr inbounds i8, i8* %40, i64 %39, !dbg !268
-  store i8* %41, i8** %7, align 8, !dbg !268
-  br label %21, !dbg !269, !llvm.loop !270
+  %37 = load %struct._str*, %struct._str** %4, align 8, !dbg !281
+  %38 = getelementptr inbounds %struct._str, %struct._str* %37, i32 0, i32 1, !dbg !282
+  %39 = load i64, i64* %38, align 8, !dbg !282
+  %40 = load i8*, i8** %7, align 8, !dbg !283
+  %41 = getelementptr inbounds i8, i8* %40, i64 %39, !dbg !283
+  store i8* %41, i8** %7, align 8, !dbg !283
+  br label %21, !dbg !284, !llvm.loop !285
 
 42:                                               ; preds = %21
-  %43 = load %struct._str*, %struct._str** %6, align 8, !dbg !272
-  store %struct._str* %43, %struct._str** %3, align 8, !dbg !273
-  br label %44, !dbg !273
+  %43 = load %struct._str*, %struct._str** %6, align 8, !dbg !287
+  store %struct._str* %43, %struct._str** %3, align 8, !dbg !288
+  br label %44, !dbg !288
 
 44:                                               ; preds = %42, %10
-  %45 = load %struct._str*, %struct._str** %3, align 8, !dbg !274
-  ret %struct._str* %45, !dbg !274
+  %45 = load %struct._str*, %struct._str** %3, align 8, !dbg !289
+  ret %struct._str* %45, !dbg !289
 }
 
 attributes #0 = { noinline nounwind optnone ssp uwtable "disable-tail-calls"="false" "frame-pointer"="non-leaf" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="true" "probe-stack"="__chkstk_darwin" "stack-protector-buffer-size"="8" "target-cpu"="apple-m1" "target-features"="+aes,+crc,+crypto,+dotprod,+fp-armv8,+fp16fml,+fullfp16,+lse,+neon,+ras,+rcpc,+rdm,+sha2,+sha3,+sm4,+v8.5a,+zcm,+zcz" "unsafe-fp-math"="false" "use-soft-float"="false" }
@@ -492,7 +510,7 @@ attributes #4 = { nounwind }
 
 !llvm.module.flags = !{!0, !1, !2, !3, !4, !5, !6, !7, !8}
 !llvm.dbg.cu = !{!9}
-!llvm.ident = !{!14}
+!llvm.ident = !{!27}
 
 !0 = !{i32 2, !"SDK Version", [2 x i32] [i32 12, i32 0]}
 !1 = !{i32 7, !"Dwarf Version", i32 4}
@@ -506,77 +524,77 @@ attributes #4 = { nounwind }
 !9 = distinct !DICompileUnit(language: DW_LANG_C99, file: !10, producer: "Apple clang version 13.0.0 (clang-1300.0.29.3)", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !11, retainedTypes: !12, nameTableKind: None, sysroot: "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk", sdk: "MacOSX.sdk")
 !10 = !DIFile(filename: "str.c", directory: "/Users/sampersand/code/lance/include")
 !11 = !{}
-!12 = !{!13}
+!12 = !{!13, !14}
 !13 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
-!14 = !{!"Apple clang version 13.0.0 (clang-1300.0.29.3)"}
-!15 = distinct !DISubprogram(name: "allocate_str", scope: !10, file: !10, line: 6, type: !16, scopeLine: 6, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!16 = !DISubroutineType(types: !17)
-!17 = !{!18, !27}
-!18 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !19, size: 64)
-!19 = !DIDerivedType(tag: DW_TAG_typedef, name: "str", file: !20, line: 8, baseType: !21)
-!20 = !DIFile(filename: "./str.h", directory: "/Users/sampersand/code/lance/include")
-!21 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "_str", file: !20, line: 5, size: 128, elements: !22)
-!22 = !{!23, !26}
-!23 = !DIDerivedType(tag: DW_TAG_member, name: "ptr", scope: !21, file: !20, line: 6, baseType: !24, size: 64)
-!24 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !25, size: 64)
-!25 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-!26 = !DIDerivedType(tag: DW_TAG_member, name: "len", scope: !21, file: !20, line: 7, baseType: !27, size: 64, offset: 64)
-!27 = !DIDerivedType(tag: DW_TAG_typedef, name: "ll", file: !28, line: 5, baseType: !29)
-!28 = !DIFile(filename: "./shared.h", directory: "/Users/sampersand/code/lance/include")
-!29 = !DIBasicType(name: "long long int", size: 64, encoding: DW_ATE_signed)
-!30 = !DILocalVariable(name: "length", arg: 1, scope: !15, file: !10, line: 6, type: !27)
-!31 = !DILocation(line: 6, column: 22, scope: !15)
-!32 = !DILocalVariable(name: "s", scope: !15, file: !10, line: 7, type: !18)
-!33 = !DILocation(line: 7, column: 7, scope: !15)
-!34 = !DILocation(line: 7, column: 11, scope: !15)
-!35 = !DILocation(line: 9, column: 19, scope: !15)
-!36 = !DILocation(line: 9, column: 11, scope: !15)
-!37 = !DILocation(line: 9, column: 2, scope: !15)
-!38 = !DILocation(line: 9, column: 5, scope: !15)
-!39 = !DILocation(line: 9, column: 9, scope: !15)
-!40 = !DILocation(line: 10, column: 11, scope: !15)
-!41 = !DILocation(line: 10, column: 2, scope: !15)
-!42 = !DILocation(line: 10, column: 5, scope: !15)
-!43 = !DILocation(line: 10, column: 9, scope: !15)
-!44 = !DILocation(line: 12, column: 9, scope: !15)
-!45 = !DILocation(line: 12, column: 2, scope: !15)
-!46 = distinct !DISubprogram(name: "create_str_from_borrowed", scope: !10, file: !10, line: 15, type: !47, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!47 = !DISubroutineType(types: !48)
-!48 = !{!18, !49}
-!49 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !50, size: 64)
-!50 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !25)
-!51 = !DILocalVariable(name: "c", arg: 1, scope: !46, file: !10, line: 15, type: !49)
-!52 = !DILocation(line: 15, column: 43, scope: !46)
-!53 = !DILocalVariable(name: "s", scope: !46, file: !10, line: 16, type: !18)
-!54 = !DILocation(line: 16, column: 7, scope: !46)
-!55 = !DILocation(line: 16, column: 31, scope: !46)
-!56 = !DILocation(line: 16, column: 24, scope: !46)
-!57 = !DILocation(line: 16, column: 11, scope: !46)
-!58 = !DILocation(line: 17, column: 18, scope: !46)
-!59 = !DILocation(line: 17, column: 11, scope: !46)
-!60 = !DILocation(line: 17, column: 2, scope: !46)
-!61 = !DILocation(line: 17, column: 5, scope: !46)
-!62 = !DILocation(line: 17, column: 9, scope: !46)
-!63 = !DILocation(line: 18, column: 9, scope: !46)
-!64 = !DILocation(line: 18, column: 2, scope: !46)
-!65 = distinct !DISubprogram(name: "print_str", scope: !10, file: !10, line: 21, type: !66, scopeLine: 21, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!66 = !DISubroutineType(types: !67)
-!67 = !{null, !68}
-!68 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !69, size: 64)
-!69 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-!70 = !DILocalVariable(name: "s", arg: 1, scope: !65, file: !10, line: 21, type: !68)
-!71 = !DILocation(line: 21, column: 27, scope: !65)
-!72 = !DILocation(line: 22, column: 23, scope: !65)
-!73 = !DILocation(line: 22, column: 26, scope: !65)
-!74 = !DILocation(line: 22, column: 17, scope: !65)
-!75 = !DILocation(line: 22, column: 31, scope: !65)
-!76 = !DILocation(line: 22, column: 34, scope: !65)
-!77 = !DILocation(line: 22, column: 2, scope: !65)
-!78 = !DILocation(line: 23, column: 9, scope: !65)
-!79 = !DILocation(line: 23, column: 2, scope: !65)
-!80 = !DILocation(line: 24, column: 1, scope: !65)
-!81 = distinct !DISubprogram(name: "println_str", scope: !10, file: !10, line: 26, type: !66, scopeLine: 26, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!82 = !DILocalVariable(name: "s", arg: 1, scope: !81, file: !10, line: 26, type: !68)
+!14 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !15, size: 64)
+!15 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !16)
+!16 = !DIDerivedType(tag: DW_TAG_typedef, name: "str", file: !17, line: 8, baseType: !18)
+!17 = !DIFile(filename: "./str.h", directory: "/Users/sampersand/code/lance/include")
+!18 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "_str", file: !17, line: 5, size: 128, elements: !19)
+!19 = !{!20, !23}
+!20 = !DIDerivedType(tag: DW_TAG_member, name: "ptr", scope: !18, file: !17, line: 6, baseType: !21, size: 64)
+!21 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !22, size: 64)
+!22 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
+!23 = !DIDerivedType(tag: DW_TAG_member, name: "len", scope: !18, file: !17, line: 7, baseType: !24, size: 64, offset: 64)
+!24 = !DIDerivedType(tag: DW_TAG_typedef, name: "ll", file: !25, line: 6, baseType: !26)
+!25 = !DIFile(filename: "./shared.h", directory: "/Users/sampersand/code/lance/include")
+!26 = !DIBasicType(name: "long long int", size: 64, encoding: DW_ATE_signed)
+!27 = !{!"Apple clang version 13.0.0 (clang-1300.0.29.3)"}
+!28 = distinct !DISubprogram(name: "allocate_str", scope: !10, file: !10, line: 6, type: !29, scopeLine: 6, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!29 = !DISubroutineType(types: !30)
+!30 = !{!31, !24}
+!31 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !16, size: 64)
+!32 = !DILocalVariable(name: "length", arg: 1, scope: !28, file: !10, line: 6, type: !24)
+!33 = !DILocation(line: 6, column: 22, scope: !28)
+!34 = !DILocalVariable(name: "s", scope: !28, file: !10, line: 7, type: !31)
+!35 = !DILocation(line: 7, column: 7, scope: !28)
+!36 = !DILocation(line: 7, column: 11, scope: !28)
+!37 = !DILocation(line: 9, column: 19, scope: !28)
+!38 = !DILocation(line: 9, column: 11, scope: !28)
+!39 = !DILocation(line: 9, column: 2, scope: !28)
+!40 = !DILocation(line: 9, column: 5, scope: !28)
+!41 = !DILocation(line: 9, column: 9, scope: !28)
+!42 = !DILocation(line: 10, column: 11, scope: !28)
+!43 = !DILocation(line: 10, column: 2, scope: !28)
+!44 = !DILocation(line: 10, column: 5, scope: !28)
+!45 = !DILocation(line: 10, column: 9, scope: !28)
+!46 = !DILocation(line: 12, column: 9, scope: !28)
+!47 = !DILocation(line: 12, column: 2, scope: !28)
+!48 = distinct !DISubprogram(name: "create_str_from_borrowed", scope: !10, file: !10, line: 15, type: !49, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!49 = !DISubroutineType(types: !50)
+!50 = !{!31, !51}
+!51 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !52, size: 64)
+!52 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !22)
+!53 = !DILocalVariable(name: "c", arg: 1, scope: !48, file: !10, line: 15, type: !51)
+!54 = !DILocation(line: 15, column: 43, scope: !48)
+!55 = !DILocalVariable(name: "s", scope: !48, file: !10, line: 16, type: !31)
+!56 = !DILocation(line: 16, column: 7, scope: !48)
+!57 = !DILocation(line: 16, column: 31, scope: !48)
+!58 = !DILocation(line: 16, column: 24, scope: !48)
+!59 = !DILocation(line: 16, column: 11, scope: !48)
+!60 = !DILocation(line: 17, column: 18, scope: !48)
+!61 = !DILocation(line: 17, column: 11, scope: !48)
+!62 = !DILocation(line: 17, column: 2, scope: !48)
+!63 = !DILocation(line: 17, column: 5, scope: !48)
+!64 = !DILocation(line: 17, column: 9, scope: !48)
+!65 = !DILocation(line: 18, column: 9, scope: !48)
+!66 = !DILocation(line: 18, column: 2, scope: !48)
+!67 = distinct !DISubprogram(name: "print_str", scope: !10, file: !10, line: 21, type: !68, scopeLine: 21, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!68 = !DISubroutineType(types: !69)
+!69 = !{null, !14}
+!70 = !DILocalVariable(name: "s", arg: 1, scope: !67, file: !10, line: 21, type: !14)
+!71 = !DILocation(line: 21, column: 27, scope: !67)
+!72 = !DILocation(line: 22, column: 23, scope: !67)
+!73 = !DILocation(line: 22, column: 26, scope: !67)
+!74 = !DILocation(line: 22, column: 17, scope: !67)
+!75 = !DILocation(line: 22, column: 31, scope: !67)
+!76 = !DILocation(line: 22, column: 34, scope: !67)
+!77 = !DILocation(line: 22, column: 2, scope: !67)
+!78 = !DILocation(line: 23, column: 9, scope: !67)
+!79 = !DILocation(line: 23, column: 2, scope: !67)
+!80 = !DILocation(line: 24, column: 1, scope: !67)
+!81 = distinct !DISubprogram(name: "println_str", scope: !10, file: !10, line: 26, type: !68, scopeLine: 26, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!82 = !DILocalVariable(name: "s", arg: 1, scope: !81, file: !10, line: 26, type: !14)
 !83 = !DILocation(line: 26, column: 29, scope: !81)
 !84 = !DILocation(line: 27, column: 25, scope: !81)
 !85 = !DILocation(line: 27, column: 28, scope: !81)
@@ -589,24 +607,24 @@ attributes #4 = { nounwind }
 !92 = !DILocation(line: 29, column: 1, scope: !81)
 !93 = distinct !DISubprogram(name: "substr", scope: !10, file: !10, line: 31, type: !94, scopeLine: 31, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
 !94 = !DISubroutineType(types: !95)
-!95 = !{!18, !68, !27, !27}
-!96 = !DILocalVariable(name: "s", arg: 1, scope: !93, file: !10, line: 31, type: !68)
+!95 = !{!31, !14, !24, !24}
+!96 = !DILocalVariable(name: "s", arg: 1, scope: !93, file: !10, line: 31, type: !14)
 !97 = !DILocation(line: 31, column: 24, scope: !93)
-!98 = !DILocalVariable(name: "start", arg: 2, scope: !93, file: !10, line: 31, type: !27)
+!98 = !DILocalVariable(name: "start", arg: 2, scope: !93, file: !10, line: 31, type: !24)
 !99 = !DILocation(line: 31, column: 30, scope: !93)
-!100 = !DILocalVariable(name: "len", arg: 3, scope: !93, file: !10, line: 31, type: !27)
+!100 = !DILocalVariable(name: "len", arg: 3, scope: !93, file: !10, line: 31, type: !24)
 !101 = !DILocation(line: 31, column: 40, scope: !93)
-!102 = !DILocalVariable(name: "sub", scope: !93, file: !10, line: 32, type: !18)
+!102 = !DILocalVariable(name: "sub", scope: !93, file: !10, line: 32, type: !31)
 !103 = !DILocation(line: 32, column: 7, scope: !93)
 !104 = !DILocation(line: 32, column: 26, scope: !93)
 !105 = !DILocation(line: 32, column: 13, scope: !93)
 !106 = !DILocation(line: 33, column: 2, scope: !93)
 !107 = !DILocation(line: 34, column: 9, scope: !93)
 !108 = !DILocation(line: 34, column: 2, scope: !93)
-!109 = distinct !DISubprogram(name: "num_to_str", scope: !10, file: !10, line: 37, type: !16, scopeLine: 37, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!110 = !DILocalVariable(name: "num", arg: 1, scope: !109, file: !10, line: 37, type: !27)
+!109 = distinct !DISubprogram(name: "num_to_str", scope: !10, file: !10, line: 37, type: !29, scopeLine: 37, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!110 = !DILocalVariable(name: "num", arg: 1, scope: !109, file: !10, line: 37, type: !24)
 !111 = !DILocation(line: 37, column: 20, scope: !109)
-!112 = !DILocalVariable(name: "s", scope: !109, file: !10, line: 38, type: !18)
+!112 = !DILocalVariable(name: "s", scope: !109, file: !10, line: 38, type: !31)
 !113 = !DILocation(line: 38, column: 7, scope: !109)
 !114 = !DILocation(line: 38, column: 11, scope: !109)
 !115 = !DILocation(line: 40, column: 2, scope: !109)
@@ -620,11 +638,11 @@ attributes #4 = { nounwind }
 !123 = !DILocation(line: 43, column: 2, scope: !109)
 !124 = distinct !DISubprogram(name: "str_to_num", scope: !10, file: !10, line: 46, type: !125, scopeLine: 46, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
 !125 = !DISubroutineType(types: !126)
-!126 = !{!27, !68}
-!127 = !DILocalVariable(name: "s", arg: 1, scope: !124, file: !10, line: 46, type: !68)
+!126 = !{!24, !14}
+!127 = !DILocalVariable(name: "s", arg: 1, scope: !124, file: !10, line: 46, type: !14)
 !128 = !DILocation(line: 46, column: 26, scope: !124)
 !129 = !DILocalVariable(name: "tmp", scope: !124, file: !10, line: 48, type: !130)
-!130 = !DICompositeType(tag: DW_TAG_array_type, baseType: !25, size: 8192, elements: !131)
+!130 = !DICompositeType(tag: DW_TAG_array_type, baseType: !22, size: 8192, elements: !131)
 !131 = !{!132}
 !132 = !DISubrange(count: 1024)
 !133 = !DILocation(line: 48, column: 7, scope: !124)
@@ -633,15 +651,15 @@ attributes #4 = { nounwind }
 !136 = !DILocation(line: 50, column: 9, scope: !124)
 !137 = !DILocation(line: 50, column: 2, scope: !124)
 !138 = distinct !DISubprogram(name: "str_to_ascii", scope: !10, file: !10, line: 53, type: !125, scopeLine: 53, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!139 = !DILocalVariable(name: "s", arg: 1, scope: !138, file: !10, line: 53, type: !68)
+!139 = !DILocalVariable(name: "s", arg: 1, scope: !138, file: !10, line: 53, type: !14)
 !140 = !DILocation(line: 53, column: 28, scope: !138)
 !141 = !DILocation(line: 54, column: 9, scope: !138)
 !142 = !DILocation(line: 54, column: 12, scope: !138)
 !143 = !DILocation(line: 54, column: 2, scope: !138)
-!144 = distinct !DISubprogram(name: "ascii_to_str", scope: !10, file: !10, line: 57, type: !16, scopeLine: 57, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!145 = !DILocalVariable(name: "ascii", arg: 1, scope: !144, file: !10, line: 57, type: !27)
+!144 = distinct !DISubprogram(name: "ascii_to_str", scope: !10, file: !10, line: 57, type: !29, scopeLine: 57, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!145 = !DILocalVariable(name: "ascii", arg: 1, scope: !144, file: !10, line: 57, type: !24)
 !146 = !DILocation(line: 57, column: 22, scope: !144)
-!147 = !DILocalVariable(name: "s", scope: !144, file: !10, line: 58, type: !18)
+!147 = !DILocalVariable(name: "s", scope: !144, file: !10, line: 58, type: !31)
 !148 = !DILocation(line: 58, column: 7, scope: !144)
 !149 = !DILocation(line: 58, column: 11, scope: !144)
 !150 = !DILocation(line: 60, column: 14, scope: !144)
@@ -652,10 +670,10 @@ attributes #4 = { nounwind }
 !155 = !DILocation(line: 62, column: 2, scope: !144)
 !156 = distinct !DISubprogram(name: "compare_strs", scope: !10, file: !10, line: 65, type: !157, scopeLine: 65, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
 !157 = !DISubroutineType(types: !158)
-!158 = !{!13, !68, !68}
-!159 = !DILocalVariable(name: "lhs", arg: 1, scope: !156, file: !10, line: 65, type: !68)
+!158 = !{!13, !14, !14}
+!159 = !DILocalVariable(name: "lhs", arg: 1, scope: !156, file: !10, line: 65, type: !14)
 !160 = !DILocation(line: 65, column: 29, scope: !156)
-!161 = !DILocalVariable(name: "rhs", arg: 2, scope: !156, file: !10, line: 65, type: !68)
+!161 = !DILocalVariable(name: "rhs", arg: 2, scope: !156, file: !10, line: 65, type: !14)
 !162 = !DILocation(line: 65, column: 45, scope: !156)
 !163 = !DILocation(line: 66, column: 6, scope: !164)
 !164 = distinct !DILexicalBlock(scope: !156, file: !10, line: 66, column: 6)
@@ -663,10 +681,10 @@ attributes #4 = { nounwind }
 !166 = !DILocation(line: 66, column: 10, scope: !164)
 !167 = !DILocation(line: 66, column: 6, scope: !156)
 !168 = !DILocation(line: 67, column: 3, scope: !164)
-!169 = !DILocalVariable(name: "diff", scope: !170, file: !10, line: 70, type: !27)
+!169 = !DILocalVariable(name: "diff", scope: !170, file: !10, line: 70, type: !24)
 !170 = distinct !DILexicalBlock(scope: !156, file: !10, line: 70, column: 2)
 !171 = !DILocation(line: 70, column: 10, scope: !170)
-!172 = !DILocalVariable(name: "i", scope: !170, file: !10, line: 70, type: !27)
+!172 = !DILocalVariable(name: "i", scope: !170, file: !10, line: 70, type: !24)
 !173 = !DILocation(line: 70, column: 16, scope: !170)
 !174 = !DILocation(line: 70, column: 7, scope: !170)
 !175 = !DILocation(line: 70, column: 23, scope: !176)
@@ -712,60 +730,75 @@ attributes #4 = { nounwind }
 !215 = !DILocation(line: 74, column: 45, scope: !156)
 !216 = !DILocation(line: 74, column: 2, scope: !156)
 !217 = !DILocation(line: 75, column: 1, scope: !156)
-!218 = distinct !DISubprogram(name: "concat_strs", scope: !10, file: !10, line: 77, type: !219, scopeLine: 77, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!218 = distinct !DISubprogram(name: "compare_str", scope: !10, file: !10, line: 77, type: !219, scopeLine: 77, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
 !219 = !DISubroutineType(types: !220)
-!220 = !{!18, !68, !68}
-!221 = !DILocalVariable(name: "lhs", arg: 1, scope: !218, file: !10, line: 77, type: !68)
-!222 = !DILocation(line: 77, column: 29, scope: !218)
-!223 = !DILocalVariable(name: "rhs", arg: 2, scope: !218, file: !10, line: 77, type: !68)
-!224 = !DILocation(line: 77, column: 45, scope: !218)
-!225 = !DILocalVariable(name: "s", scope: !218, file: !10, line: 78, type: !18)
-!226 = !DILocation(line: 78, column: 7, scope: !218)
-!227 = !DILocation(line: 78, column: 24, scope: !218)
-!228 = !DILocation(line: 78, column: 29, scope: !218)
-!229 = !DILocation(line: 78, column: 35, scope: !218)
-!230 = !DILocation(line: 78, column: 40, scope: !218)
-!231 = !DILocation(line: 78, column: 33, scope: !218)
-!232 = !DILocation(line: 78, column: 11, scope: !218)
-!233 = !DILocation(line: 80, column: 2, scope: !218)
-!234 = !DILocation(line: 81, column: 2, scope: !218)
-!235 = !DILocation(line: 83, column: 9, scope: !218)
-!236 = !DILocation(line: 83, column: 2, scope: !218)
-!237 = distinct !DISubprogram(name: "repeat_str", scope: !10, file: !10, line: 86, type: !238, scopeLine: 86, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
-!238 = !DISubroutineType(types: !239)
-!239 = !{!18, !68, !27}
-!240 = !DILocalVariable(name: "src", arg: 1, scope: !237, file: !10, line: 86, type: !68)
-!241 = !DILocation(line: 86, column: 28, scope: !237)
-!242 = !DILocalVariable(name: "amnt", arg: 2, scope: !237, file: !10, line: 86, type: !27)
-!243 = !DILocation(line: 86, column: 36, scope: !237)
-!244 = !DILocation(line: 87, column: 6, scope: !245)
-!245 = distinct !DILexicalBlock(scope: !237, file: !10, line: 87, column: 6)
-!246 = !DILocation(line: 87, column: 11, scope: !245)
-!247 = !DILocation(line: 87, column: 6, scope: !237)
-!248 = !DILocation(line: 88, column: 3, scope: !245)
-!249 = !DILocalVariable(name: "s", scope: !237, file: !10, line: 90, type: !18)
-!250 = !DILocation(line: 90, column: 7, scope: !237)
-!251 = !DILocation(line: 90, column: 24, scope: !237)
-!252 = !DILocation(line: 90, column: 29, scope: !237)
-!253 = !DILocation(line: 90, column: 35, scope: !237)
-!254 = !DILocation(line: 90, column: 33, scope: !237)
-!255 = !DILocation(line: 90, column: 11, scope: !237)
-!256 = !DILocalVariable(name: "ptr", scope: !257, file: !10, line: 92, type: !24)
-!257 = distinct !DILexicalBlock(scope: !237, file: !10, line: 92, column: 2)
-!258 = !DILocation(line: 92, column: 13, scope: !257)
-!259 = !DILocation(line: 92, column: 19, scope: !257)
-!260 = !DILocation(line: 92, column: 22, scope: !257)
-!261 = !DILocation(line: 92, column: 7, scope: !257)
-!262 = !DILocation(line: 92, column: 31, scope: !263)
-!263 = distinct !DILexicalBlock(scope: !257, file: !10, line: 92, column: 2)
-!264 = !DILocation(line: 92, column: 2, scope: !257)
-!265 = !DILocation(line: 93, column: 3, scope: !263)
-!266 = !DILocation(line: 92, column: 42, scope: !263)
-!267 = !DILocation(line: 92, column: 47, scope: !263)
-!268 = !DILocation(line: 92, column: 39, scope: !263)
-!269 = !DILocation(line: 92, column: 2, scope: !263)
-!270 = distinct !{!270, !264, !271, !205}
-!271 = !DILocation(line: 93, column: 3, scope: !257)
-!272 = !DILocation(line: 95, column: 9, scope: !237)
-!273 = !DILocation(line: 95, column: 2, scope: !237)
-!274 = !DILocation(line: 96, column: 1, scope: !237)
+!220 = !{!221, !24, !24}
+!221 = !DIBasicType(name: "_Bool", size: 8, encoding: DW_ATE_boolean)
+!222 = !DILocalVariable(name: "lhs", arg: 1, scope: !218, file: !10, line: 77, type: !24)
+!223 = !DILocation(line: 77, column: 21, scope: !218)
+!224 = !DILocalVariable(name: "rhs", arg: 2, scope: !218, file: !10, line: 77, type: !24)
+!225 = !DILocation(line: 77, column: 29, scope: !218)
+!226 = !DILocation(line: 78, column: 37, scope: !218)
+!227 = !DILocation(line: 78, column: 23, scope: !218)
+!228 = !DILocation(line: 78, column: 56, scope: !218)
+!229 = !DILocation(line: 78, column: 42, scope: !218)
+!230 = !DILocation(line: 78, column: 10, scope: !218)
+!231 = !DILocation(line: 78, column: 9, scope: !218)
+!232 = !DILocation(line: 78, column: 2, scope: !218)
+!233 = distinct !DISubprogram(name: "concat_strs", scope: !10, file: !10, line: 81, type: !234, scopeLine: 81, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!234 = !DISubroutineType(types: !235)
+!235 = !{!31, !14, !14}
+!236 = !DILocalVariable(name: "lhs", arg: 1, scope: !233, file: !10, line: 81, type: !14)
+!237 = !DILocation(line: 81, column: 29, scope: !233)
+!238 = !DILocalVariable(name: "rhs", arg: 2, scope: !233, file: !10, line: 81, type: !14)
+!239 = !DILocation(line: 81, column: 45, scope: !233)
+!240 = !DILocalVariable(name: "s", scope: !233, file: !10, line: 82, type: !31)
+!241 = !DILocation(line: 82, column: 7, scope: !233)
+!242 = !DILocation(line: 82, column: 24, scope: !233)
+!243 = !DILocation(line: 82, column: 29, scope: !233)
+!244 = !DILocation(line: 82, column: 35, scope: !233)
+!245 = !DILocation(line: 82, column: 40, scope: !233)
+!246 = !DILocation(line: 82, column: 33, scope: !233)
+!247 = !DILocation(line: 82, column: 11, scope: !233)
+!248 = !DILocation(line: 84, column: 2, scope: !233)
+!249 = !DILocation(line: 85, column: 2, scope: !233)
+!250 = !DILocation(line: 87, column: 9, scope: !233)
+!251 = !DILocation(line: 87, column: 2, scope: !233)
+!252 = distinct !DISubprogram(name: "repeat_str", scope: !10, file: !10, line: 90, type: !253, scopeLine: 90, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !9, retainedNodes: !11)
+!253 = !DISubroutineType(types: !254)
+!254 = !{!31, !14, !24}
+!255 = !DILocalVariable(name: "src", arg: 1, scope: !252, file: !10, line: 90, type: !14)
+!256 = !DILocation(line: 90, column: 28, scope: !252)
+!257 = !DILocalVariable(name: "amnt", arg: 2, scope: !252, file: !10, line: 90, type: !24)
+!258 = !DILocation(line: 90, column: 36, scope: !252)
+!259 = !DILocation(line: 91, column: 6, scope: !260)
+!260 = distinct !DILexicalBlock(scope: !252, file: !10, line: 91, column: 6)
+!261 = !DILocation(line: 91, column: 11, scope: !260)
+!262 = !DILocation(line: 91, column: 6, scope: !252)
+!263 = !DILocation(line: 92, column: 3, scope: !260)
+!264 = !DILocalVariable(name: "s", scope: !252, file: !10, line: 94, type: !31)
+!265 = !DILocation(line: 94, column: 7, scope: !252)
+!266 = !DILocation(line: 94, column: 24, scope: !252)
+!267 = !DILocation(line: 94, column: 29, scope: !252)
+!268 = !DILocation(line: 94, column: 35, scope: !252)
+!269 = !DILocation(line: 94, column: 33, scope: !252)
+!270 = !DILocation(line: 94, column: 11, scope: !252)
+!271 = !DILocalVariable(name: "ptr", scope: !272, file: !10, line: 96, type: !21)
+!272 = distinct !DILexicalBlock(scope: !252, file: !10, line: 96, column: 2)
+!273 = !DILocation(line: 96, column: 13, scope: !272)
+!274 = !DILocation(line: 96, column: 19, scope: !272)
+!275 = !DILocation(line: 96, column: 22, scope: !272)
+!276 = !DILocation(line: 96, column: 7, scope: !272)
+!277 = !DILocation(line: 96, column: 31, scope: !278)
+!278 = distinct !DILexicalBlock(scope: !272, file: !10, line: 96, column: 2)
+!279 = !DILocation(line: 96, column: 2, scope: !272)
+!280 = !DILocation(line: 97, column: 3, scope: !278)
+!281 = !DILocation(line: 96, column: 42, scope: !278)
+!282 = !DILocation(line: 96, column: 47, scope: !278)
+!283 = !DILocation(line: 96, column: 39, scope: !278)
+!284 = !DILocation(line: 96, column: 2, scope: !278)
+!285 = distinct !{!285, !279, !286, !205}
+!286 = !DILocation(line: 97, column: 3, scope: !272)
+!287 = !DILocation(line: 99, column: 9, scope: !252)
+!288 = !DILocation(line: 99, column: 2, scope: !252)
+!289 = !DILocation(line: 100, column: 1, scope: !252)

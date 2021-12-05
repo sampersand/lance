@@ -46,3 +46,7 @@ struct _str *prompt(void) {
 	s->ptr = line;
 	return s;
 }
+
+bool compare_val(ll lhs, ll rhs) {
+	return lhs == rhs;
+}

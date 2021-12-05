@@ -1,6 +1,14 @@
+struct foo {
+	a: {str},
+	b: {num: str}
+}
+
 fn main(): num {
-	//let x: {str: num} = { "a": 3, "B": 4};
-	let x = true ? 3 : 4;
+	let x = {"a": "B"};
+	let a = ""+"a"
+	do println(a)
+	do println(x.len().to_str())
+	do println(x.has_key("a") ? "yes" : "no")
 
 	return 0
 }

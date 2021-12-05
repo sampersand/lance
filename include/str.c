@@ -74,6 +74,10 @@ int compare_strs(const str *lhs, const str *rhs) {
 	return lhs->len < rhs->len ? -1 : lhs->len == rhs->len ? 0 : 1;
 }
 
+bool compare_str(ll lhs, ll rhs) {
+	return !compare_strs((const str *) lhs, (const str *) rhs);
+}
+
 str *concat_strs(const str *lhs, const str *rhs) {
 	str *s = allocate_str(lhs->len + rhs->len);
 

@@ -10,7 +10,7 @@ typedef struct {
 	bool (*eql)(ll, ll);
 } dict;
 
-dict *allocate_dict(bool (*eql)(ll,ll), ll cap);
+dict *allocate_dict(ll cap, bool (*eql)(ll,ll));
 bool fetch_from_dict(dict *l, ll *key, ll *out);
 void insert_into_dict(dict *l, ll *key, ll *val);
 bool has_key(dict *l, ll *key);

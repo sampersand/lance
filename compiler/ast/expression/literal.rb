@@ -47,6 +47,23 @@ class Expression
         first = Expression.parse(parser) or next new []
         new [first] + parser.repeat { parser.guard ',' and Expression.parse(parser) }
       end
+
+      parser.surround '{', '}' do
+        dict = {}
+        ele1 = Expression.parse(parser) or next new dict
+        parser.error "expected `:` in ele decl"  unless ele1.is_a?(Expression::Binary) && ele1.op == ':'
+        dict[ele1.lhs] = ele1.rhs
+
+        parser.repeat {
+          parser.guard ',' and begin
+            ele = Expression.parse(parser) or next
+            parser.error "expected `:` in ele decl"  unless ele.is_a?(Expression::Binary) && ele.op == ':'
+            dict[ele.lhs] = ele.rhs
+            true
+          end
+        }.to_h
+        new dict
+      end
     end
 
     def compile_literal(type, value, align)
@@ -72,13 +89,24 @@ class Expression
           else
             raise "array isn't an array of exclusively #{inner.inspect}"
           end
+        when Hash
+          return Compiler::Type::Dict.new :any, :any if @value.empty?
+          key = @value.keys.first.llvm_type
+          val = @value.values.first.llvm_type
+
+          if @value.all? { |k,v| k.llvm_type == key && v.llvm_type == val }
+            Compiler::Type::Dict.new key, val
+          else
+            raise "dict isn't exclusively #{key.inspect}: #{val.inspect}"
+          end
+
         when :null then raise "todo"
         when Symbol then $fn.lookup(@value).llvm_type
         when StructDecl then @value.llvm_type
         end
     end
 
-    def compile_non_empty_array(type:)
+    def compile_array(type:)
       $fn.section "compiling array of type #{type}: #@value" do
         # we pass `any` as the check's already been done earlier.
         eles = @value.map {|ele| ele.compile type: type }
@@ -161,6 +189,43 @@ class Expression
       end
     end
 
+    def compile_dict type:
+      $fn.section "compiling dict of type #{type}: #@value" do
+        eles = @value.map {|key,val| [key.compile(type: type.key), val.compile(type: type.val)] }
+
+        # we pass `any` as the check's already been done earlier.
+        align = type.align
+
+        # note that we use `8` as the size for all types
+        # eql = $fn.write :new, "%1"
+        eql = self.class.new(
+          case type.key
+          when Compiler::Type::Primitive::Str  then :'fn.builtin.compare_str'
+          when Compiler::Type::Primitive::List then :'fn.builtin.compare_list'
+          when Compiler::Type::Primitive::Dict then :'fn.builtin.compare_dict'
+          else                                      :'fn.builtin.compare_val'
+          end
+        ).compile type: :any
+
+        dict = $fn.write :new, "call %struct.builtin.dict* @fn.builtin.allocate_dict(i64 #{eles.length}, i1 (i64,i64)* #{eql})"
+        if eles.first
+          eles.each do |key, val|
+            local_key = $fn.write :new, "alloca #{type.key}, align #{align}"
+            $fn.write "store #{type.key} #{key}, #{type.key}* #{local_key}, align #{align}"
+
+            local_val = $fn.write :new, "alloca #{type.val}, align #{align}"
+            $fn.write "store #{type.val} #{val}, #{type.val}* #{local_val}, align #{align}"
+
+            ptr_key = $fn.write :new, "bitcast #{type.key}* #{local_key} to i8*"
+            ptr_val = $fn.write :new, "bitcast #{type.val}* #{local_val} to i8*"
+            $fn.write "call void @fn.builtin.insert_into_dict(%struct.builtin.dict* #{dict}, i8* #{ptr_key}, i8* #{ptr_val})"
+          end
+        end
+
+        dict
+      end
+    end
+
 
     def compile(type:)
       # $fn.validate_types given: llvm_type, expected: type, allow_any: true
@@ -169,12 +234,8 @@ class Expression
       when :true, :false then compile_literal '%bool', (@value == :true ? 1 : 0), 1
       when Integer then compile_literal '%num', @value, 8
       when String then compile_literal '%struct.builtin.str*', $llvm.string_literal(@value), 8
-      when Array
-        # if @value.empty?
-        #   compile_literal '%struct.builtin.list*', 'null', 8
-        # else
-          compile_non_empty_array type: type.inner
-        # end
+      when Array then compile_array type: type.inner
+      when Hash then compile_dict type: type
       when Symbol then compile_symbol type
       when StructDecl
         # p @value.llvm_type

@@ -5,7 +5,8 @@ target triple = "arm64-apple-macosx12.0.0"
 %struct.builtin.str = type { i8*, i64 } ; (ptr, len)
 %struct.builtin.any = type { i8*, i64 } ; (ptr, type)
 %struct.builtin.list = type { i8*, i64, i64 } ; (ptr, len, cap)
-%struct.builtin.dict = type { %struct.builtin.dict_eles*, i64, i64, i1 (i64, i64)* }
+%struct.builtin.dict = type { %struct.builtin.dict_eles*, i64, i64, i1 (i64, i64)* } ; (eles, len, cap, eql)
+
 %struct.builtin.dict_eles = type { i64, i64 }
 %struct.builtin.io = type { %struct.builtin.str*, %struct.builtin.str*, i8* } ; (name, mode, file)
 
@@ -23,9 +24,15 @@ declare void @push_into_list(%struct.builtin.list* %0, i8* %1)
 declare void @pop_from_list(%struct.builtin.list* %0, i8* %1)
 
 ; Dict builtins builtins
-declare %struct.builtin.dict* @allocate_dict(i64 %0) 
+declare %struct.builtin.dict* @allocate_dict(i64 %0, i1 (i64,i64)* %1) 
 declare %bool @fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
-declare void @insert_into_dict(%struct.builtin.list* %0, i8* %1, i64 %2)
+declare void @insert_into_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
+declare %bool @has_key(%struct.builtin.dict* %0, i8* %1)
+
+declare i1 @compare_val(i64 %0, i64 %1)
+declare i1 @compare_str(i64 %0, i64 %1)
+declare i1 @compare_list(i64 %0, i64 %1)
+declare i1 @compare_dict(i64 %0, i64 %1)
 
 ; String builtins
 declare %struct.builtin.str* @allocate_str(i64 %0) 

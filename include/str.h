@@ -21,4 +21,6 @@ int compare_strs(const str *lhs, const str *rhs);
 
 str *concat_strs(const str *lhs, const str *rhs);
 str *repeat_str(const str *lhs, ll amnt);
+
+bool compare_str(ll, ll);
 #endif

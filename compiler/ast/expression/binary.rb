@@ -2,7 +2,7 @@ class Expression
   class Binary
     OPERATORS = %w(+ - * / % ^ < > <= >= == != && || ? :)
 
-    attr_reader :lhs, :rhs
+    attr_reader :lhs, :rhs, :op
 
     def initialize(lhs, rhs, op)
       @lhs = lhs
