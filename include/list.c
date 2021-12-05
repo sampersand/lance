@@ -1,4 +1,5 @@
 #include "list.h"
+#include "str.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -63,17 +64,20 @@ ll delete_from_list(list *l, ll *dst, ll pos) {
 	memmove(l->ptr + pos-1, l->ptr + pos, LLSIZE*(l->len - pos));
 
 	l->len--;
-	printf("yupp: %lld\n", l->len);
 
 	return true;
 }
 
+void push_into_list(list *l, ll *ele) {
+	if (l->cap == l->len)
+		l->ptr = xrealloc(l->ptr, (l->cap *= 2)*LLSIZE);
+	l->ptr[l->len++] = *ele;
+}
 
-// void dump_list(list *l) {
-// 	printf("l=%p\n", l);
-// 	printf("cap=%lld\n", l->cap);
-// 	printf("len=%lld\n", l->len);
+void pop_from_list(list *l, ll *out) {
+	if (!l->len)
+		abort_msg(create_str_from_borrowed("popped from an empty list"));
 
-// 	for (int i = 0; i < l->len; ++i)
-// 		printf("l[%d]=%lld\n", i, ((ll*) l->ptr)[i]);
-// }
+	*out = l->ptr[--l->len];
+}
+

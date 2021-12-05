@@ -10,6 +10,7 @@ typedef struct _str {
 str *allocate_str(ll length);
 str *create_str_from_borrowed(const char *str);
 void print_str(const str *str);
+void println_str(const str *str);
 str *substr(const str *str, ll start, ll len);
 
 str *num_to_str(ll num);

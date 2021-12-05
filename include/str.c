@@ -18,8 +18,13 @@ str *create_str_from_borrowed(const char *c) {
 	return s;
 }
 
-void print(const str *s) {
+void print_str(const str *s) {
 	printf("%.*s", (int) s->len, s->ptr);
+	fflush(stdout);
+}
+
+void println_str(const str *s) {
+	printf("%.*s\n", (int) s->len, s->ptr);
 	fflush(stdout);
 }
 

@@ -26,9 +26,8 @@ class Compiler
   end
 
   PREDCLARED_EXTERNS = {
-    'print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
-    'abort' => PredeclaredExternFunction.new('abort_msg', [Type::Primitive::Str], Type::Primitive::Void),
-    # 'str.member.print' => PredeclaredExternFunction.new('print', [Type::Primitive::Str], Type::Primitive::Void),
+    'print' => PredeclaredExternFunction.new('print_str', [Type::Primitive::Str], Type::Primitive::Void),
+    'println' => PredeclaredExternFunction.new('println_str', [Type::Primitive::Str], Type::Primitive::Void),
     'io_open' => PredeclaredExternFunction.new('open_io', [Type::Primitive::Str, Type::Primitive::Str], Type::Primitive::Io),
     'io.member.readline' => PredeclaredExternFunction.new('readline_io', [Type::Primitive::Io], Type::Primitive::Str),
     'io.member.readall' => PredeclaredExternFunction.new('readall_io', [Type::Primitive::Io], Type::Primitive::Str),
@@ -40,12 +39,14 @@ class Compiler
     'str.member.to_ascii' => PredeclaredExternFunction.new('str_to_ascii', [Type::Primitive::Str], Type::Primitive::Num),
     'num.member.to_ascii' => PredeclaredExternFunction.new('ascii_to_str', [Type::Primitive::Num], Type::Primitive::Str),
     'str.member.substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
+    'str.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),
     'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Never),
     'abort' => PredeclaredExternFunction.new('abort_msg', [Type::Primitive::Str], Type::Never),
     'list.member.insert' => PredeclaredExternFunction.new('insert', [Type::List, Type::Primitive::Num, :any], Type::Primitive::Bool),
     'list.member.delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
-    'str.member.length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
-    'list.member.length' => PredeclaredExternFunction.new('length', [:any], Type::Primitive::Num),
+    'list.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),
+    'list.member.push' => PredeclaredExternFunction.new('push_into_list', [Type::List, :any], Type::Primitive::Void),
+    'list.member.pop' => PredeclaredExternFunction.new('pop_from_list', [Type::List], :any),
   }
 
   def initialize(**opts)

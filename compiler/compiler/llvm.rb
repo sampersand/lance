@@ -123,6 +123,8 @@ class LLVM
       declare %struct.builtin.list* @fn.builtin.repeat_list(%struct.builtin.list* %0, %num %1)
       declare %bool @fn.builtin.insert_into_list(%struct.builtin.list* %0, i64 %1, i8* %2)
       declare %bool @fn.builtin.delete_from_list(%struct.builtin.list* %0, i8* %1, i64 %2)
+      declare void @fn.builtin.push_into_list(%struct.builtin.list* %0, i8* %1)
+      declare void @fn.builtin.pop_from_list(%struct.builtin.list* %0, i8* %1)
 
       ; String builtins
       declare %struct.builtin.str* @fn.builtin.allocate_str(i64 %0) 
@@ -142,7 +144,8 @@ class LLVM
 
       ; Misc builtins
       declare i8* @fn.builtin.xmalloc(i64 %0)
-      declare void @fn.builtin.print(%struct.builtin.str* %0) 
+      declare void @fn.builtin.print_str(%struct.builtin.str* %0) 
+      declare void @fn.builtin.println_str(%struct.builtin.str* %0) 
       declare void @fn.builtin.quit(%num %0) noreturn 
       declare void @fn.builtin.abort_msg(%struct.builtin.str* %0) noreturn 
       declare %struct.builtin.str* @fn.builtin.prompt() 

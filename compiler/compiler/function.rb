@@ -56,7 +56,7 @@ class Compiler
     attr_accessor :whiles
 
     def llvm_type
-      @llvm_type ||= Compiler::Type::Function.new @args.map(&:type), @return_type
+      @llvm_type ||= Compiler::Type::Function.new args.map(&:type), return_type
     end
 
     def next_local

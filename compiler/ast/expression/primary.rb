@@ -28,7 +28,14 @@ class Expression
       def compile(type:)
         validate!
 
-        if @fn.is_a?(Expression::Literal) && %i(list.member.delete list.member.insert str.member.length list.member.length).include?(@fn.value)
+        if @fn.is_a?(Expression::Literal) && %i(
+          list.member.delete
+          list.member.insert
+          str.member.len
+          list.member.len
+          list.member.push
+          list.member.pop
+        ).include?(@fn.value)
           return compile_special type
         end
 
@@ -59,12 +66,51 @@ class Expression
 
       def llvm_type
         validate!
-        @llvm_type ||= @fn.llvm_type.return_type || Compiler::Type::Primitive::Void
+        @llvm_type ||= begin
+          if @fn.value == :'list.member.pop'
+            @args.first.llvm_type.inner
+          else
+            @fn.llvm_type.return_type || Compiler::Type::Primitive::Void
+          end
+        end
       end
 
       private def compile_special(type)
         $fn.section "compiling symbol of type #{type}: #{@fn.value}" do
           case @fn.value
+          when :'list.member.pop'
+            raise "invalid argc for pop: needed 1, got #{@args.length}" unless @args.length == 1
+
+            list_type = @args[0].llvm_type
+            if !list_type.is_a?(Compiler::Type::List)
+              raise "can only pop into lists, not #{list_type.inspect}"
+            end
+
+            list = @args[0].compile type: list_type
+
+            ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+            void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+            $fn.write "call void @fn.builtin.pop_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr})"
+            $fn.write :new, "load #{list_type.inner}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
+
+          when :'list.member.push'
+            raise "invalid argc for push: needed 2, got #{@args.length}" unless @args.length == 2
+
+            list_type = @args[0].llvm_type
+
+            if !list_type.is_a?(Compiler::Type::List)
+              raise "can only push into lists, not #{list_type.inspect}"
+            end
+
+            list = @args[0].compile type: list_type
+            value = @args[1].compile type: list_type.inner
+
+            ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
+            $fn.write "store #{list_type.inner} #{value}, #{list_type.inner}* #{ele_ptr}, align #{list_type.inner.align}"
+
+            void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
+            $fn.write "call void @fn.builtin.push_into_list(%struct.builtin.list* #{list}, i8* #{void_ptr})"
+
           when :'list.member.insert'
             raise "invalid argc for insert: needed 3, got #{@args.length}" unless @args.length == 3
 
@@ -88,7 +134,7 @@ class Expression
 
             list_type = @args[0].llvm_type
             if !list_type.is_a?(Compiler::Type::List)
-              raise "can only insert into lists, not #{list_type.inspect}"
+              raise "can only delete into lists, not #{list_type.inspect}"
             end
 
             list = @args[0].compile type: list_type
@@ -97,13 +143,13 @@ class Expression
             ele_ptr = $fn.write :new, "alloca #{list_type.inner}, align #{list_type.inner.align}"
             void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
             $fn.write :new, "call zeroext %bool @fn.builtin.delete_from_list(%struct.builtin.list* #{list}, i8* #{void_ptr}, i64 #{index})"
-          when :'str.member.length', :'list.member.length'
+          when :'str.member.len', :'list.member.len'
             raise "invalid argc for length: needed 1, got #{@args.length}" unless @args.length == 1
 
             ty = @args[0].llvm_type
 
             if ty != Compiler::Type::Primitive::Str && !ty.is_a?(Compiler::Type::List)
-              raise "invalid type for length, given #{ty}, expected string or list"
+              raise "invalid type for len, given #{ty}, expected string or list"
             end
 
             val = @args[0].compile type: :any
