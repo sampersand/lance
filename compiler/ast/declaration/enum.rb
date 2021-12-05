@@ -1,4 +1,3 @@
-$DEBUG=1
 require_relative '../typedecl'
 require_relative '../../compiler/type'
 

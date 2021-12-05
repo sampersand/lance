@@ -49,6 +49,7 @@ class Compiler
     'list.member.pop' => PredeclaredExternFunction.new('pop_from_list', [Type::List], :any),
   }
 
+
   def initialize(**opts)
     @functions = {}
     @globals = {}
