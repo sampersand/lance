@@ -6,6 +6,8 @@
 #define LLSIZE (sizeof(ll))
 
 list *allocate_list(ll cap) {
+	if (cap == 0) cap = 1; // for the realloc function
+
 	list *l = xmalloc(sizeof(list));
 
 	l->ptr = xmalloc(LLSIZE*cap);

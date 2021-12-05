@@ -119,6 +119,47 @@ class Compiler
       end
     end
 
+    class Dict < Type
+      attr_reader :key, :val
+
+      def initialize(key, val)
+        @key = key
+        @val = val
+      end
+
+      def name
+        'dict'
+      end
+
+      def hash
+        @hash ||= [@key, @val].hash
+      end
+
+      def ==(rhs)
+        return false unless rhs.is_a? Dict
+        return @key == rhs.key && @val == rhs.val
+        # (inner == :empty || rhs.inner == :empty) || inner == rhs.inner
+      end
+
+      alias eql? ==
+
+      def inspect
+        "Type::Dict(#{@key.inspect}: #{@val.inspect})"
+      end
+
+      def to_s
+        '%struct.builtin.dict*'
+      end
+
+      def default
+        'null'
+      end
+
+      def byte_length
+        8
+      end
+    end
+
     class Struct < Type
       attr_reader :name
       attr_accessor :fields

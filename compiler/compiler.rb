@@ -47,8 +47,8 @@ class Compiler
     'list.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),
     'list.member.push' => PredeclaredExternFunction.new('push_into_list', [Type::List, :any], Type::Primitive::Void),
     'list.member.pop' => PredeclaredExternFunction.new('pop_from_list', [Type::List], :any),
+    'dict.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),
   }
-
 
   def initialize(**opts)
     @functions = {}
