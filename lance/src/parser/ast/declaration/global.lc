@@ -1,3 +1,54 @@
 import "global.lch"
-import "../../../types/type.lch"
-import "../expression.lch"
+import "../../parser.lch"
+
+// struct Global {
+// 	name: str,
+// 	private: bool,
+// 	kind: LLVMType,
+// }
+// 
+// enum Option_Global {
+// 	Some: Global,
+// 	None: void
+// }
+
+
+fn Global_parse(p: Parser): Option_Global {
+	if !parser.guardkw("global") {
+		return Option_Global::None{}
+	}
+
+	let private = parser.guardkw("priv")
+	switch VarDecl_parse(p) {
+		case vardecl: VarDecl::Some {
+			return Option_Global::Some { _: Global { 
+				name: vardecl.name,
+				private,
+				kind: vardecl.
+				}}
+		}
+	}
+
+	return Option_Global::Some{}
+}
+
+
+// import "global.lch"
+// import "../../token.lch"
+// //import "../../../types/type.lch"
+// //import "../expression.lch"
+// 
+// // enum LLVMType
+// // 
+// // struct Global {
+// // 	name: str,
+// // 	private: bool,
+// // 	kind: LLVMType,
+// // }
+// // 
+// fn Global_parse(parser: Parser): Option_Global {
+// 	if !parser.guardkw(Keyword::Global) {
+// 		return
+// 	}
+// }
+// externf Global_parse: fn(Parser): Option_Declaration

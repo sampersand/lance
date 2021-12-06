@@ -6,10 +6,14 @@ fn Parser_new(l: Lexer): Parser {
 	return Parser { l, peeked: false }
 }
 
+fn Parser.put_back(token: Token) {
+	set self._token = token
+	set self.peeked = true
+}
+
 fn Parser.peek(): Token {
 	if !self.peeked {
-		set self._token = self.l.next()
-		set self.peeked = true
+		do self.put_back(self.l.next())
 	}
 
 	return self._token
@@ -17,6 +21,7 @@ fn Parser.peek(): Token {
 
 fn Parser.take() {
 	do assert(self.peeked, "took when not peeked")
+
 	set self.peeked = false
 }
 
@@ -28,32 +33,40 @@ fn Parser.next(): Token {
 
 fn Parser.is_eof(): bool {
 	switch self.peek().kind {
-		case _: TokenKind::EOF { return true }
-		case { return false }
+		case _: TokenKind::EOF {
+			return true
+		}
 	}
-	unreachable
+
+	return false
 }
 
-fn Parser.guardkw(s: str): GuardResult {
-	let t = self.peek()
-
-	switch t.kind {
+fn Parser.guardkw(s: str): bool {
+	switch self.peek().kind {
 		case sy: TokenKind::Symbol {
 			if sy._ == s {
 				do self.take()
-				return GuardResult { t, v: true }
+				return true
 			}
 		}
 	}
 
-	return GuardResult { t, v: false }
+	return false
 }
 
-fn Parser.guardident(s: str): str {
-	let t = self.peek()
-	switch t.kind {
-		case id: TokenKind::Identifier { return id._ }
-		case { return "" }
+fn Parser.guardident(): str {
+	switch self.peek().kind {
+		case id: TokenKind::Identifier {
+			return id._
+		}
 	}
-	unreachable
+
+	return ""
 }
+
+fn Parser.expectident(err: str): str {
+	let i = self.guardident()
+	assert(!i.is_empty(), err)
+	return i
+}
+

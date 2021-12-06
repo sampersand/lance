@@ -5,3 +5,9 @@ struct Global {
 	private: bool,
 	kind: LLVMType,
 }
+
+enum Option_Global {
+	Some: Global,
+	None: void
+}
+externf Global_parse: fn(Parser): Option_Global

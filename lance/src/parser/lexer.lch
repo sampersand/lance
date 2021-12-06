@@ -1,3 +1,5 @@
+import "token.lch"
+
 struct Lexer {
 	stream: str,
 	index: num,
@@ -5,27 +7,6 @@ struct Lexer {
 	lineno: num
 }
 
-enum TokenKind {
-	EOF: void,
-	Number: num,
-	String: str,
-	Identifier: str,
-	Symbol: str
-}
-
-struct StreamPos {
-	lineno: num,
-	filename: str
-}
-
-struct Token {
-	kind: TokenKind,
-	pos: StreamPos
-}
-
 externf Lexer_new: fn(str, str): Lexer
 externf Lexer.pos: fn(Lexer): StreamPos
 externf Lexer.next: fn(Lexer): Token
-externf StreamPos.to_str: fn(StreamPos): str
-externf StreamPos.abort: fn(StreamPos): never
-externf TokenKind.inspect: fn(TokenKind): str

@@ -1,0 +1,22 @@
+import "token.lch"
+import "../utils.lch"
+
+fn StreamPos.to_str(): str {
+	return self.filename + ':' + self.lineno.to_str()
+}
+
+fn StreamPos.abort(m: str): never {
+	do abort(self.to_str() + ": " + m)
+}
+
+fn TokenKind.inspect(): str {
+	switch self {
+		case _: TokenKind::EOF { return "EOF()" }
+		case tn: TokenKind::Number { return "Number(" + tn._.to_str() + ")" }
+		case ts: TokenKind::String { return "String(" + ts._.inspect() + ")" }
+		case ti: TokenKind::Identifier { return "Identifier(" + ti._ + ")" }
+		case ty: TokenKind::Symbol { return "Symbol(" + ty._ + ")" }
+	}
+
+	__llvm__("unreachable")
+}

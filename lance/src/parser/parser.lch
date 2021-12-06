@@ -6,14 +6,14 @@ struct Parser {
 	_token: Token,
 }
 
-struct GuardResult {
-	t: Token,
-	v: bool
-}
+/*struct GuardResult { t: Token, v: bool }*/
 
 externf Parser_new: fn(Lexer): Parser
 externf Parser.peek: fn(Parser): Token 
 externf Parser.take: fn(Parser): Token 
 externf Parser.next: fn(Parser): Token 
-externf Parser.is_eof: fn(Parser): bool 
-externf Parser.guardkw: fn(Parser, str): GuardResult
+externf Parser.put_back: fn(Parser, Token)
+externf Parser.is_eof: fn(Parser): bool
+externf Parser.guardkw: fn(Parser, str): bool
+externf Parser.guardident: fn(Parser): str
+externf Parser.expectident: fn(Parser, str): str

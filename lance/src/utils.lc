@@ -1,10 +1,14 @@
-fn count_char_occurrences(s: str, c: str): num {
+fn str.is_empty(): bool {
+	return self.len() != 0
+}
+
+fn str.count_char_occurrences(c: str): num {
 	let i = 0
-	let l = s.length()
+	let l = self.len()
 	let n = 0
 
 	while i < l {
-		if s[i] == c {
+		if self[i] == c {
 			set n = n + 1
 		}
 
@@ -14,8 +18,8 @@ fn count_char_occurrences(s: str, c: str): num {
 	return n
 }
 
-fn string_contains(s: str, c: str): bool {
-	return count_char_occurrences(s, c) != 0 // this could probably be optimized
+fn str.does_contain_char(c: str): bool {
+	return self.count_char_occurrences(c) != 0 // this can be optimized
 }
 
 fn assert(cond: bool, msg: str) {
@@ -25,6 +29,10 @@ fn assert(cond: bool, msg: str) {
 }
 
 // todo: actual inspect
-fn inspect_str(s: str): str {
-	return (s == '"') ? "'\"'" : ( '"' + s + '"')
+fn str.inspect(): str {
+	if self == '"' {
+		return "'\"'"
+	}
+
+	return '"' + self + '"'
 }

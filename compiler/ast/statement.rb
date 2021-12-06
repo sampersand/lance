@@ -9,13 +9,19 @@ require_relative 'statement/break'
 require_relative 'statement/continue'
 
 class Statement
-  class Unreachable
+  class LLVM
+    def initialize(llvm)
+      @llvm = llvm
+    end
+
     def self.parse(parser)
-      parser.guard 'unreachable' and new
+      parser.guard '__llvm__' or return
+      parser.expect '('
+      new parser.guard(:string).tap { parser.expect ')' }
     end
 
     def compile
-      $fn.write 'unreachable'
+      $fn.write @llvm
     end
   end
   
@@ -29,7 +35,7 @@ class Statement
       Switch.parse(parser) ||
       Continue.parse(parser) ||
       Break.parse(parser) ||
-      Unreachable.parse(parser)
+      LLVM.parse(parser)
   end
 end
 

@@ -1,5 +1,7 @@
+//struct Global
 struct Compiler {
-
+	//globals: {str: Global}
 }
 
 externf Compiler.parse: fn(Compiler, Parser)
+//externf Compiler.

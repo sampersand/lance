@@ -1,7 +1,6 @@
-externf greet: fn(str);
-global greeting: str;
+enum foo { num, a: void }
 
 fn main(): void {
-	set greeting = "Hello";
-	do greet("hi");
+	let l = foo::num { _: 3 }
+
 }

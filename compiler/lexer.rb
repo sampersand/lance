@@ -11,7 +11,7 @@ class Lexer
     if else while loop return do switch case break continue
     let set
     true false null
-    unreachable
+    __llvm__
   ).freeze
 
 

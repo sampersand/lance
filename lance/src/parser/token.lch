@@ -1,0 +1,21 @@
+enum TokenKind {
+	EOF: void,
+	Number: num,
+	String: str,
+	Identifier: str,
+	Symbol: str,
+}
+
+struct StreamPos {
+	lineno: num,
+	filename: str
+}
+
+struct Token {
+	kind: TokenKind,
+	pos: StreamPos
+}
+
+externf StreamPos.to_str: fn(StreamPos): str
+externf StreamPos.abort: fn(StreamPos, str): never
+externf TokenKind.inspect: fn(TokenKind): str

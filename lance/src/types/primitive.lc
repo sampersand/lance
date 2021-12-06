@@ -7,7 +7,7 @@ fn PrimitiveType.inspect(): str {
 		case _: PrimitiveType::Str { return 'PrimitiveType::Str' }
 		case _: PrimitiveType::Bool { return 'PrimitiveType::Bool' }
 	}
-	unreachable
+	__llvm__("unreachable")
 }
 
 fn PrimitiveType_tryfrom(s: str): PrimitiveType_TryFrom {
@@ -36,7 +36,7 @@ fn PrimitiveType.byte_length(): num {
 		case _: PrimitiveType::Str { return 8 }
 		case _: PrimitiveType::Bool { return 1 }
 	}
-	unreachable
+	__llvm__("unreachable")
 }
 
 fn PrimitiveType.to_llvm_str(): str {
@@ -45,7 +45,7 @@ fn PrimitiveType.to_llvm_str(): str {
 		case _: PrimitiveType::Bool { return 'i1' }
 		case _: PrimitiveType::Str { return '%struct.builtin.str*' }
 	}
-	unreachable
+	__llvm__("unreachable")
 }
 
 fn PrimitiveType.default(): Expression {

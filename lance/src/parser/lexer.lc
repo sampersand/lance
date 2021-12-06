@@ -10,22 +10,20 @@ fn Lexer.pos(): StreamPos {
 	return StreamPos { lineno: self.lineno, filename: self.filename }
 }
 
-fn StreamPos.to_str(): str {
-	return self.filename + ':' + self.lineno.to_str()
-}
-
 fn priv Lexer.is_eof(): bool {
-	return self.stream.length() <= self.index
+	return self.stream.len() <= self.index
 }
 
 fn priv Lexer.peek(): str {
-	return self.is_eof() ? "" : self.stream[self.index]
+	if self.is_eof() {
+		return ""
+	}
+
+	return self.stream[self.index]
 }
 
 fn priv Lexer.advance() {
-	if self.is_eof() {
-		do abort("advanced past EOF")
-	}
+	do assert(!self.is_eof(), "advanced past EOF")
 
 	if self.peek() == "\n" {
 		set self.lineno = self.lineno + 1
@@ -52,14 +50,14 @@ fn priv Lexer.take_while(cond: fn(str): bool): str {
 }
 
 fn priv Lexer.take_if_starts_with(s: str): bool {
-	let s_len = s.length()
+	let s_len = s.len()
 
-	if self.stream.length() < (s_len + self.index) {
+	if self.stream.len() < (s_len + self.index) {
 		return false
 	}
 
 	if self.stream.substr(self.index, s_len) == s {
-		set self.lineno = self.lineno + count_char_occurrences(s, "\n")
+		set self.lineno = self.lineno + s.count_char_occurrences("\n")
 		set self.index = self.index + s_len
 		return true
 	}
@@ -67,36 +65,36 @@ fn priv Lexer.take_if_starts_with(s: str): bool {
 	return false
 }
 
-fn StreamPos.abort(m: str): never {
-	do abort(self.to_str() + ": " + m)
-}
-
 fn priv Lexer.abort(m: str): never {
 	do self.pos().abort(m)
 }
 
-fn priv isspace(s: str): bool {
-	return string_contains(" \n\t\r\f", s)
+fn priv str.is_space(): bool {
+	return " \n\t\r\f".does_contain_char(self)
 }
 
-fn priv isdigit(s: str): bool {
-	return ('0' <= s) && (s <= '9')
+fn priv str.is_digit(): bool {
+	return ('0' <= self) && (self <= '9')
 }
 
-fn priv isletter(c: str): bool {
-	return (('a' <= c) && (c <= 'z')) || (('A' <= c) && (c <= 'Z')) || (c == '_')
+fn priv str.is_letter(): bool {
+	return (('a' <= self) && (self <= 'z')) || (('A' <= self) && (self <= 'Z')) || (self == '_')
 }
 
-fn priv isalnum(c: str): bool {
-	return isdigit(c) || isletter(c)
+fn priv str.is_alnum(): bool {
+	return self.is_digit() || self.is_letter()
 }
 
-fn priv _is_not_eof(s: str): bool {
-	return s != "\n"
+fn priv str.is_quote(): bool {
+ 	return (self == "'") || (self == '"')
+}
+
+fn priv str._is_not_eof(): bool {
+	return self != "\n"
 }
 
 fn priv Lexer.strip_whitespace(): bool {
-	return self.take_while(isspace) != ""
+	return !self.take_while(str.is_space).is_empty()
 }
 
 fn priv Lexer.strip_single_line_comment(): bool {
@@ -104,7 +102,7 @@ fn priv Lexer.strip_single_line_comment(): bool {
 		return false
 	}
 
-	do self.take_while(_is_not_eof)
+	do self.take_while(str._is_not_eof)
 	return true
 }
 
@@ -137,7 +135,7 @@ fn priv Lexer.strip() {
 		|| self.strip_single_line_comment()
 		|| self.strip_multiline_comment() 
 	{
-		/* do nothing, as the strips should do it for us */
+		// do nothing, as the strips should do it for us
 	}
 }
 
@@ -147,12 +145,12 @@ fn priv Lexer.parse_number(): TokenKind {
 	loop {
 		let c = self.peek()
 
-		if isdigit(c) {
+		if c.is_digit() {
 			set n = n + c
 		} else if c == '_' {
 			// do nothing
-		} else if isletter(c) {
-			do self.abort("bad number suffix " + inspect_str(c))
+		} else if c.is_letter() {
+			do self.abort("bad number suffix " + c.inspect())
 		} else {
 			break
 		}
@@ -160,7 +158,7 @@ fn priv Lexer.parse_number(): TokenKind {
 		do self.advance()
 	}
 
-	do assert(n != "", "parse number parsed nothing")
+	do assert(!n.is_empty(), "parse number parsed nothing")
 
 	return TokenKind::Number { _: n.to_num() }
 }
@@ -168,12 +166,12 @@ fn priv Lexer.parse_number(): TokenKind {
 fn priv iskeyword(s: str): bool {
 	let kws = [
 		"global", "fn", "priv", "struct", "enum", "extern", "externf", "import",
-		"if", "else", "while", "loop", "return", "do", "switch", "case", "break",
-		"continue", "let", "set", "true", "false", "null", "unreachable"
+		"if", "else", "while", "loop", "for", "return", "do", "switch", "case", "break",
+		"continue", "let", "set", "true", "false", "__llvm__"
 	]
 
 	let i = 0
-	let len = kws.length()
+	let len = kws.len()
 
 	while i < len {
 		if kws[i] == s {
@@ -187,37 +185,43 @@ fn priv iskeyword(s: str): bool {
 }
 
 fn priv Lexer.parse_identifier(): TokenKind {
-	let i = self.take_while(isalnum)
+	let i = self.take_while(str.is_alnum)
 	do assert(i != "", "parsing an identifier returned nothing")
 
-	return iskeyword(i) ? TokenKind::Symbol { _: i } : TokenKind::Identifier { _: i }
+	if iskeyword(i) {
+		return TokenKind::Symbol { _: i }
+	}
+
+	return TokenKind::Identifier { _: i }
 }
 
-fn priv tohex(s: str, start: StreamPos): num {
-	if isdigit(s) {
-		return s.to_num()
+fn priv str.to_hex(start: StreamPos): num {
+	if self.is_digit() {
+		return self.to_num()
 	}
 
-	if ('a' <= s) && (s <= 'f') {
-		return s.to_ascii() - 97 // 97 is `a` in ascii
+	if ('a' <= self) && (self <= 'f') {
+		return self.to_ascii() - 97 // 97 is `a` in ascii
 	}
 
-	if ('A' <= s) && (s <= 'F') {
-		return s.to_ascii() - 64 // 64 is `A` in ascii
+	if ('A' <= self) && (self <= 'F') {
+		return self.to_ascii() - 64 // 64 is `A` in ascii
 	}
 
-	do start.abort("unknown hex character " + inspect_str(s))
+	do start.abort("unknown hex character " + self.inspect())
 }
 
 fn priv Lexer.parse_string(): TokenKind {
 	let start = self.pos()
 	let quote = self.peek_advance()
-	do assert((quote == '"') || (quote == "'"), "invalid starting char for string " + inspect_str(quote))
+	do assert(quote.is_quote(), "invalid starting char for string " + quote.inspect())
 
 	let s = ""
 
 	loop {
-		if self.is_eof() { do start.abort("Unterminated string encountered") }
+		if self.is_eof() {
+			do start.abort("Unterminated string encountered")
+		}
 
 		let c = self.peek_advance()
 		if c == quote {
@@ -229,33 +233,74 @@ fn priv Lexer.parse_string(): TokenKind {
 			continue
 		}
 
-		if self.is_eof() { do start.abort("Unterminated string encountered") }
+		if self.is_eof() {
+			do start.abort("Unterminated string encountered")
+		}
 		set c = self.peek_advance()
 
 		if quote == "'" {
-			set s = s + (((c == "\\") || (c == "'")) ? "" : "\\") + c
+			if (c == "\\") || (c == "'") {
+				set c = "\\" + c
+			}
+
+			set s = s + c
 			continue
 		}
 
 		do assert(quote == '"', "quote is not single or double?")
 
-		if string_contains("\"\'\\", c) { set s = s + c; }
+		if "\"\'\\".does_contain_char(c) { set s = s + c; }
 		else if c == 'n' { set s = s + "\n"; }
 		else if c == 't' { set s = s + "\t"; }
 		else if c == 'r' { set s = s + "\r"; }
 		else if c == 'f' { set s = s + "\f"; }
 		else if c == 'x' {
 			let hi = self.peek_advance()
-			if self.is_eof() { do start.abort("Unterminated string encountered") }
+
+			if self.is_eof() {
+				do start.abort("Unterminated string encountered")
+			}
+
 			let lo = self.peek_advance()
 			let p = self.pos()
-			set s = s + ((tohex(hi, p) * 16) + tohex(lo, p)).to_ascii()
+			set s = s + ((hi.to_hex(p) * 16) + lo.to_hex(p)).to_ascii()
 		} else {
-			do start.abort("unknown escape character " + inspect_str(c))
+			do start.abort("unknown escape character " + c.inspect())
 		}
 	}
 
 	return TokenKind::String { _: s }
+}
+
+fn priv Lexer.parse_symbol(): TokenKind {
+	let c = self.peek_advance()
+
+	// lone symbols
+	if "(){}[];,.?".does_contain_char(c) {
+		return TokenKind::Symbol { _: c }
+	}
+
+	// symbols that can optionally have an `=` following them.
+	if '+-*/%<>=!'.does_contain_char(c) {
+		if self.peek() == '=' {
+			do self.advance()
+			set c = c + '='
+		}
+
+		return TokenKind::Symbol { _: c }
+	}
+
+	// Symbols that can optionally be repeated
+	if '&|:'.does_contain_char(c) {
+		if self.peek() == c {
+			do self.advance()
+			set c = c + c
+		}
+
+		return TokenKind::Symbol { _: c }
+	}
+	
+	do self.abort("unknown token start encountered: " + c.inspect())
 }
 
 fn priv Lexer._parse(): TokenKind {
@@ -267,57 +312,22 @@ fn priv Lexer._parse(): TokenKind {
 
 	let c = self.peek()
 
-	if isdigit(c) {
+	if c.is_digit() {
 		return self.parse_number()
 	}
 
-	if isletter(c) {
+	if c.is_letter() {
 		return self.parse_identifier()
 	}
 
-	if (c == "'") || (c == '"') {
+	if c.is_quote() {
 		return self.parse_string()
 	}
 
-	do self.advance()
-	if string_contains('-+*/%<>!;,[]{}():.?', c) {
-		return TokenKind::Symbol { _: c }
-	}
-
-	if string_contains("=!<>", c) {
-		if self.peek() == '=' {
-			set c = c + '=';
-			do self.advance();
-		}
-
-		return TokenKind::Symbol { _: c }
-	}
-
-	if (c == '&') || (c == '|') {
-		if self.peek_advance() != c {
-			do self.abort("unknown token start encountered: " + inspect_str(c))
-		}
-
-		return TokenKind::Symbol { _: c + c }
-	}
-
-	do self.abort("unknown token start encountered: " + inspect_str(c))
+	return self.parse_symbol()
 }
 
 fn Lexer.next(): Token {
 	let pos = self.pos()
 	return Token { kind: self._parse(), pos }
-}
-
-fn TokenKind.inspect(): str {
-	switch self {
-		case _: TokenKind::EOF { return "EOF()" }
-		case tn: TokenKind::Number { return "Number(" + tn._.to_str() + ")" }
-		case ts: TokenKind::String { return "String(" + inspect_str(ts._) + ")" }
-		case ti: TokenKind::Identifier { return "Identifier(" + ti._ + ")" }
-		case ty: TokenKind::Symbol { return "Symbol(" + ty._ + ")" }
-		case { do abort("unknown TokenKind encountered.") }
-	}
-
-	unreachable
 }
