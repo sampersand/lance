@@ -146,7 +146,7 @@ class Compiler
 
     def compile
       $fn = self
-      $llvm.declare_function @name, @args, @return_type, @is_private do
+      ret = $llvm.declare_function @name, @args, @return_type, @is_private do
         @body.compile
 
         if @return_type == Compiler::Type::Primitive::Void
@@ -157,6 +157,26 @@ class Compiler
 
         @lines
       end
+
+      $__compare_functions ||= {}
+      if @name =~ /\.compare$/ && !$__compare_functions[@name]
+        $__compare_functions[@name] = 1
+        raise "only 2 args allowed for 'compare'" unless @args.length == 2
+        raise "args must be equal for 'compare'" unless @args[0].llvm_type == args[1].llvm_type
+        ty = @args[0].llvm_type
+
+        $llvm.write_inline <<~LLVM
+          define i1 @fn.user.#{@name.sub /\.compare$/, '.__compare' }(i64 %0, i64 %1) {
+              %3 = inttoptr i64 %0 to #{ty}
+              %4 = inttoptr i64 %1 to #{ty}
+              %5 = tail call i64 @fn.user.#@name(#{ty} %3, #{ty} %4)
+              %6 = icmp ne i64 %0, 0
+              ret i1 %6
+          }
+        LLVM
+      end
+
+      ret
     end
   end
 end

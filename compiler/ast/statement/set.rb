@@ -31,16 +31,30 @@ class Statement
         $fn.write "store #{@prelude.llvm_type} #{value}, #{@prelude.llvm_type}* #{idx}, align 8"
 
       when Expression::Primary::ArrayIndex
-        inner_type = @prelude.ary.llvm_type.inner 
+        ary = @prelude.ary.compile type: :any
 
-        ary = @prelude.ary.compile type: Compiler::Type::List.new(:empty)
-        idx = @prelude.index.compile type: Compiler::Type::Primitive::Num
-        value = @value.compile type: inner_type
+        if @prelude.ary.llvm_type.is_a? Compiler::Type::Dict
+          key = @prelude.index.compile type: (keyty = @prelude.ary.llvm_type.key)
+          val = @value.compile type: (valty = @prelude.ary.llvm_type.val)
 
-        tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
-        tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
-        tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
-        $fn.write "store #{inner_type} #{value}, #{inner_type}* #{tmp3}, align 8"
+          key1 = $fn.write :new, "alloca #{keyty}, align 8"
+          val1 = $fn.write :new, "alloca #{valty}, align 8"
+          $fn.write "store #{keyty} #{key}, #{keyty}* #{key1}, align 8"
+          $fn.write "store #{valty} #{val}, #{valty}* #{val1}, align 8"
+          key_ptr = $fn.write :new, "bitcast #{keyty}* #{key1} to i8*"
+          value_ptr = $fn.write :new, "bitcast #{valty}* #{val1} to i8*"
+
+          $fn.write "call void @fn.builtin.insert_into_dict(%struct.builtin.dict* #{ary}, i8* #{key_ptr}, i8* #{value_ptr})"
+        else
+          idx = @prelude.index.compile type: Compiler::Type::Primitive::Num
+          value = @value.compile type: (inner_type = @prelude.ary.llvm_type.inner)
+
+
+          tmp1 = $fn.write :new, "bitcast %struct.builtin.list* #{ary} to #{inner_type}**"
+          tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
+          tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
+          $fn.write "store #{inner_type} #{value}, #{inner_type}* #{tmp3}, align 8"
+        end
 
       when Expression::Literal
         var = $fn.lookup @prelude.value.to_s

@@ -1,12 +1,19 @@
-struct foo {
-	a: {str},
-	b: {num: str}
+struct foo { num }
+
+fn foo.compare(rhs: foo): bool {
+	return self.num == rhs.num
 }
 
 fn main(): num {
-	let x = {"a": "B"};
-	let a: str = x["a"]
-	do println(a)
+	let l: {foo:num} = {}
+	let f = foo { num: 4 }
+	set l[f] = 34
+	do print(l[foo { num: 4 }].to_str())
+
+	//let x = {"a": "B"};
+	//let a: str = x["a"]
+	//let n = [1] + [2];
+	//do println([1] + [2])
 	//do println(a)
 	//do println(x.len().to_str())
 	//do println(x.has_key("a") ? "yes" : "no")

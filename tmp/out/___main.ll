@@ -59,6 +59,9 @@ declare void @abort_msg(%struct.builtin.str* %0) noreturn
 declare %struct.builtin.str* @prompt() 
 declare %num @random_()
 
+; Inline stuff
+
+
 ; Struct declarations
 
 

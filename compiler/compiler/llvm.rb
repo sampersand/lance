@@ -8,6 +8,7 @@ class LLVM
     @globals = {}
     @externs = {}
     @strings = {}
+    @inline = ""
   end
 
   def struct_type(name, fields)
@@ -52,6 +53,10 @@ class LLVM
     }
     @functions[name][:body] = yield
     @functions[name][:name]
+  end
+
+  def write_inline(code)
+    @inline.concat code + "\n"
   end
 
   def final_string(is_main:)
@@ -164,6 +169,9 @@ class LLVM
       declare void @fn.builtin.abort_msg(%struct.builtin.str* %0) noreturn 
       declare %struct.builtin.str* @fn.builtin.prompt() 
       declare %num @fn.builtin.random_()
+
+      ; Inline stuff
+      #@inline
 
       ; Struct declarations
       #{struct_declarations.join "\n"}

@@ -43,10 +43,13 @@ class Expression
         }.to_h
       end
 
+      l = nil
       parser.surround '[', ']' do
         first = Expression.parse(parser) or next new []
-        new [first] + parser.repeat { parser.guard ',' and Expression.parse(parser) }
+        l = new [first] + parser.repeat { parser.guard ',' and Expression.parse(parser) }
       end
+
+      return l if l
 
       parser.surround '{', '}' do
         dict = {}
@@ -198,14 +201,14 @@ class Expression
 
         # note that we use `8` as the size for all types
         # eql = $fn.write :new, "%1"
-        eql = self.class.new(
+        eql =
           case type.key
-          when Compiler::Type::Primitive::Str  then :'fn.builtin.compare_str'
-          when Compiler::Type::Primitive::List then :'fn.builtin.compare_list'
-          when Compiler::Type::Primitive::Dict then :'fn.builtin.compare_dict'
-          else                                      :'fn.builtin.compare_val'
+          when Compiler::Type::Primitive::Str  then self.class.new(:'fn.builtin.compare_str').compile type: :any
+          when Compiler::Type::Primitive::List then self.class.new(:'fn.builtin.compare_list').compile type: :any
+          when Compiler::Type::Primitive::Dict then self.class.new(:'fn.builtin.compare_dict').compile type: :any
+          when Compiler::Type::Struct, Compiler::Type::Enum then :"@fn.user.#{type.key.name}.member.__compare"
+          else                                      self.class.new(:'fn.builtin.compare_val').compile type: :any
           end
-        ).compile type: :any
 
         dict = $fn.write :new, "call %struct.builtin.dict* @fn.builtin.allocate_dict(i64 #{eles.length}, i1 (i64,i64)* #{eql})"
         if eles.first

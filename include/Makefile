@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-g # -fsanitize=address,undefined -g
+CFLAGS=-O3 # -fsanitize=address,undefined -g
 all: list.ll shared.ll str.ll io.ll dict.ll
 list.ll: list.c | out
 	$(CC) $(CFLAGS) list.c -S -emit-llvm -o out/list.ll
