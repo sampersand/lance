@@ -131,9 +131,9 @@ class LLVM
 
       ; Dict builtins builtins
       declare %struct.builtin.dict* @fn.builtin.allocate_dict(i64 %0, i1 (i64,i64)* %1) 
-      declare %bool @fn.builtin.fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
+      declare i1 @fn.builtin.fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
       declare void @fn.builtin.insert_into_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
-      declare %bool @fn.builtin.has_key(%struct.builtin.dict* %0, i8* %1)
+      declare i1 @fn.builtin.has_key(%struct.builtin.dict* %0, i8* %1)
 
       declare i1 @fn.builtin.compare_val(i64 %0, i64 %1)
       declare i1 @fn.builtin.compare_str(i64 %0, i64 %1)

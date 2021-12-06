@@ -16,7 +16,6 @@ dict *allocate_dict(ll cap, bool (*eql)(ll,ll)) {
 }
 
 bool fetch_from_dict(dict *d, ll *key, ll *out) {
-
 	for (ll i = 0; i < d->len; ++i)
 		if (d->eql(*key, d->eles[i].key))
 			return *out = d->eles[i].val, true;

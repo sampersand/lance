@@ -25,9 +25,9 @@ declare void @pop_from_list(%struct.builtin.list* %0, i8* %1)
 
 ; Dict builtins builtins
 declare %struct.builtin.dict* @allocate_dict(i64 %0, i1 (i64,i64)* %1) 
-declare %bool @fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
+declare i1 @fetch_from_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
 declare void @insert_into_dict(%struct.builtin.dict* %0, i8* %1, i8* %2)
-declare %bool @has_key(%struct.builtin.dict* %0, i8* %1)
+declare i1 @has_key(%struct.builtin.dict* %0, i8* %1)
 
 declare i1 @compare_val(i64 %0, i64 %1)
 declare i1 @compare_str(i64 %0, i64 %1)

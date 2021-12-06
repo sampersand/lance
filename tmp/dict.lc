@@ -5,10 +5,12 @@ struct foo {
 
 fn main(): num {
 	let x = {"a": "B"};
-	let a = ""+"a"
+	let a: str = x["a"]
 	do println(a)
-	do println(x.len().to_str())
-	do println(x.has_key("a") ? "yes" : "no")
+	//do println(a)
+	//do println(x.len().to_str())
+	//do println(x.has_key("a") ? "yes" : "no")
+	//do println(x["a"])
 
 	return 0
 }

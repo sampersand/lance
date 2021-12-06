@@ -131,6 +131,10 @@ class Expression
 
             void_ptr = $fn.write :new, "bitcast #{list_type.inner}* #{ele_ptr} to i8*"
             $fn.write :new, "call zeroext %bool @fn.builtin.insert_into_list(%struct.builtin.list* #{list}, i64 #{index}, i8* #{void_ptr})"
+
+          when :'dict.member.delete'
+            raise "todo"
+
           when :'list.member.delete'
             raise "invalid argc for delete: needed 2, got #{@args.length}" unless @args.length == 2
 
@@ -174,7 +178,7 @@ class Expression
             $fn.write "store #{dict_type.key} #{value}, #{dict_type.key}* #{ele_ptr}, align #{dict_type.key.align}"
 
             void_ptr = $fn.write :new, "bitcast #{dict_type.key}* #{ele_ptr} to i8*"
-            $fn.write :new, "call zeroext %bool @fn.builtin.has_key(%struct.builtin.dict* #{list}, i8* #{void_ptr})"
+            $fn.write :new, "call zeroext i1 @fn.builtin.has_key(%struct.builtin.dict* #{list}, i8* #{void_ptr})"
 
           else
             raise "unknown special function '#{@fn.value}'"
@@ -200,6 +204,8 @@ class Expression
       def compile(type:)
         if @ary.llvm_type == Compiler::Type::Primitive::Str
           return compile_string type
+        elsif @ary.llvm_type.is_a? Compiler::Type::Primitive::Dict
+          return compile_dict type
         end
 
         inner_type = @ary.llvm_type.inner 
@@ -213,6 +219,25 @@ class Expression
           tmp2 = $fn.write :new, "load #{inner_type}*, #{inner_type}** #{tmp1}, align 8"
           tmp3 = $fn.write :new, "getelementptr inbounds #{inner_type}, #{inner_type}* #{tmp2}, %num #{idx}"
           $fn.write :new, "load #{inner_type}, #{inner_type}* #{tmp3}, align 8"
+        end
+      end
+
+      def compile_dict(type)
+        $fn.validate_types expected: type, given: @ary.llvm_type.val
+        type = @ary.llvm_type.val
+
+        $fn.section "compiling dict index (ary=#@ary, index=#@index)" do
+          dict = @ary.compile type: :any
+          key = @index.compile type: @ary.llvm_type.key
+
+          return_val = $fn.write :new, "alloca #{type}, align #{type.align}"
+          key_ptr1 = $fn.write :new, "alloca #{@ary.llvm_type.key}, align 8"
+          $fn.write "store #{@ary.llvm_type.key} #{key}, #{@ary.llvm_type.key}* #{key_ptr1}, align 8"
+          key_ptr = $fn.write :new, "bitcast #{@ary.llvm_type.key}* #{key_ptr1} to i8*"
+          return_ptr = $fn.write :new, "bitcast #{type}* #{return_val} to i8*"
+
+          $fn.write :new, "call i1 @fn.builtin.fetch_from_dict(%struct.builtin.dict* #{dict}, i8* #{key_ptr}, i8* #{return_ptr})"
+          $fn.write :new, "load #{type}, #{type}* #{return_val}, align 8"
         end
       end
 
@@ -238,7 +263,14 @@ class Expression
 
 
       def llvm_type
-        @llvm_type ||= (@ary.llvm_type == Compiler::Type::Primitive::Str ? Compiler::Type::Primitive::Str : @ary.llvm_type.inner)
+        @llvm_type ||= 
+          if @ary.llvm_type == Compiler::Type::Primitive::Str
+            Compiler::Type::Primitive::Str
+          elsif @ary.llvm_type.is_a? Compiler::Type::Primitive::Dict
+            @ary.llvm_type.val
+          else
+            @ary.llvm_type.inner
+          end
       end
     end
 
