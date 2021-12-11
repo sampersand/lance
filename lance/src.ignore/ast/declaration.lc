@@ -1,7 +1,7 @@
 import "declaration.lch"
-import "../../types/type.lch"
+import "../types/type.lch"
 import "expression.lch"
-import "../parser.lch"
+import "../parser/parser.lch"
 
 fn Declaration_parse(parser: Parser): Option_Declaration {
 	return Option_Declaration::None {}

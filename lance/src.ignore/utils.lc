@@ -19,23 +19,12 @@ fn str.count_char_occurrences(c: str): num {
 }
 
 fn str.does_contain_char(c: str): bool {
-	let i = 0
-	let l = self.len()
-
-	while i < l {
-		if self[i] == c {
-			return true
-		}
-
-		set i = i + 1
-	}
-
-	return false
+	return self.count_char_occurrences(c) != 0 // this can be optimized
 }
 
 fn assert(cond: bool, msg: str) {
 	if !cond {
-		do panic("assertion failed: " + msg)
+		do abort("assertion failed: " + msg)
 	}
 }
 

@@ -1,0 +1,17 @@
+import "expression.lch"
+import "../../parser/parser.lch"
+
+fn Expression_parse(p: Parser): Option_Expression {
+	do panic("todo: Expression_parse")
+	//return Option_Expression::None{}
+}
+
+fn Expression_parse_expect(p: Parser, err: str): Expression {
+	switch Expression_parse(p) {
+		case expr: Option_Expression::Some {
+			return expr._
+		}
+	}
+
+	do p.error(err)
+}

@@ -1,0 +1,14 @@
+import "return.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementReturn_parse(p: Parser): Option_StatementReturn {
+	if !p.guardkw("return") {
+		return Option_StatementReturn::None{}
+	}
+
+	let value = Expression_parse(p)
+	let stmt_return = StatementReturn { value }
+
+	return Option_StatementReturn::Some { _: stmt_return }
+}

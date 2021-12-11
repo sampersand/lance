@@ -1,0 +1,12 @@
+enum Expression {
+	num // todo: expression
+}
+
+enum Option_Expression {
+	Some: Expression,
+	None: void
+}
+
+struct Parser
+externf Expression_parse: fn(Parser): Option_Expression
+externf Expression_parse_expect: fn(Parser, str): Expression

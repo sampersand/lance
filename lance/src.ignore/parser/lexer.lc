@@ -1,15 +1,6 @@
 import "../utils.lch"
 import "lexer.lch"
 
-
-fn StreamPos.to_str(): str {
-	return self.filename + ":" + self.lineno.to_str()
-}
-
-fn StreamPos.abort(m: str): never {
-	do panic(self.to_str() + ": " + m)
-}
-
 // in the future, we could have it automatically read from `filename`?
 fn Lexer_new(stream: str, filename: str): Lexer {
 	return Lexer { stream, index: 0, filename, lineno: 1 }
@@ -51,30 +42,27 @@ fn priv Lexer.take_while(cond: fn(str): bool): str {
 	let s = ""
 
 	while (cond)(self.peek()) && !self.is_eof() {
-		set s = s + self.peek_advance()
+		set s = s + self.peek()
+		do self.advance()
 	}
 
 	return s
 }
 
-fn priv Lexer.starts_with(s: str): bool {
+fn priv Lexer.take_if_starts_with(s: str): bool {
 	let s_len = s.len()
 
 	if self.stream.len() < (s_len + self.index) {
 		return false
 	}
 
-	return self.stream.substr(self.index, s_len) == s
-}
-
-fn priv Lexer.take_if_starts_with(s: str): bool {
-	if !self.starts_with(s) {
-		return false
+	if self.stream.substr(self.index, s_len) == s {
+		set self.lineno = self.lineno + s.count_char_occurrences("\n")
+		set self.index = self.index + s_len
+		return true
 	}
 
-	set self.lineno = self.lineno + s.count_char_occurrences("\n")
-	set self.index = self.index + s.len()
-	return true
+	return false
 }
 
 fn priv Lexer.abort(m: str): never {
@@ -151,7 +139,7 @@ fn priv Lexer.strip() {
 	}
 }
 
-fn priv Lexer.parse_number(): Token {
+fn priv Lexer.parse_number(): TokenKind {
 	let n = ""
 
 	loop {
@@ -172,7 +160,7 @@ fn priv Lexer.parse_number(): Token {
 
 	do assert(!n.is_empty(), "parse number parsed nothing")
 
-	return Token::Number { _: n.to_num() }
+	return TokenKind::Number { _: n.to_num() }
 }
 
 fn priv iskeyword(s: str): bool {
@@ -196,15 +184,15 @@ fn priv iskeyword(s: str): bool {
 	return false
 }
 
-fn priv Lexer.parse_identifier(): Token {
+fn priv Lexer.parse_identifier(): TokenKind {
 	let i = self.take_while(str.is_alnum)
 	do assert(i != "", "parsing an identifier returned nothing")
 
 	if iskeyword(i) {
-		return Token::Symbol { _: i }
+		return TokenKind::Symbol { _: i }
 	}
 
-	return Token::Identifier { _: i }
+	return TokenKind::Identifier { _: i }
 }
 
 fn priv str.to_hex(start: StreamPos): num {
@@ -223,7 +211,7 @@ fn priv str.to_hex(start: StreamPos): num {
 	do start.abort("unknown hex character " + self.inspect())
 }
 
-fn priv Lexer.parse_string(): Token {
+fn priv Lexer.parse_string(): TokenKind {
 	let start = self.pos()
 	let quote = self.peek_advance()
 	do assert(quote.is_quote(), "invalid starting char for string " + quote.inspect())
@@ -281,15 +269,15 @@ fn priv Lexer.parse_string(): Token {
 		}
 	}
 
-	return Token::String { _: s }
+	return TokenKind::String { _: s }
 }
 
-fn priv Lexer.parse_symbol(): Token {
+fn priv Lexer.parse_symbol(): TokenKind {
 	let c = self.peek_advance()
 
 	// lone symbols
 	if "(){}[];,.?".does_contain_char(c) {
-		return Token::Symbol { _: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	// symbols that can optionally have an `=` following them.
@@ -299,7 +287,7 @@ fn priv Lexer.parse_symbol(): Token {
 			set c = c + '='
 		}
 
-		return Token::Symbol { _: c }
+		return TokenKind::Symbol { _: c }
 	}
 
 	// Symbols that can optionally be repeated
@@ -309,17 +297,17 @@ fn priv Lexer.parse_symbol(): Token {
 			set c = c + c
 		}
 
-		return Token::Symbol { _: c }
+		return TokenKind::Symbol { _: c }
 	}
 	
 	do self.abort("unknown token start encountered: " + c.inspect())
 }
 
-fn Lexer.next(): Token {
+fn priv Lexer._parse(): TokenKind {
 	do self.strip();
 
-	if self.starts_with("@__EOF__\n") || self.is_eof() {
-		return Token::EOF{}
+	if self.is_eof() {
+		return TokenKind::EOF{}
 	}
 
 	let c = self.peek()
@@ -337,4 +325,9 @@ fn Lexer.next(): Token {
 	}
 
 	return self.parse_symbol()
+}
+
+fn Lexer.next(): Token {
+	let pos = self.pos()
+	return Token { kind: self._parse(), pos }
 }

@@ -41,7 +41,7 @@ class Compiler
     'str.member.substr' => PredeclaredExternFunction.new('substr', [Type::Primitive::Str, Type::Primitive::Num, Type::Primitive::Num], Type::Primitive::Str),
     'str.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),
     'quit' => PredeclaredExternFunction.new('quit', [Type::Primitive::Num], Type::Never),
-    'abort' => PredeclaredExternFunction.new('abort_msg', [Type::Primitive::Str], Type::Never),
+    'panic' => PredeclaredExternFunction.new('abort_msg', [Type::Primitive::Str], Type::Never),
     'list.member.insert' => PredeclaredExternFunction.new('insert', [Type::List, Type::Primitive::Num, :any], Type::Primitive::Bool),
     'list.member.delete' => PredeclaredExternFunction.new('delete', [Type::List, Type::Primitive::Num], Type::Primitive::Bool),
     'list.member.len' => PredeclaredExternFunction.new('len', [:any], Type::Primitive::Num),

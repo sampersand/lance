@@ -1,0 +1,10 @@
+import "break.lch"
+import "../../parser/parser.lch"
+
+fn StatementBreak_parse(p: Parser): Option_StatementBreak {
+	if !p.guardkw("break") {
+		return Option_StatementBreak::None{}
+	}
+
+	return Option_StatementBreak::Some { _: StatementBreak{} }
+}

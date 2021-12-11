@@ -1,0 +1,18 @@
+import "type.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn TypeDecl_parse(p: Parser): Option_TypeDecl {
+	do panic("todo: TypeDecl_parse")
+	//return Option_TypeDecl::None{}
+}
+
+fn TypeDecl_parse_expect(p: Parser, err: str): TypeDecl {
+	switch TypeDecl_parse(p) {
+		case expr: Option_TypeDecl::Some {
+			return expr._
+		}
+	}
+
+	do p.error(err)
+}

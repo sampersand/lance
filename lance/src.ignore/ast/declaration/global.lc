@@ -1,0 +1,21 @@
+import "global.lch"
+import "../../parser/parser.lch"
+import "../expression.lch"
+import "../../types/type.lch"
+import "../vardecl.lch"
+
+fn Global_parse(p: Parser): Option_Global {
+	if !p.guardkw("global") {
+		return Option_Global::None{}
+	}
+
+	let private = p.guardkw("priv")
+
+	switch VarDecl_parse(p) {
+		case vardecl: VarDecl::Some {
+			return Option_Global::Some { _: Global { name: vardecl.name, private, kind: vardecl.kind }}
+		}
+	}
+
+	return Option_Global::None{}
+}

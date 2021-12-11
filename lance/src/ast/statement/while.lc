@@ -1,0 +1,21 @@
+import "while.lch"
+import "statement.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementWhile_parse(p: Parser): Option_StatementWhile {
+	if !p.guardkw("while") {
+		return Option_StatementWhile::None{}
+	}
+	
+	if p.guardkw("loop") {
+		do panic("todo: `loop`s")
+	}
+
+	let cond = Expression_parse_expect(p, "expected a condition for 'while'");	
+	let body = Statement_parse_brace_statements(p)
+
+	let stmt_while = StatementWhile { cond, body }
+	
+	return Option_StatementWhile::Some { _: stmt_while }
+}

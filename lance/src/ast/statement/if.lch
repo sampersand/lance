@@ -1,0 +1,12 @@
+enum Expression
+enum Statement
+
+struct StatementIf {
+	cond: Expression,
+	iftrue: [Statement],
+	iffalse: [Statement], // is empty if there's no `else`
+}
+
+enum Option_StatementIf { Some: StatementIf, None: void }
+struct Parser
+externf StatementIf_parse: fn(Parser): Option_StatementIf

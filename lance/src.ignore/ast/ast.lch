@@ -1,0 +1,9 @@
+enum Literal {
+       Bool: bool,
+       Num: num,
+       Str: str
+}
+
+enum Expression {
+       Literal: Literal
+}

@@ -1,0 +1,8 @@
+enum Statement {
+	num // todo
+}
+
+enum Option_Statement { Some: Statement, None: void }
+struct Parser
+externf Statement_parse: fn(Parser): Option_Statement
+externf Statement_parse_brace_statements: fn(Parser): [Statement]

@@ -1,0 +1,27 @@
+import "do.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementDo_parse(p: Parser): Option_StatementDo {
+	if !p.guardkw("do") {
+		return Option_StatementDo::None{}
+	}
+
+	let expression: Expression;
+
+	switch Expression_parse(p) {
+		case some: Option_Expression::Some {
+			set expression = some._
+		}
+
+		case {
+			if true { // lol backedn is not great
+				do p.error("expected an expression for 'do'")
+			}
+		}
+	}
+
+	let stmt_do = StatementDo { expression }
+
+	return Option_StatementDo::Some { _: stmt_do }
+}

@@ -1,0 +1,8 @@
+enum VarDeclKind {
+	str
+}
+
+struct VarDecl {
+	name: str,
+	kind: VarDeclKind
+}

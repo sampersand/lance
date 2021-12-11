@@ -1,9 +1,0 @@
-enum Token
-
-enum TokenTree {
-	TokenKind,
-}
-
-struct MacroGen {
-	block: [TokenTree]
-}

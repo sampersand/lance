@@ -1,0 +1,10 @@
+enum LLVMType
+struct VarDecl {
+	name: str,
+	kind: LLVMType
+}
+
+struct Parser
+enum Option_VarDecl { Some: VarDecl, None: void }
+
+externf VarDecl_parse: fn(Parser): Option_VarDecl

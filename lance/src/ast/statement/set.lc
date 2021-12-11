@@ -1,0 +1,24 @@
+import "set.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementSet_parse(p: Parser): Option_StatementSet {
+	if !p.guardkw("set") {
+		return Option_StatementSet::None{}
+	}
+
+	let name = p.expectident("expected name for `set` function")
+	let key = Option_Expression::None{}
+
+	if p.guardkw("[") {
+		let k = Expression_parse_expect(p, "expected expression after `[` in `set`")
+		set key = Option_Expression::Some { _: k }
+		do p.expectkw("]", "expected `]` after key in `set`")
+	}
+
+	do p.expectkw("=", "expected `=` after lhs in `set`")
+	let value = Expression_parse_expect(p, "expected expression on rhs of `=` in `set`")
+
+	let stmt_set = StatementSet { name, key, value }
+	return Option_StatementSet::Some { _: stmt_set }
+}

@@ -7,14 +7,6 @@ struct Lexer {
 	lineno: num
 }
 
-struct StreamPos {
-	lineno: num,
-	filename: str
-}
-
 externf Lexer_new: fn(str, str): Lexer
 externf Lexer.pos: fn(Lexer): StreamPos
 externf Lexer.next: fn(Lexer): Token
-
-externf StreamPos.to_str: fn(StreamPos): str
-externf StreamPos.abort: fn(StreamPos, str): never

@@ -1,0 +1,12 @@
+enum TypeDecl {
+	num // todo: typedecl
+}
+
+enum Option_TypeDecl {
+	Some: TypeDecl,
+	None: void
+}
+
+struct Parser
+externf TypeDecl_parse: fn(Parser): Option_TypeDecl
+externf TypeDecl_parse_expect: fn(Parser, str): TypeDecl

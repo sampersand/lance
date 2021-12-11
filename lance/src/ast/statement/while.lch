@@ -1,0 +1,11 @@
+enum Expression
+enum Statement
+
+struct StatementWhile {
+	cond: Expression,
+	body: [Statement]
+}
+
+enum Option_StatementWhile { Some: StatementWhile, None: void }
+struct Parser
+externf StatementWhile_parse: fn(Parser): Option_StatementWhile

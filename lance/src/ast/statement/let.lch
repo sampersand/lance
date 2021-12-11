@@ -1,0 +1,12 @@
+enum Option_TypeDecl
+enum Option_Expression
+
+struct StatementLet {
+	name: str,
+	type: Option_TypeDecl,
+	value: Option_Expression
+}
+
+enum Option_StatementLet { Some: StatementLet, None: void }
+struct Parser
+externf StatementLet_parse: fn(Parser): Option_StatementLet

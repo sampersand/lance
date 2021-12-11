@@ -1,6 +1,0 @@
-import "type.lch"
-import "../parser/ast/expression.lch"
-
-fn LLVMType.inspect(): str {
-	return "todo"
-}

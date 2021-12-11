@@ -1,0 +1,72 @@
+import "lexer.lch"
+import "parser.lch"
+import "../utils.lch"
+
+fn Parser_new(l: Lexer): Parser {
+	return Parser { l, peeked: false }
+}
+
+fn Parser.put_back(token: Token) {
+	set self._token = token
+	set self.peeked = true
+}
+
+fn Parser.peek(): Token {
+	if !self.peeked {
+		do self.put_back(self.l.next())
+	}
+
+	return self._token
+}
+
+fn Parser.take() {
+	do assert(self.peeked, "took when not peeked")
+
+	set self.peeked = false
+}
+
+fn Parser.next(): Token {
+	let p = self.peek()
+	do self.take()
+	return p
+}
+
+fn Parser.is_eof(): bool {
+	switch self.peek().kind {
+		case _: TokenKind::EOF {
+			return true
+		}
+	}
+
+	return false
+}
+
+fn Parser.guardkw(s: str): bool {
+	switch self.peek().kind {
+		case sy: TokenKind::Symbol {
+			if sy._ == s {
+				do self.take()
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+fn Parser.guardident(): str {
+	switch self.peek().kind {
+		case id: TokenKind::Identifier {
+			return id._
+		}
+	}
+
+	return ""
+}
+
+fn Parser.expectident(err: str): str {
+	let i = self.guardident()
+	do assert(!i.is_empty(), err)
+	return i
+}
+

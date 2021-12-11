@@ -1,0 +1,5 @@
+struct StatementBreak {}
+
+enum Option_StatementBreak { Some: StatementBreak, None: void }
+struct Parser
+externf StatementBreak_parse: fn(Parser): Option_StatementBreak

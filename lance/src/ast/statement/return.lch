@@ -1,0 +1,9 @@
+enum Option_Expression
+
+struct StatementReturn {
+	value: Option_Expression // is `None` when there's nothing to return.
+}
+
+enum Option_StatementReturn { Some: StatementReturn, None: void }
+struct Parser
+externf StatementReturn_parse: fn(Parser): Option_StatementReturn

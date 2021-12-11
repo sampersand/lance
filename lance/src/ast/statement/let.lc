@@ -1,0 +1,27 @@
+import "let.lch"
+import "../type/type.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementLet_parse(p: Parser): Option_StatementLet {
+	if !p.guardkw("let") {
+		return Option_StatementLet::None{}
+	}
+
+	let name = p.expectident("expected name for `let` function")
+	let type = Option_TypeDecl::None{}
+	let value = Option_Expression::None{}
+
+	if p.guardkw(":") {
+		let t = TypeDecl_parse_expect(p, "expected typedecl after `:` for `let`")
+		set type = Option_TypeDecl::Some { _: t }
+	}
+
+	if p.guardkw("=") {
+		let e = Expression_parse_expect(p, "expected expression after `=` in `let`")
+		set value = Option_Expression::Some { _: e }
+	}
+
+	let stmt_let = StatementLet { name, type, value }
+	return Option_StatementLet::Some { _: stmt_let }
+}

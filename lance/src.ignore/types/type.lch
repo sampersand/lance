@@ -12,4 +12,7 @@ enum LLVMType {
 }
 
 externf LLVMType.inspect: fn(LLVMType): str
-//fn LLVMType.to_llvm_str: fn(): str
+
+struct Parser
+enum Option_LLVMType { Some: LLVMType, None: void }
+externf LLVMType_parse: fn(Parser): Option_LLVMType

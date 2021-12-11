@@ -1,5 +1,9 @@
 import "list.lch"
 import "type.lch"
+import "primitive.lch"
+import "void.lch"
+import "never.lch"
+import "../parser/parser.lch"
 
 //struct ListType_TryFrom { valid: bool, type: ListType }
 //externf ListType_tryfrom: fn(str): ListType_TryFrom
@@ -20,7 +24,7 @@ fn ListType.to_llvm_str(): str {
 	do abort("todo: to_llvm_str")
 }
 
-import "../parser/ast/expression.lch"
+import "../ast/expression.lch"
 
 global priv ListType_default: Expression
 global priv listtype_default_set: bool

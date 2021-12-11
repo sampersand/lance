@@ -1,0 +1,10 @@
+import "continue.lch"
+import "../../parser/parser.lch"
+
+fn StatementContinue_parse(p: Parser): Option_StatementContinue {
+	if !p.guardkw("continue") {
+		return Option_StatementContinue::None{}
+	}
+
+	return Option_StatementContinue::Some { _: StatementContinue{} }
+}

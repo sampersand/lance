@@ -1,0 +1,22 @@
+import "if.lch"
+import "statement.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+
+fn StatementIf_parse(p: Parser): Option_StatementIf {
+	if !p.guardkw("if") {
+		return Option_StatementIf::None{}
+	}
+	
+	let cond = Expression_parse_expect(p, "expected a condition for 'if'");	
+	let iftrue = Statement_parse_brace_statements(p)
+	let iffalse: [Statement] = []
+
+	if p.guardkw("else") {
+		set iffalse = Statement_parse_brace_statements(p)
+	}
+
+	let stmt_if = StatementIf { cond, iftrue, iffalse }
+	
+	return Option_StatementIf::Some { _: stmt_if }
+}

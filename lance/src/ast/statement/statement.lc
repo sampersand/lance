@@ -1,0 +1,13 @@
+import "statement.lch"
+import "../../parser/parser.lch"
+
+fn Statement_parse(p: Parser): Option_Statement {
+	do panic("todo")
+	//return Option_Statement::None{}
+}
+
+fn Statement_parse_brace_statements(p: Parser): [Statement] {
+	//return []
+	do panic("todo")
+
+}

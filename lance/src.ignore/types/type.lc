@@ -1,0 +1,11 @@
+import "type.lch"
+import "../ast/expression.lch"
+import "../parser/parser.lch"
+
+fn LLVMType.inspect(): str {
+	return "todo"
+}
+
+fn LLVMType_parse(parser: Parser): Option_LLVMType {
+	__llvm__("unreachable")
+}

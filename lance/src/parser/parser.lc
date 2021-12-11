@@ -2,18 +2,30 @@ import "lexer.lch"
 import "parser.lch"
 import "../utils.lch"
 
-fn Parser_new(l: Lexer): Parser {
-	return Parser { l, peeked: false }
+fn Option_Token.is_some(): bool {
+	switch self {
+		case _: Option_Token::Some { return true }
+	}
+
+	return false
 }
 
-fn Parser.put_back(token: Token) {
+fn Parser_new(lexer: Lexer): Parser {
+	return Parser { lexer, peeked: false }
+}
+
+fn Parser.error(msg: str): never {
+	do self.lexer.pos().abort(msg)
+}
+
+fn Parser.untake(token: Token) {
 	set self._token = token
 	set self.peeked = true
 }
 
 fn Parser.peek(): Token {
 	if !self.peeked {
-		do self.put_back(self.l.next())
+		do self.untake(self.lexer.next())
 	}
 
 	return self._token
@@ -32,8 +44,8 @@ fn Parser.next(): Token {
 }
 
 fn Parser.is_eof(): bool {
-	switch self.peek().kind {
-		case _: TokenKind::EOF {
+	switch self.peek() {
+		case _: Token::EOF {
 			return true
 		}
 	}
@@ -41,32 +53,97 @@ fn Parser.is_eof(): bool {
 	return false
 }
 
-fn Parser.guardkw(s: str): bool {
-	switch self.peek().kind {
-		case sy: TokenKind::Symbol {
-			if sy._ == s {
-				do self.take()
-				return true
+fn Parser.guard(kind: TokenKind): Option_Token {
+	let token = self.next()
+
+	switch kind {
+		case _: TokenKind::EOF {
+			switch token {
+				case _: Token::EOF {
+					return Option_Token::Some { _: token }
+				}
+			}
+		}
+		case _: TokenKind::Number {
+			switch token {
+				case _: Token::Number {
+					return Option_Token::Some { _: token }
+				}
+			}
+		}
+		case _: TokenKind::String {
+			switch token {
+				case _: Token::String {
+					return Option_Token::Some { _: token }
+				}
+			}
+		}
+		case _: TokenKind::Identifier {
+			switch token {
+				case _: Token::Identifier {
+					return Option_Token::Some { _: token }
+				}
+			}
+		}
+		case sym: TokenKind::Symbol {
+			switch token {
+				case sym2: Token::Symbol {
+					if sym._ == sym2._ {
+						return Option_Token::Some { _: token }
+					}
+				}
 			}
 		}
 	}
 
-	return false
+	do self.untake(token)
+	return Option_Token::None{}
+}
+
+fn Parser.guardkw(kw: str): bool {
+	let tk = TokenKind::Symbol { _: kw }
+
+	return self.guard(tk).is_some()
 }
 
 fn Parser.guardident(): str {
-	switch self.peek().kind {
-		case id: TokenKind::Identifier {
-			return id._
+	let tk = TokenKind::Identifier{}
+
+	switch self.guard(tk) {
+		case o: Option_Token::Some {
+			switch o._ {
+				case i: Token::Identifier {
+					return i._
+				}
+
+				case {
+					// lol my backend is bad
+					if true {
+						do panic("guard didn't match token")
+					}
+				}
+			}
 		}
 	}
 
 	return ""
 }
 
+
+fn Parser.expectkw(kw: str, err: str) {
+	if !self.guardkw(kw) {
+		do self.error(err)
+	}
+}
+
+
 fn Parser.expectident(err: str): str {
 	let i = self.guardident()
-	assert(!i.is_empty(), err)
+
+	if i.is_empty() {
+		do self.error(err)
+	}
+
 	return i
 }
 

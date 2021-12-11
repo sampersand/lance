@@ -1,0 +1,5 @@
+struct StatementContinue {}
+
+enum Option_StatementContinue { Some: StatementContinue, None: void }
+struct Parser
+externf StatementContinue_parse: fn(Parser): Option_StatementContinue

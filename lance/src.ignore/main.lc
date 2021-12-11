@@ -1,0 +1,24 @@
+import "compiler/compiler.lch"
+import "parser/parser.lch"
+import "parser/lexer.lch"
+//import "compiler/compiler.lc"
+//import "parser/lexer.lc"
+//import "parser/parser.lc"
+//import "types/type.lch"
+//import "utils.lc"
+
+fn main(): num {
+	let p = Parser_new(Lexer_new("fn main(){ do print('hello') }", "filename"))
+	do print("123\n")
+	//let g = Declaration_parse()
+//
+//	let r =  p.guardkw('fn')
+//	if r.v {
+//		do print("valid: " + r.t.kind.inspect())
+//	} else {
+//		do print("invalid!\n")
+//	}
+//	//let l = Lexer_new("a", "b")
+//	//do print(add(3,4).to_str())
+	return 0
+}

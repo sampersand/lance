@@ -1,0 +1,9 @@
+enum Expression
+
+struct StatementDo {
+	expression: Expression
+}
+
+enum Option_StatementDo { Some: StatementDo, None: void }
+struct Parser
+externf StatementDo_parse: fn(Parser): Option_StatementDo

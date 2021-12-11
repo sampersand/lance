@@ -1,0 +1,12 @@
+enum Expression
+enum Option_Expression
+
+struct StatementSet {
+	name: str,
+	key: Option_Expression,
+	value: Expression
+}
+
+enum Option_StatementSet { Some: StatementSet, None: void }
+struct Parser
+externf StatementSet_parse: fn(Parser): Option_StatementSet
