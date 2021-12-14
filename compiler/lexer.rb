@@ -9,6 +9,7 @@ class Lexer
   KEYWORDS = %w(
     global fn priv struct enum extern externf import
     if else while loop return do switch case break continue
+    label goto
     let set
     true false null
     __llvm__

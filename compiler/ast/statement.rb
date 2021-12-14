@@ -7,6 +7,7 @@ require_relative 'statement/switch'
 require_relative 'statement/do'
 require_relative 'statement/break'
 require_relative 'statement/continue'
+require_relative 'statement/label-goto'
 
 class Statement
   class LLVM
@@ -35,6 +36,8 @@ class Statement
       Switch.parse(parser) ||
       Continue.parse(parser) ||
       Break.parse(parser) ||
+      Label.parse(parser) ||
+      Goto.parse(parser)  ||
       LLVM.parse(parser)
   end
 end

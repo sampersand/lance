@@ -38,6 +38,8 @@ class Compiler
 
     attr_reader :name, :args, :return_type
 
+    Label = Struct.new :name, :idx, :jmps
+
     def initialize(name, args, return_type, body, is_private)
       @name = name
       @return_type = return_type || Type::Primitive::Void
@@ -48,6 +50,7 @@ class Compiler
       @lines = []
       @whiles = []
       @debug_counter = 0
+      @labels = Hash.new { |h,k| h[k] = Label.new(k, nil, []) }
 
       @args = args.map { |name, type|  define_variable name, type, arg: true }
       next_local # ignore it for some reason, idk why llvm does it
@@ -135,6 +138,35 @@ class Compiler
       JmpTarget.new @lines.length - 1, self
     end
 
+    def declare_user_label(name)
+      lbl = @labels[name]
+
+      if lbl.idx
+        raise "label #{name.inspect} already declared"
+      end
+
+      lbl.idx = declare_label
+
+      lbl.jmps.each do |jmp|
+        jmp.write "br label #{lbl.idx}"
+      end
+
+      lbl.jmps.clear
+      lbl.idx
+    end
+
+    def declare_user_jump(name)
+      lbl = @labels[name]
+      jmp = write_nop
+      @locals += 1 # b/c `write_nop` doesnt set it
+
+      if lbl.idx
+        jmp.write "br label #{lbl.idx}"
+      else
+        lbl.jmps.push jmp
+      end
+    end
+
     def declare_label(label=next_label)
       if $OLD_VERSION
         write "; <label>:#{label}:"
@@ -174,6 +206,10 @@ class Compiler
               ret i1 %6
           }
         LLVM
+      end
+
+      @labels.each do |_, lbl|
+        raise "undeclared label '#{lbl.name}'" unless lbl.jmps.empty?
       end
 
       ret
