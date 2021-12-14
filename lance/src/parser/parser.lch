@@ -18,7 +18,7 @@ externf Parser_new: fn(Lexer): Parser
 externf Parser.peek: fn(Parser): Token 
 externf Parser.take: fn(Parser): Token 
 externf Parser.next: fn(Parser): Token 
-externf Parser.put_back: fn(Parser, Token)
+externf Parser.untake: fn(Parser, Token)
 externf Parser.is_eof: fn(Parser): bool
 externf Parser.error: fn(Parser, str): never
 

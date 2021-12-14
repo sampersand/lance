@@ -1,0 +1,85 @@
+import "literal.lch"
+import "expression.lch"
+import "../../parser/parser.lch"
+import "../../parser/token.lch"
+
+
+fn priv parse_array(p: Parser): ExpressionLiteral {
+	let ary: [Expression] = []
+
+	while !p.guardkw("]") {
+		do ary.push(Expression_parse_expect(p, "expected an expression within array literal"))
+
+		if !p.guardkw(",") {
+			do p.expectkw("]", "expected `,` or `]`")
+			break
+		}
+	}
+
+	return ExpressionLiteral::Array { _: ary }
+}
+
+fn priv parse_dict(p: Parser): ExpressionLiteral {
+	let dict: [ExpressionLiteralHashKey] = []
+
+	while !p.guardkw("}") {
+		let key = Expression_parse_expect(p, "expected a key within hash literal")
+		do p.expectkw(":", "expected colon after key in dict")
+		let val = Expression_parse_expect(p, "expected a value within hash literal")
+
+		do dict.push(ExpressionLiteralHashKey { key, val })
+
+		if !p.guardkw(",") {
+			do p.expectkw("]", "expected `,` or `]`")
+			break
+		}
+	}
+
+	return ExpressionLiteral::Map { _: dict }
+}
+
+fn ExpressionLiteral_parse(p: Parser): Option_ExpressionLiteral {
+	let t = p.take()
+	let l: ExpressionLiteral
+
+	switch t {
+		case n: Token::Number {
+			set l = ExpressionLiteral::Number { _: n._ }
+			return Option_ExpressionLiteral::Some { _: l }
+		}
+
+		case s: Token::String {
+			set l = ExpressionLiteral::String { _: s._ }
+			return Option_ExpressionLiteral::Some { _: l }
+		}
+
+		case i: Token::Identifier {
+			set l = ExpressionLiteral::Identifier { _: i._ }
+			return Option_ExpressionLiteral::Some { _: l }
+		}
+
+		case y: Token::Symbol {
+			if y._ == "true" {
+				set l = ExpressionLiteral::Boolean { _: true }
+				return Option_ExpressionLiteral::Some { _: l }
+			}
+
+			if y._ == "false" {
+				set l = ExpressionLiteral::Boolean { _: false }
+				return Option_ExpressionLiteral::Some { _: l }
+			}
+
+			if y._ == "[" {
+				return Option_ExpressionLiteral::Some { _: parse_array(p) }
+			}
+
+			if y._ == "{" {
+				return Option_ExpressionLiteral::Some { _: parse_dict(p) }
+			}
+		}
+	}
+
+	do p.untake(t)
+	return Option_ExpressionLiteral::None{}
+}
+

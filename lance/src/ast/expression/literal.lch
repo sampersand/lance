@@ -1,0 +1,15 @@
+enum Expression
+struct ExpressionLiteralHashKey { key: Expression, val: Expression }
+enum ExpressionLiteral {
+	Boolean: bool,
+	String: str,
+	Number: num,
+	Identifier: str,
+	Array: [Expression],
+	Map: [ExpressionLiteralHashKey], // has to be an array so as to have consistent ordering
+}
+
+
+enum Option_ExpressionLiteral { Some: ExpressionLiteral, None: void }
+struct Parser
+externf ExpressionLiteral_parse: fn(Parser): Option_ExpressionLiteral
