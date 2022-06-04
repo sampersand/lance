@@ -1,5 +1,13 @@
-import "continue.lch"
+import "break-continue.lch"
 import "../../parser/parser.lch"
+
+fn StatementBreak_parse(p: Parser): Option_StatementBreak {
+	if !p.guardkw("break") {
+		return Option_StatementBreak::None{}
+	}
+
+	return Option_StatementBreak::Some { _: StatementBreak{} }
+}
 
 fn StatementContinue_parse(p: Parser): Option_StatementContinue {
 	if !p.guardkw("continue") {

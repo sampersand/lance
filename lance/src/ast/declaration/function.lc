@@ -1,0 +1,108 @@
+import "function.lch"
+import "../../parser/parser.lch"
+import "../expression/expression.lch"
+import "../type/type.lch"
+import "../statement/statement.lch"
+import "../../utils.lch"
+
+fn priv parse_argument(p: Parser): DeclarationFunctionArgument {
+	let name = p.expectident("expected name for identifier in fn argument list")
+
+	do p.expectkw(":", "expected `:` after identifier name in fn argument")
+	let kind = TypeDecl_parse_expect(p, "expected type after `:` in fn argument")
+
+	let default: Option_Expression
+
+	if p.guardkw("=") {
+		let e = Expression_parse_expect(p, "expected default value after `=` in fn argument")
+		set default = Option_Expression::Some{ _: e }
+	} else {
+		set default = Option_Expression::None{}
+	}
+
+	return DeclarationFunctionArgument { name, kind, default }
+}
+
+fn priv parse_body(p: Parser): DeclarationFunctionBody {
+	if p.guardkw("=>") {
+		let e = Expression_parse_expect(p, "expected expression after `=>` in fn decl")
+		return DeclarationFunctionBody::Expression { _: e }
+	}
+
+	let b = Statement_parse_brace_statements(p, "body of fn declaration")
+	return DeclarationFunctionBody::Statements { _: b }
+}
+
+fn priv parse_pattern(p: Parser): DeclarationFunctionPattern {
+	let args: [DeclarationFunctionArgument] = []
+
+	do p.expectkw("(", "expected `(` in fn pattern")
+	while !p.guardkw(")") {
+		do args.push(parse_argument(p))
+
+		if !p.guardkw(",") {
+			do p.expectkw(")", "expected `,` or `)`")
+			break
+		}
+	}
+
+	let ret_kind = Option_TypeDecl::None{}
+	if p.guardkw(":") {
+		let rk = TypeDecl_parse_expect(p, "expected return type after `:` in fn pattern")
+		set ret_kind = Option_TypeDecl::Some { _: rk }
+	}
+
+
+	let guards: [DeclarationFunctionGuardBody] = []
+// struct DeclarationFunctionPattern {
+// 	args: [DeclarationFunctionArgument],
+// 	ret_kind: Option_TypeDecl, // can be inferred usually
+// 	bodies: [DeclarationFunctionPatternBody],
+// 	default: DeclarationFunctionBody
+// }
+	while p.guardkw("if") {
+		let g = Expression_parse_expect(p, "expected condition after `if` in fn pattern")
+		do guards.push(parse_body(p))
+	}
+
+	let body: DeclarationFunctionBody
+	if p.guardkw("=>") {
+		let e = Expression_parse_expect(p, "expected expression after `=>` in fn decl")
+		set body = DeclarationFunctionBody::Expression { _: e }
+	} else {
+		let b = Statement_parse_brace_statements(p, "body of fn declaration")
+		set body = DeclarationFunctionBody::Statements { _: b }
+	}
+
+	return DeclarationFunctionPattern { args, ret_kind, guard, body }
+}
+/*
+fn is_even: bool
+	(a: 0) => true,
+	(a: 1) => false,
+	(a: num)
+		if a <= 1 => a == 1
+		else      => is_even(a - 2)
+
+*/
+fn DeclarationFunction_parse(p: Parser): Option_DeclarationFunction {
+	if !p.guardkw("fn") {
+		return Option_DeclarationFunction::None{}
+	}
+
+	let is_priv = p.guardkw("priv")
+	let name = p.expectident("expected name after `fn`")
+
+	let patterns: [DeclarationFunctionPattern] = []
+	loop {
+		do patterns.push(parse_pattern(p))
+
+		if !p.guardkw(",") {
+			break
+		}
+	}
+
+	do assert(patterns.len() == 0, "no patterns matched?")
+
+	return Option_DeclarationFunction::Some { _: DeclarationFunction { is_priv, name, patterns } }
+}

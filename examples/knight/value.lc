@@ -12,7 +12,7 @@ fn Value.inspect(): str {
 		case a: Value::Ast { return a._.inspect() }
 	}
 
-	unreachable
+	__llvm__("unreachable")
 }
 
 fn Value.run(): Value {

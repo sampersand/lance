@@ -4,12 +4,13 @@ import 'ast.lch'
 
 global priv variables: [Variable]
 fn init_variables() {
-	set variables = []
+	let v: [Variable] = []
+	set variables = v
 }
 
 fn Variable_new(name: str): Variable {
 	let i = 0
-	let len = variables.length()
+	let len = variables.len()
 
 	while i < len {
 		if name == variables[i].name {
@@ -31,7 +32,7 @@ fn Variable.run(): Value {
 		return self.value
 	}
 
-	do abort("Unassigned variable '" + self.name + "' executed!")
+	do panic("Unassigned variable '" + self.name + "' executed!")
 }
 
 fn Variable.assign(value: Value) {

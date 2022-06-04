@@ -1,13 +1,111 @@
 import "statement.lch"
 import "../../parser/parser.lch"
+import "../expression/expression.lch"
+import "../type/type.lch"
 
 fn Statement_parse(p: Parser): Option_Statement {
-	do panic("todo")
-	//return Option_Statement::None{}
+	let s: Statement
+	switch StatementBreak_parse(p) {
+		case stmt_break: Option_StatementBreak::Some {
+			set s = Statement::Break { _: stmt_break._ }
+			goto ret
+		}
+	}
+
+	switch StatementContinue_parse(p) {
+		case stmt_continue: Option_StatementContinue::Some {
+			set s = Statement::Continue { _: stmt_continue._ }
+			goto ret
+		}
+	}
+
+	switch StatementDo_parse(p) {
+		case stmt_do: Option_StatementDo::Some {
+			set s = Statement::Do { _: stmt_do._ }
+			goto ret
+		}
+	}
+
+	switch StatementIf_parse(p) {
+		case stmt_If: Option_StatementIf::Some {
+			set s = Statement::If { _: stmt_If._ }
+			goto ret
+		}
+	}
+
+	switch StatementLabel_parse(p) {
+		case stmt_Label: Option_StatementLabel::Some {
+			set s = Statement::Label { _: stmt_Label._ }
+			goto ret
+		}
+	}
+
+	switch StatementGoto_parse(p) {
+		case stmt_Goto: Option_StatementGoto::Some {
+			set s = Statement::Goto { _: stmt_Goto._ }
+			goto ret
+		}
+	}
+
+	switch StatementLet_parse(p) {
+		case stmt_Let: Option_StatementLet::Some {
+			set s = Statement::Let { _: stmt_Let._ }
+			goto ret
+		}
+	}
+
+	switch StatementReturn_parse(p) {
+		case stmt_Return: Option_StatementReturn::Some {
+			set s = Statement::Return { _: stmt_Return._ }
+			goto ret
+		}
+	}
+
+	switch StatementSet_parse(p) {
+		case stmt_Set: Option_StatementSet::Some {
+			set s = Statement::Set { _: stmt_Set._ }
+			goto ret
+		}
+	}
+
+	switch StatementSwitch_parse(p) {
+		case stmt_Switch: Option_StatementSwitch::Some {
+			set s = Statement::Switch { _: stmt_Switch._ }
+			goto ret
+		}
+	}
+
+	switch StatementWhile_parse(p) {
+		case stmt_While: Option_StatementWhile::Some {
+			set s = Statement::While { _: stmt_While._ }
+			goto ret
+		}
+	}
+
+	return Option_Statement::None{}
+
+	label ret
+	return Option_Statement::Some { _: s }
 }
 
-fn Statement_parse_brace_statements(p: Parser): [Statement] {
-	//return []
-	do panic("todo")
+fn Statement_parse_brace_statements(p: Parser, whence: str): [Statement] {
+	do p.expectkw("{", "missing `{` in " + whence)
+	let body: [Statement] = []
 
+	while !p.guardkw("}") {
+		if p.is_eof() {
+			do p.error("missing closing `}` for " + whence)
+		}
+
+		switch Statement_parse(p) {
+			case stmt: Option_Statement::Some {
+				do body.push(stmt._)
+				continue
+			}
+		}
+
+		do p.error("invalid statement within " + whence)
+	}
+
+	return body
 }

@@ -1,5 +1,4 @@
 #!/usr/bin/ruby
-# $OLD_VERSION = TARGET_TRIPLE = 'x86_64-apple-macosx10.13.0' 
 
 require_relative 'parser'
 require_relative 'compiler'

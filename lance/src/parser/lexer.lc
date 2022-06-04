@@ -179,6 +179,7 @@ fn priv iskeyword(s: str): bool {
 	let kws = [
 		"global", "fn", "priv", "struct", "enum", "extern", "externf", "import",
 		"if", "else", "while", "loop", "for", "return", "do", "switch", "case", "break",
+		"label", "goto",
 		"continue", "let", "set", "true", "false", "__llvm__"
 	]
 
@@ -294,7 +295,10 @@ fn priv Lexer.parse_symbol(): Token {
 
 	// symbols that can optionally have an `=` following them.
 	if '+-*/%<>=!'.does_contain_char(c) {
-		if self.peek() == '=' {
+		if (c == '=') && (self.peek() == '>') {
+			do self.advance()
+			set c = '=>'
+		} else if self.peek() == '=' {
 			do self.advance()
 			set c = c + '='
 		}

@@ -1,5 +1,10 @@
+fn println(s: str) {
+	do print(s)
+	do print("\n")
+}
+
 fn assert(cond: bool, msg: str) {
 	if !cond {
-		do abort(msg)
+		do panic(msg)
 	}
 }

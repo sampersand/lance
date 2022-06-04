@@ -1,0 +1,26 @@
+import "global.lch"
+import "../../parser/parser.lch"
+import "../type/type.lch"
+import "../expression/expression.lch"
+
+fn DeclarationGlobal_parse(p: Parser): Option_DeclarationGlobal {
+	if !p.guardkw("global") {
+		return Option_DeclarationGlobal::None{}
+	}
+
+	let is_priv = p.guardkw("priv")
+	let name = p.expectident("expected name after `global`")
+	do p.expectkw(":", "expected `:` after name in `global`")
+	let kind = TypeDecl_parse_expect(p, "expected kind after `:` in `global`")
+
+	let default: Option_Expression
+
+	if p.guardkw("=") {
+		let e = Expression_parse_expect(p, "expected initializer after `=` in `global`")
+		set default = Option_Expression::Some { _: e }
+	} else {
+ 		set default = Option_Expression::None{}
+	}
+
+	return Option_DeclarationGlobal::Some { _: DeclarationGlobal { is_priv, name, kind, default } }
+}

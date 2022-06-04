@@ -1,0 +1,22 @@
+import "extern.lch"
+import "../../parser/parser.lch"
+import "../type/type.lch"
+
+fn DeclarationExtern_parse(p: Parser): Option_DeclarationExtern {
+	let is_externf: bool
+
+	if p.guardkw("extern") {
+		set is_externf = false
+	} else if p.guardkw("externf") {
+		set is_externf = true
+	} else {
+		return Option_DeclarationExtern::None{}
+	}
+
+	let is_priv = p.guardkw("priv")
+	let name = p.expectident("expected name for `extern`/`externf`")
+	do p.expectkw(":", "expected `:` for `extern`/`externf`")
+	let kind = TypeDecl_parse_expect(p, "expected kind after `:` for `extern`/`externf`")
+
+	return Option_DeclarationExtern::Some { _: DeclarationExtern { is_externf, is_priv, name, kind } }
+}

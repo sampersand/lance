@@ -1,6 +1,7 @@
 import "ast.lch"
 import "value.lch"
 import 'variable.lch'
+import 'function.lch'
 
 fn Ast.run(): Value {
 	let f = self.func.func
@@ -11,7 +12,7 @@ fn Ast.inspect(): str {
 	let ret = "Ast(" + self.func.name
 	let i = 0
 
-	while i < self.args.length() {
+	while i < self.args.len() {
 		set ret = ret + ', ' + self.args[i].inspect()
 		set i = i + 1
 	}

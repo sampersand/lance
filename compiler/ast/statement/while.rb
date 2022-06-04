@@ -10,9 +10,10 @@ class Statement
     def self.parse(parser)
       if parser.guard 'loop'
         cond = Expression::Literal.new :true # `loop { ... }` is literally just `while true { ... }`
-      else
-        parser.guard 'while' or return
+      elsif parser.guard 'while'
         cond = Expression.parse(parser) or parser.error 'missing condition for `while`'
+      else
+        return
       end
 
       body = Statements.parse(parser) or parser.error 'missing body for `while`'

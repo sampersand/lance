@@ -1,0 +1,45 @@
+import "declaration.lch"
+import "../../parser/parser.lch"
+
+fn Declaration_parse(p: Parser): Option_Declaration {
+	let d: Declaration
+
+	switch DeclarationGlobal_parse(p) {
+		case decl_global: Option_DeclarationGlobal::Some {
+			set d = Declaration::Global { _: decl_global._ }
+			goto ret
+		}
+	}
+
+	switch DeclarationExtern_parse(p) {
+		case decl_extern: Option_DeclarationExtern::Some {
+			set d = Declaration::Extern { _: decl_extern._ }
+			goto ret
+		}
+	}
+
+	switch DeclarationFunction_parse(p) {
+		case decl_function: Option_DeclarationFunction::Some {
+			set d = Declaration::Function { _: decl_function._ }
+			goto ret
+		}
+	}
+
+	switch DeclarationEnum_parse(p) {
+		case decl_enum: Option_DeclarationEnum::Some {
+			set d = Declaration::Enum { _: decl_enum._ }
+			goto ret
+		}
+	}
+
+	switch DeclarationStruct_parse(p) {
+		case decl_struct: Option_DeclarationStruct::Some {
+			set d = Declaration::Struct { _: decl_struct._ }
+			goto ret
+		}
+	}
+
+	return Option_Declaration::None{}
+	label ret
+	return Option_Declaration::Some{ _: d }
+}

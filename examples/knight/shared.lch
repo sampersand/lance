@@ -1,1 +1,2 @@
 externf assert: fn(bool, str)
+externf println: fn(str)

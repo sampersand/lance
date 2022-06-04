@@ -1,0 +1,40 @@
+enum Option_Expression
+enum Expression
+enum Option_TypeDecl
+enum TypeDecl
+enum Statement
+
+struct DeclarationFunctionArgument {
+	name: str,
+	kind: TypeDecl,
+	default: Option_Expression
+}
+
+// this is needed because i cant, at parse time, know if the
+// expression is a `do` or `return` expression
+enum DeclarationFunctionBody {
+	Expression: Expression,
+	Statements: [Statement]
+}
+
+struct DeclarationFunctionGuardBody {
+	condition: Expression,
+	body: DeclarationFunctionBody
+}
+
+struct DeclarationFunctionPattern {
+	args: [DeclarationFunctionArgument],
+	ret_kind: Option_TypeDecl, // can be inferred usually
+	guards: [DeclarationFunctionGuardBody],
+	default: DeclarationFunctionBody
+}
+
+struct DeclarationFunction {
+	is_priv: bool,
+	name: str,
+	patterns: [DeclarationFunctionPattern]
+}
+
+enum Option_DeclarationFunction { Some: DeclarationFunction, None: void }
+struct Parser
+externf DeclarationFunction_parse: fn(Parser): Option_DeclarationFunction

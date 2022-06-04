@@ -1,0 +1,19 @@
+enum Expression
+enum Statement
+enum TypeDecl
+
+struct StatementSwitchCase {
+	varname: str,
+	kind: TypeDecl,
+	body: [Statement]
+}
+
+struct StatementSwitch {
+	cond: Expression,
+	cases: [StatementSwitchCase],
+	default: [Statement] // is empty with no default case
+}
+
+enum Option_StatementSwitch { Some: StatementSwitch, None: void }
+struct Parser
+externf StatementSwitch_parse: fn(Parser): Option_StatementSwitch

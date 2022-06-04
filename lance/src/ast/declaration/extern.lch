@@ -1,0 +1,11 @@
+enum TypeDecl
+struct DeclarationExtern {
+	is_priv: bool,
+	is_externf: bool,
+	name: str,
+	kind: TypeDecl
+}
+
+enum Option_DeclarationExtern { Some: DeclarationExtern, None: void }
+struct Parser
+externf DeclarationExtern_parse: fn(Parser): Option_DeclarationExtern

@@ -1,4 +1,4 @@
-import "compiler/compiler.lch"
+//import "compiler/compiler.lch"
 import "parser/parser.lch"
 import "parser/lexer.lch"
 //import "compiler/compiler.lc"

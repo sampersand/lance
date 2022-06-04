@@ -1,5 +1,9 @@
+struct StatementBreak {}
 struct StatementContinue {}
 
+enum Option_StatementBreak { Some: StatementBreak, None: void }
 enum Option_StatementContinue { Some: StatementContinue, None: void }
+
 struct Parser
+externf StatementBreak_parse: fn(Parser): Option_StatementBreak
 externf StatementContinue_parse: fn(Parser): Option_StatementContinue

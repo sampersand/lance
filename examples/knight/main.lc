@@ -6,15 +6,16 @@ import "parser.lc"
 import "shared.lc"
 
 fn main(): num {
-	//let p = Parser_new("# ABC\n \t  OUTPUT T")
-	let p = Parser_new('
-		; = i 0
-		: WHILE < i 10
-			; OUTPUT i
-			: = i + i 1')
-
 	do init_functions()
 	do init_variables()
 
+	//let p = Parser_new("# ABC\n \t  OUTPUT T")
+	let p = Parser_new('O')
+//	let p = Parser_new('
+//		; = i 0
+//		: WHILE < i 10
+//			; OUTPUT i
+//			: = i + i 1')
+//
 	do p.next().run()
 }

@@ -2,6 +2,7 @@ import "while.lch"
 import "statement.lch"
 import "../../parser/parser.lch"
 import "../expression/expression.lch"
+import "../type/type.lch"
 
 fn StatementWhile_parse(p: Parser): Option_StatementWhile {
 	if !p.guardkw("while") {
@@ -13,7 +14,7 @@ fn StatementWhile_parse(p: Parser): Option_StatementWhile {
 	}
 
 	let cond = Expression_parse_expect(p, "expected a condition for 'while'");	
-	let body = Statement_parse_brace_statements(p)
+	let body = Statement_parse_brace_statements(p, "body of `while`")
 
 	let stmt_while = StatementWhile { cond, body }
 	

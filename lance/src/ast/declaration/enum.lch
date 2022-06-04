@@ -1,0 +1,7 @@
+struct DeclarationEnum {
+	num
+}
+
+enum Option_DeclarationEnum { Some: DeclarationEnum, None: void }
+struct Parser
+externf DeclarationEnum_parse: fn(Parser): Option_DeclarationEnum

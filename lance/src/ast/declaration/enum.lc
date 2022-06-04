@@ -1,0 +1,6 @@
+import "enum.lch"
+import "../../parser/parser.lch"
+
+fn DeclarationEnum_parse(p: Parser): Option_DeclarationEnum {
+	do panic("todo")
+}

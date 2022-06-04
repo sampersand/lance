@@ -1,0 +1,14 @@
+fn main() {
+	let i = 0
+
+	goto top
+	do println("A")
+	label top
+//	label top
+//	do println("i=" + i.to_str())
+//
+//	set i = i + 1
+//	if i < 5 {
+//		goto top
+//	}
+}

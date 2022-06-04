@@ -1,0 +1,23 @@
+import "label-goto.lch"
+import "../../parser/parser.lch"
+import "../type/type.lch"
+
+fn StatementLabel_parse(p: Parser): Option_StatementLabel {
+	if !p.guardkw("label") {
+		return Option_StatementLabel::None{}
+	}
+
+	let name = p.expectident("expected identifier after `label`")
+
+	return Option_StatementLabel::Some { _: StatementLabel { name }}
+}
+
+fn StatementGoto_parse(p: Parser): Option_StatementGoto {
+	if !p.guardkw("goto") {
+		return Option_StatementGoto::None{}
+	}
+
+	let name = p.expectident("expected identifier after `goto`")
+
+	return Option_StatementGoto::Some { _: StatementGoto { name }}
+}

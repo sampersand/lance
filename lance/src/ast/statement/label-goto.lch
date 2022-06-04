@@ -1,0 +1,9 @@
+struct StatementLabel { name: str }
+struct StatementGoto { name: str }
+
+enum Option_StatementLabel { Some: StatementLabel, None: void }
+enum Option_StatementGoto { Some: StatementGoto, None: void }
+
+struct Parser
+externf StatementLabel_parse: fn(Parser): Option_StatementLabel
+externf StatementGoto_parse: fn(Parser): Option_StatementGoto

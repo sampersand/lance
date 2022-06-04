@@ -1,0 +1,6 @@
+import "struct.lch"
+import "../../parser/parser.lch"
+
+fn DeclarationStruct_parse(p: Parser): Option_DeclarationStruct {
+	do panic("todo")
+}

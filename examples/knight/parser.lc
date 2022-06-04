@@ -8,7 +8,7 @@ fn Parser_new(str): Parser {
 }
 
 fn priv Parser.is_eof(): bool {
-	return self.str.length() <= self.num
+	return self.str.len() <= self.num
 }
 
 fn priv Parser.peek(): str {
@@ -16,7 +16,7 @@ fn priv Parser.peek(): str {
 }
 
 fn priv Parser.advance() {
-	do assert(self.num < self.str.length(), "parsed past the end?")
+	do assert(self.num < self.str.len(), "parsed past the end?")
 
 	set self.num = self.num + 1 
 }
@@ -30,7 +30,7 @@ fn priv Parser.peek_advance(): str {
 fn priv str.contains(c: str): bool {
 	let i = 0
 
-	while i < self.length() {
+	while i < self.len() {
 		if self[i] == c {
 			return true
 		}
@@ -121,7 +121,9 @@ fn Parser.next(): Value {
 	let i = 0
 
 	while i < func.arity {
-		do args.insert(args.length(), self.next())
+		let l = self.next()
+		do panic("?")
+		do args.push(l)
 
 		set i = i + 1
 	}

@@ -2,10 +2,7 @@ enum TypeDecl {
 	num // todo: typedecl
 }
 
-enum Option_TypeDecl {
-	Some: TypeDecl,
-	None: void
-}
+enum Option_TypeDecl { Some: TypeDecl, None: void }
 
 struct Parser
 externf TypeDecl_parse: fn(Parser): Option_TypeDecl

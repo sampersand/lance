@@ -1,0 +1,13 @@
+enum TypeDecl
+enum Option_Expression
+
+struct DeclarationGlobal {
+	is_priv: bool,
+	name: str,
+	kind: TypeDecl,
+	default: Option_Expression
+}
+
+enum Option_DeclarationGlobal { Some: DeclarationGlobal, None: void }
+struct Parser
+externf DeclarationGlobal_parse: fn(Parser): Option_DeclarationGlobal

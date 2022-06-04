@@ -3,7 +3,6 @@ import "expression.lch"
 import "../../parser/parser.lch"
 import "../../parser/token.lch"
 
-
 fn priv parse_array(p: Parser): ExpressionLiteral {
 	let ary: [Expression] = []
 
@@ -39,47 +38,47 @@ fn priv parse_dict(p: Parser): ExpressionLiteral {
 }
 
 fn ExpressionLiteral_parse(p: Parser): Option_ExpressionLiteral {
-	let t = p.take()
 	let l: ExpressionLiteral
+	let t = p.take()
 
 	switch t {
 		case n: Token::Number {
 			set l = ExpressionLiteral::Number { _: n._ }
-			return Option_ExpressionLiteral::Some { _: l }
 		}
 
 		case s: Token::String {
 			set l = ExpressionLiteral::String { _: s._ }
-			return Option_ExpressionLiteral::Some { _: l }
 		}
 
 		case i: Token::Identifier {
 			set l = ExpressionLiteral::Identifier { _: i._ }
-			return Option_ExpressionLiteral::Some { _: l }
 		}
 
 		case y: Token::Symbol {
 			if y._ == "true" {
 				set l = ExpressionLiteral::Boolean { _: true }
-				return Option_ExpressionLiteral::Some { _: l }
-			}
-
-			if y._ == "false" {
+			} else if y._ == "false" {
 				set l = ExpressionLiteral::Boolean { _: false }
-				return Option_ExpressionLiteral::Some { _: l }
+			} else if y._ == "[" {
+				set l = parse_array(p)
+			} else if y._ == "{" {
+				set l = parse_dict(p)
+			} else {
+				do p.untake(t)
+				goto nothing
 			}
+		}
 
-			if y._ == "[" {
-				return Option_ExpressionLiteral::Some { _: parse_array(p) }
-			}
-
-			if y._ == "{" {
-				return Option_ExpressionLiteral::Some { _: parse_dict(p) }
-			}
+		case {
+			goto nothing
 		}
 	}
 
+	return Option_ExpressionLiteral::Some{_: l}
+
+	label nothing
 	do p.untake(t)
 	return Option_ExpressionLiteral::None{}
+
 }
 

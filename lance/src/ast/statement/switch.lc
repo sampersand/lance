@@ -1,0 +1,50 @@
+import "switch.lch"
+import "statement.lch"
+import "../expression/expression.lch"
+import "../../parser/parser.lch"
+import "../type/type.lch"
+
+fn priv is_next_token_lbrace(p: Parser): bool {
+	switch p.peek() {
+		case s: Token::Symbol {
+			return s._ == "{"
+		}
+	}
+
+	return false
+}
+
+fn StatementSwitch_parse(p: Parser): Option_StatementSwitch {
+	if !p.guardkw("switch") {
+		return Option_StatementSwitch::None{}
+	}
+
+	let cond = Expression_parse_expect(p, "expected a condition for `switch`")
+
+	do p.expectkw("{", "expected `{` for switch body")
+
+	let cases: [StatementSwitchCase] = []
+	let default: [Statement] = []
+
+	while !p.guardkw("}") {
+		do p.expectkw("case", "expected `case` within `switch` body")
+
+		if is_next_token_lbrace(p) {
+			if default.len() != 0 {
+				do p.error("two default cases supplied")
+			}
+
+			set default = Statement_parse_brace_statements(p, "default case of `switch`")
+			continue
+		}
+
+		let varname = p.expectident("expected identifier or `{` after `case`")
+		do p.expectkw(":", "expected colon after varname")
+		let kind = TypeDecl_parse_expect(p, "expected variant name after `:` in `case`")
+		let body = Statement_parse_brace_statements(p, "body of `case` within `switch`")
+
+		do cases.push(StatementSwitchCase { varname, kind, body })
+	}
+
+	return Option_StatementSwitch::Some { _: StatementSwitch { cond, cases, default }}
+}
